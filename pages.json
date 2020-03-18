@@ -1,0 +1,140 @@
+{
+  "pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+    {
+      "path": "pages/public/accountExec/accountExec",
+      "style": {
+        "navigationBarTitleText": "微信登录",
+        "navigationBarBackgroundColor": "#0055ff"
+      }
+    },
+    {
+      "path": "pages/public/home/home",
+      "style": {}
+    },
+    {
+      "path": "pages/specific/home/home",
+      "style": {
+        "navigationBarTitleText": "问卷调查"
+      }
+    },
+    {
+      "path": "pages/specific/questionnaire/questionnaire",
+      "style": {
+        "navigationBarTitleText": "问卷",
+        "navigationBarBackgroundColor": "#0055ff"
+      }
+    },
+    {
+      "path": "pages/public/login/login",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationBarBackgroundColor": "#0bc99d"
+      }
+    },
+    {
+      "path": "pages/public/login/forget",
+      "style": {
+        "navigationBarTitleText": "忘记密码",
+        "navigationBarBackgroundColor": "#0bc99d"
+      }
+    },
+    {
+      "path": "pages/public/login/register",
+      "style": {
+        "navigationBarTitleText": "注册",
+        "navigationBarBackgroundColor": "#0bc99d"
+      }
+    }, {
+      "path": "pages/public/list/list",
+      "style": {}
+    }, {
+      "path": "pages/public/formPage/formPage",
+      "style": {}
+    }, {
+      "path": "pages/specific/list/list",
+      "style": {}
+    }, {
+      "path": "pages/public/add/add",
+      "style": {}
+    }, {
+      "path": "pages/specific/shophome/shophome",
+      "style": {}
+    }, {
+      "path": "pages/specific/mycentre/mycentre",
+      "style": {}
+    }, {
+      "path": "pages/specific/address/address",
+      "style": {
+
+      }
+    },
+    {
+      "path": "pages/specific/activityUpdate/activityUpdate",
+      "style": {
+        "navigationBarTitleText": "问卷编辑",
+        "navigationBarBackgroundColor": "#0bc99d"
+      }
+    },
+    {
+      "path": "pages/specific/added/added",
+      "style": {
+
+      }
+    },
+    {
+      "path": "pages/specific/balancedDiet/balancedDiet",
+      "style": {
+        "navigationBarTitleText": "均衡饮食",
+        "navigationBarBackgroundColor": "#0bc99d"
+      }
+    }
+      ,{
+            "path" : "pages/specific/viewRecord/viewRecord",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/specific/assessmentResult/assessmentResult",
+            "style" : {
+				"navigationBarTitleText": "评估",
+				"navigationBarBackgroundColor": "#0bc99d"
+			}
+        }
+    ],
+  "globalStyle": {
+    // "navigationBarTitleText": "百想软件开发平台",
+    // "navigationBarBackgroundColor": "#0bc99d",
+    // "backgroundColor": "#F8F8F8"
+  }
+  // "tabBar": {
+  // 	"color" : "#7A7E83",
+  // 	"selectedColor" : "#007AFF",
+  // 	"borderStyle" : "black",
+  // 	"backgroundColor" : "#F8F8F8",
+  // 	"list":[
+  // 		{
+  // 		    "pagePath" : "pages/index/index",
+  // 		    "iconPath" : "static/tab_class.png",
+  // 		    "selectedIconPath" : "static/tab_class.png",
+  // 		    "text" : "首页"
+  // 		},
+  // 		{
+  // 		    "pagePath" : "pages/course/course",
+  // 		    "iconPath" : "static/tab_course.png",
+  // 		    "selectedIconPath" : "static/tab_course.png",
+  // 		    "text" : "课程"
+  // 		},
+  // 		{
+  // 		    "pagePath" : "pages/classification/classification",
+  // 		    "iconPath" : "static/tab_class.png",
+  // 		    "selectedIconPath" : "static/tab_class.png",
+  // 		    "text" : "分类"
+  // 		},
+  // 		{
+  // 		    "pagePath" : "pages/profile/profile",
+  // 		    "iconPath" : "static/tab_profile.png",
+  // 		    "selectedIconPath" : "static/tab_profile.png",
+  // 		    "text" : "我的"
+  // 		}
+  // 	]
+  // }
+}
