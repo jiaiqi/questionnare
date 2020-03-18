@@ -271,9 +271,11 @@ export default {
 											title: '提交成功',
 											icon: 'none'
 										});
-										uni.redirectTo({
-											url: '../home/home'
-										});
+										self.formType = detail
+										self.getQuestionnaireData(self.formData)
+										// uni.redirectTo({
+										// 	url: '../home/home'
+										// });
 									}
 								} else {
 									if (res.data.resultCode === 'FAILURE') {
@@ -408,6 +410,9 @@ export default {
 								});
 							}
 							this.formData = data;
+							if(data.user_state==='完成'){
+								this.formType = 'detail'
+							}
 							this.configCols = configCols;
 							// alert("即将获取用户信息")
 							this.getUserInfo();
