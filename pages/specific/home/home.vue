@@ -182,6 +182,7 @@ export default {
         {
           serviceName: 'srvdaq_activity_cfg_update',
           data: reqData,
+          order: [{colName: "create_time", orderType: "desc"}],
           condition: [
             {
               colName: 'id',
@@ -214,6 +215,7 @@ export default {
         let req = {
           serviceName: 'srvdaq_activity_mine_select',
           colNames: ['*'],
+          order: [{colName: "create_time", orderType: "desc"}],
           page: { pageNo: this.pageInfo.pageNo, rownumber: this.pageInfo.rownumber }
           // condition: [
           // 	{
@@ -240,7 +242,7 @@ export default {
         }
       } else if (e === 1) {
         let url = this.getServiceUrl('daq', 'srvdaq_activity_mine_feedback_select', 'select');
-        let req = { serviceName: 'srvdaq_activity_mine_feedback_select', colNames: ['*'], page: { pageNo: this.pageInfo.pageNo, rownumber: this.pageInfo.rownumber } };
+        let req = { serviceName: 'srvdaq_activity_mine_feedback_select', colNames: ['*'], order: [{colName: "create_time", orderType: "desc"}],page: { pageNo: this.pageInfo.pageNo, rownumber: this.pageInfo.rownumber } };
         let response = await this.$http.post(url, req);
         uni.hideLoading();
         if (response.data.state === 'SUCCESS' && response.data.data.length > 0) {

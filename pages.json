@@ -99,6 +99,10 @@
 				"navigationBarBackgroundColor": "#0bc99d"
 			}
         }
+        ,{
+            "path" : "pages/specific/index/index",
+            "style" : {}
+        }
     ],
   "globalStyle": {
     // "navigationBarTitleText": "百想软件开发平台",
