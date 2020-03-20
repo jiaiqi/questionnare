@@ -967,12 +967,6 @@ div.edui-box {
 	overflow: hidden
 }
 
-.edui-om .edui-for-webapp .edui-dialog-content {
-	width: 560px;
-	height: 450px;
-	overflow: hidden
-}
-
 .edui-om .edui-for-insertframe .edui-dialog-content {
 	width: 350px;
 	height: 200px;
@@ -1037,10 +1031,6 @@ div.edui-box {
 	height: 50px
 }
 
-.edui-om .edui-for-snapscreen .edui-dialog-content {
-	width: 400px;
-	height: 220px
-}
 
 .edui-om .edui-for-music .edui-dialog-content {
 	width: 515px;

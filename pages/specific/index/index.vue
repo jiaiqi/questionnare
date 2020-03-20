@@ -13,14 +13,15 @@
           <swiper-item v-for="(item, index) in menuList" :key="index">
             <view class="bg-white  menu-item">
               <view class="bg-imgs " v-for="(item2, index2) in item" :key="index2" @click="clickMenu(item2)">
-                <view class="menu-pic bg-blue" v-if="!item2.type">{{ item2.dest_app }}</view>
-                <view class="menu-pic" v-if="item2.type && item2.type === 'more'"><image src="../../../static/img/more2.png" mode=""></image></view>
+                <view class="menu-pic bg-blue">{{ item2.dest_app }}</view>
+                <!-- <view class="menu-pic bg-blue" v-if="!item2.type">{{ item2.dest_app }}</view> -->
+                <!-- <view class="menu-pic2" v-if="item2.type && item2.type === 'more'"><image src="../../../static/img/more2.png" mode=""></image></view> -->
                 <view class="label">{{ item2.dest_app }}</view>
               </view>
             </view>
           </swiper-item>
         </swiper>
-        <view class="screen-xl">
+        <!--  <view class="screen-xl">
           <view v-for="(item, index) in menuList" :key="index">
             <view class="bg-white  menu-item">
               <view class="bg-imgs " v-for="(item2, index2) in item" :key="index2" @click="clickMenu(item2)">
@@ -30,23 +31,37 @@
               </view>
             </view>
           </view>
-        </view>
+        </view> -->
       </view>
+
       <view class="news-view" v-if="pageItem.div_type === 'tablist'">
-        <view class="news-list" v-for="(list, index) in newsList" :key="index" @click="clickListItem(list)">
-          <!-- 单图布局 -->
-          <view class="news-list-item single-image left-image" v-if="list.picUrl">
-            <image :src="list.picUrl" mode="" class="image"></image>
-            <view class="content">
-              <view class="title">{{ list.title }}</view>
-              <view class="text" v-html="list.content"></view>
+       <!-- <scroll-view scroll-x class="bg-white nav text-center" scroll-with-animation :scroll-left="scrollLeft" v-if="tabNewsList&&tabNewsList.length>0">
+          <view class="cu-item" :class="index == TabCur ? 'text-white cur' : ''" v-for="(item, index) in tabNewsList" :key="index" @tap="tabSelect" :data-id="index">{{ item.name }}</view>
+        </scroll-view> -->
+        <scroll-view scroll-x class="bg-white nav" scroll-with-animation :scroll-left="scrollLeft">
+        	<view class="cu-item" :class="index==TabCur?'text-blue cur':''" v-for="(item,index) in tabNewsList" :key="index" @tap="tabSelect" :data-id="index">
+        		<view v-if="item&&item.name">
+        		  {{ item.name }}
+        		</view>
+        	</view>
+        </scroll-view>
+        <view v-if="tabNewsList[TabCur]&&tabNewsList[TabCur].data">
+          <view class="news-list" v-for="(list, index) in tabNewsList[TabCur].data" :key="index" @click="clickListItem(list)">
+            <!-- 单图布局 -->
+            <view class="news-list-item single-image left-image" v-if="list.picUrl">
+              <image :src="list.picUrl" mode="" class="image" :lazy-load="true"></image>
+              <view class="content">
+                <view class="title">{{ list.title }}</view>
+                <!-- <view class="text" v-html="list.content"></view> -->
+                <view class="text" >{{list.create_time}}</view>
+              </view>
             </view>
-          </view>
-          <!-- 单行 纯文本布局 -->
-          <view class="news-list-item none-image" v-if="!list.picUrl">
-            <view class="content">
-              <view class="title">{{ list.title }}</view>
-              <view class="text"></view>
+            <!-- 单行 纯文本布局 -->
+            <view class="news-list-item none-image" v-if="!list.picUrl">
+              <view class="content">
+                <view class="title">{{ list.title }}</view>
+                <view class="text"></view>
+              </view>
             </view>
           </view>
         </view>
@@ -61,6 +76,8 @@ export default {
   components: { bxList },
   data() {
     return {
+      TabCur: 0,
+      scrollLeft: 0,
       dotStyle: true,
       pageItemList: [], //页面项列表，控制页面显示内容
       menuList: [], //按钮列表
@@ -94,7 +111,6 @@ export default {
         tabNewsList[index] = [];
         this.newsList.forEach(listItem => {
           if (cate.no === listItem.cate_no) {
-            console.log('cate.no', cate.no, listItem.no, listItem.cate_name);
             // tabNewsList[listItem.cate_name] = tabNewsList[listItem.cate_name].concat([listItem]);
             tabNewsList[index] = tabNewsList[index].concat([listItem]);
             // this.$set(this.tabNewsList, index, tabNewsList[index]);
@@ -132,6 +148,12 @@ export default {
     // }
   },
   methods: {
+    tabSelect(e) {
+      //点击tab
+      this.TabCur = Number(e.currentTarget.dataset.id);
+      this.scrollLeft = (e.currentTarget.dataset.id - 1) * 60;
+      
+    },
     clickSwiper(e) {
       // 点击了轮播图
       console.log('点击了轮播图,', e);
@@ -141,6 +163,7 @@ export default {
       console.log('点击了按钮：', e);
       if (e.type && e.type === 'more') {
         // 点击了更多按钮
+        console.log('点击了更多按钮');
         this.showMoreMenu();
       }
     },
@@ -150,10 +173,17 @@ export default {
     clickListItem(e) {
       // 列表点击事件
       console.log('点击了列表项：', e);
+      uni.navigateTo({
+        url: `/pages/specific/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}&cate_name=${e.cate_name}`
+        // url: '/pages/specific/article/article?article=' + encodeURIComponent(JSON.stringify(e))
+      });
     },
     clickFootBtn() {},
     async getPageItemList() {
       //获取页面项列表
+      uni.showLoading({
+        mask: true
+      });
       let url = this.getServiceUrl('daq', 'srvdaq_website_page_item_select', 'select');
       let req = {
         serviceName: 'srvdaq_website_page_item_select',
@@ -161,12 +191,12 @@ export default {
         order: [{ colName: 'seq', orderType: 'asc' }]
       };
       let res = await this.$http.post(url, req);
+      uni.hideLoading();
       if (res.data.state === 'SUCCESS') {
         this.pageItemList = res.data.data;
         res.data.data.forEach((item, index) => {
           this.getPageItem(item).then(data => {
             item['data'] = data;
-            console.log(item);
             this.$set(this.pageItemList, index, item);
           });
         });
@@ -175,6 +205,9 @@ export default {
     },
     async getPageItem(item = {}) {
       // 获取页面项
+      uni.showLoading({
+        mask: true
+      });
       let serviceName = '';
       switch (item.div_type) {
         case 'buttons':
@@ -209,23 +242,25 @@ export default {
         let url = this.getServiceUrl('daq', serviceName, 'select');
         let req = {
           serviceName: serviceName,
-          colNames: ['*']
-          // order: [{ colName: 'seq', orderType: 'asc' }] ,
+          colNames: ['*'],
+          order: [{ colName: 'seq', orderType: 'asc' }]
         };
         let res = await this.$http.post(url, req);
+        uni.hideLoading();
         if (res.data.state === 'SUCCESS') {
           // this.itemList = res.data.data;
           let itemList = res.data.data;
-
-          console.log('itemList', itemList);
           itemList.forEach((pageitem, index) => {
             switch (item.div_type) {
               case 'buttons':
                 let itemLists = [];
-                if (itemList.length <= 8) {
-                  itemLists = [itemList];
-                } else if (itemList.length > 8 && itemList.length <= 16) {
-                  itemLists = [itemList.slice(0, 8), itemList.slice(8)];
+                if (itemList.length <= 7) {
+                  itemLists = [[...itemList, { type: 'more', dest_app: '更多' }]];
+                  // itemLists = [itemList];
+                } else if (itemList.length > 7 && itemList.length < 16) {
+                  // } else if (itemList.length > 8 && itemList.length <= 16) {
+                  itemLists = [itemList.slice(0, 7), [...itemList.slice(8, 15), { type: 'more', dest_app: '更多' }]];
+                  // itemLists = [itemList.slice(0, 8), itemList.slice(8)];
                 } else if (itemList.length > 16) {
                   itemLists = [itemList.slice(0, 8), [...itemList.slice(8, 15), { type: 'more', dest_app: '更多' }]];
                 }
@@ -260,9 +295,13 @@ export default {
     },
     async getCategoryList(no) {
       //根据分类编号查询对应分类
+      uni.showLoading({
+        mask: true
+      });
       const url = this.getServiceUrl('daq', 'srvdaq_cms_category_select', 'select');
       const req = { serviceName: 'srvdaq_cms_category_select', queryMethod: 'select', colNames: ['*'], condition: [{ colName: 'no', value: no, ruleType: 'eq' }] };
       let res = await this.$http.post(url, req);
+      uni.hideLoading();
       if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
         let data = res.data.data[0];
         return data;
@@ -292,7 +331,7 @@ export default {
     pageItemList: {
       deep: true,
       handler(newVal) {
-        console.log(newVal);
+        // console.log(newVal);
       }
     }
   }
@@ -434,6 +473,11 @@ export default {
       align-items: center;
       margin: 10upx;
       width: 22%;
+      .menu-pic2 {
+        width: 100upx;
+        height: 100upx;
+        border-radius: 20upx;
+      }
       .menu-pic {
         width: 100upx;
         height: 100upx;
@@ -464,6 +508,7 @@ export default {
       }
       .label {
         line-height: 50upx;
+        margin-top: 10upx;
       }
     }
   }
@@ -472,10 +517,12 @@ export default {
     flex-direction: column;
     .news-list {
       width: calc(100% - 20upx);
-      margin: 10upx;
+      margin: 30upx 0;
       display: flex;
       .news-list-item {
         display: flex;
+        justify-content: space-between;
+        align-items: center;
         &.none-image {
           line-height: 40upx;
           position: relative;
@@ -505,14 +552,21 @@ export default {
           .content {
             display: flex;
             flex-direction: column;
+            justify-content: space-around;
             padding: 0;
             flex: 1;
+            height: 160upx;
+            max-width: 520upx;
             .title {
               font-weight: 600;
+              height: auto;
+              overflow: hidden;
+              // text-overflow: ellipsis;
+              // white-space: nowrap;
             }
             .text {
               width: 95%;
-              max-height: 100upx;
+              max-height: 120upx;
               font-size: 24upx;
               color: #666;
               padding-top: 10upx;

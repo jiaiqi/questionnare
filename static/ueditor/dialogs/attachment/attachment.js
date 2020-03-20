@@ -639,22 +639,27 @@
                     method: 'get',
                     onsuccess: function (r) {
                         try {
-                            var json = eval('(' + r.responseText + ')');
+                            // 因安全漏洞，后期根据实际的接口进行查询返回数据
+                            var json = r.responseText;
                             if (json.state == 'SUCCESS') {
-                                _this.pushData(json.list);
-                                _this.listIndex = parseInt(json.start) + parseInt(json.list.length);
-                                if(_this.listIndex >= json.total) {
-                                    _this.listEnd = true;
+                                if(json.list){
+                                    _this.pushData(json.list);
+                                    _this.listIndex = parseInt(json.start) + parseInt(json.list.length);
+                                    if(_this.listIndex >= json.total) {
+                                        _this.listEnd = true;
+                                    }
+                                    _this.isLoadingData = false;
                                 }
-                                _this.isLoadingData = false;
                             }
                         } catch (e) {
                             if(r.responseText.indexOf('ue_separate_ue') != -1) {
                                 var list = r.responseText.split(r.responseText);
-                                _this.pushData(list);
-                                _this.listIndex = parseInt(list.length);
-                                _this.listEnd = true;
-                                _this.isLoadingData = false;
+                                if(json.list){
+                                    _this.pushData(list);
+                                    _this.listIndex = parseInt(list.length);
+                                    _this.listEnd = true;
+                                    _this.isLoadingData = false;
+                                }
                             }
                         }
                     },

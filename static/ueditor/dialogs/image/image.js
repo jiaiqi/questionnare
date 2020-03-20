@@ -131,7 +131,6 @@
     /* 获取对齐方式 */
     function getAlign(){
         var align = $G("align").value || 'center';
-        console.log("xxx"+align)
         return align;
     }
 
@@ -174,7 +173,6 @@
             var wordImgFlag = img.getAttribute("word_img"),
                 src = wordImgFlag ? wordImgFlag.replace("&amp;", "&") : (img.getAttribute('_src') || img.getAttribute("src", 2).replace("&amp;", "&")),
                 align = editor.queryCommandValue("imageFloat");
-                console.log("dddd"+align)
 
             /* 防止onchange事件循环调用 */
             if (src !== $G("url").value) $G("url").value = src;
@@ -195,7 +193,6 @@
                 preview = $G('preview');
 
             url = utils.unhtmlForUrl(url);
-            console.log(url)
 
             if(url) {
                 preview.innerHTML = '<p style="text-align:center"><img src="' + url + '" /></p>';
@@ -799,7 +796,8 @@
                     'method': 'get',
                     'onsuccess': function (r) {
                         try {
-                            var json = isJsonp ? r:eval('(' + r.responseText + ')');
+                            // 安全漏洞修复
+                            var json = r.responseText;
                             if (json.state == 'SUCCESS') {
                                 _this.pushData(json.list);
                                 _this.listIndex = parseInt(json.start) + parseInt(json.list.length);
