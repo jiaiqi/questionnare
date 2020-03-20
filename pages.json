@@ -106,7 +106,15 @@
         "navigationBarBackgroundColor": "#0bc99d"
       }
     }
-  ],
+      ,{
+            "path" : "pages/specific/symptom/symptom",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/specific/illnessContrast/illnessContrast",
+            "style" : {}
+        }
+    ],
   "globalStyle": {
     // "navigationBarTitleText": "百想软件开发平台",
     // "navigationBarBackgroundColor": "#0bc99d",

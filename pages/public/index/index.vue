@@ -125,28 +125,6 @@ export default {
       return NewsList;
     }
   },
-  watch: {
-    // newsList: {
-    //   deep: true,
-    //   handler(newValue, oldValue) {
-    //     console.log('newsList', newValue);
-    //     if (newValue && newValue.length > 0) {
-    //       let tabNewsList = [];
-    //       this.categoryList.forEach((cate, index) => {
-    //         tabNewsList[index] = [];
-    //         newValue.forEach(listItem => {
-    //           console.log('cate.no', cate.no, listItem.no);
-    //           if (cate.no === listItem.cate_no) {
-    //             tabNewsList[index] = tabNewsList[index].concat([listItem]);
-    //             this.$set(this.tabNewsList, index, tabNewsList[index]);
-    //           }
-    //         });
-    //       });
-    //       // this.tabNewsList = tabNewsList
-    //     }
-    //   }
-    // }
-  },
   methods: {
     tabSelect(e) {
       //点击tab
