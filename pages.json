@@ -87,27 +87,26 @@
         "navigationBarTitleText": "均衡饮食",
         "navigationBarBackgroundColor": "#0bc99d"
       }
+    }, {
+      "path": "pages/specific/viewRecord/viewRecord",
+      "style": {}
+    }, {
+      "path": "pages/specific/assessmentResult/assessmentResult",
+      "style": {
+        "navigationBarTitleText": "评估",
+        "navigationBarBackgroundColor": "#0bc99d"
+      }
+    }, {
+      "path": "pages/specific/article/article",
+      "style": {}
+    }, {
+      "path": "pages/public/index/index",
+      "style": {
+        "navigationBarTitleText": "百想科技",
+        "navigationBarBackgroundColor": "#0bc99d"
+      }
     }
-      ,{
-            "path" : "pages/specific/viewRecord/viewRecord",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/specific/assessmentResult/assessmentResult",
-            "style" : {
-				"navigationBarTitleText": "评估",
-				"navigationBarBackgroundColor": "#0bc99d"
-			}
-        }
-        ,{
-            "path" : "pages/specific/index/index",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/specific/article/article",
-            "style" : {}
-        }
-    ],
+  ],
   "globalStyle": {
     // "navigationBarTitleText": "百想软件开发平台",
     // "navigationBarBackgroundColor": "#0bc99d",
