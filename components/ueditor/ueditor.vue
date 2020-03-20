@@ -6,7 +6,6 @@
 </template>
 
 <script>
-import jQuery from '@/static/js/jquery-1.9.1.min.js';
 export default {
   props: {
     field: {
@@ -67,37 +66,17 @@ export default {
       const parser = await import('../../static/ueditor/ueditor.parse.js');
 
       this.ue = UE.getEditor(this.eleId, {
-        BaseUrl: '/',
         UEDITOR_HOME_URL: '/static/ueditor/',
-        UEDITOR_PUBHOME_URL: '/static/ueditor/',
         theme: 'om',
-        imagePopup: false,
-        toolbars: [[ 'simpleupload', 'insertlink', '|', 'bold', 'h1', 'h2', '|', 'removeformat', '|', 'undo', 'redo']],
-        labelMap: {
-          simpleupload: '插入图片',
-          insertvideo: '插入视频',
-          inserturl: '插入超链接',
-          bold: '加粗',
-          h1: '一级标题',
-          h2: '二级标题',
-          summary: '摘要',
-          conclusion: '结语',
-          removeformat: '清除格式',
-          'om-paragraphcheck': '段落检查',
-          undo: '撤销',
-          redo: '重做',
-          fullscreen: '全屏',
-          showmsg: '消息',
-          preview: '预览'
-        },
+        imagePopup: false, //"source"
+        toolbars: [['simpleupload', 'insertlink', 'bold', 'removeformat', 'undo', 'redo', 'fullscreen']],
+        // toolbars: [['simpleupload', 'insertlink', 'bold', 'removeformat', 'undo', 'redo', 'preview', 'fullscreen']],
         autoHeightEnabled: true,
         enableContextMenu: false,
         elementPathEnabled: false,
         wordCount: false,
         scaleEnabled: false,
         retainOnlyLabelPasted: true,
-        removeFormatTags: 'big,code,del,dfn,em,font,i,ins,kbd,q,samp,small,span,strike,sub,sup,tt,u,var',
-        removeFormatAttributes: 'class,style,lang,width,height,align,hspace,valign',
         pasteplain: false,
         filterTxtRules: (function() {
           function e(e) {
@@ -145,7 +124,6 @@ export default {
         })(),
         lang: 'zh-cn', //语言
         initialFrameHeight: 300,
-        // scaleEnabled: true, //缩放
         catchRemoteImageEnable: false //远程抓图
       });
       this.setSrvVal(this.fieldData.value);

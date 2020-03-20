@@ -103,6 +103,10 @@
             "path" : "pages/specific/index/index",
             "style" : {}
         }
+        ,{
+            "path" : "pages/specific/article/article",
+            "style" : {}
+        }
     ],
   "globalStyle": {
     // "navigationBarTitleText": "百想软件开发平台",

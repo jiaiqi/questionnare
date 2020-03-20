@@ -834,9 +834,6 @@ div.edui-box {
     background-position: -540px 0;
 }
 
-.edui-default  .edui-for-webapp .edui-icon {
-    background-position: -601px -40px
-}
 
 .edui-default  .edui-for-table .edui-icon {
     background-position: -580px -20px;
@@ -861,11 +858,6 @@ div.edui-box {
 .edui-default  .edui-for-edittd .edui-icon {
     background-position: -700px -40px;
 }
-
-.edui-default  .edui-for-snapscreen .edui-icon {
-    background-position: -581px -40px
-}
-
 .edui-default  .edui-for-scrawl .edui-icon {
     background-position: -801px -41px
 }
@@ -930,9 +922,6 @@ div.edui-box {
     background-position: -560px 0;
 }
 
-.edui-default  .edui-for-charts  .edui-icon {
-    background: url( ../images/charts.png ) no-repeat 2px 3px!important;
-}
 
 .edui-default  .edui-for-inserttitlecol  .edui-icon {
     background-position: -673px -76px;
@@ -1368,13 +1357,6 @@ line-height: 20px;
     height: 400px;
     overflow: hidden;
 }
-/*webapp-dialog*/
-.edui-default .edui-for-webapp .edui-dialog-content {
-    width: 560px;
-    _width: 565px;
-    height: 450px;
-    overflow: hidden;
-}
 
 /*image-insertframe*/
 .edui-default .edui-for-insertframe .edui-dialog-content {
@@ -1453,11 +1435,7 @@ line-height: 20px;
     width: 240px;
     height: 50px;
 }
-/*snapscreen-dialog*/
-.edui-default .edui-for-snapscreen .edui-dialog-content {
-    width: 400px;
-    height: 220px;
-}
+
 
 /*music-dialog*/
 .edui-default .edui-for-music .edui-dialog-content {

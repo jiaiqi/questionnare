@@ -636,7 +636,8 @@ function exec(scrawlObj) {
                 onsuccess:function (xhr) {
                     if (!scrawlObj.isCancelScrawl) {
                         var responseObj;
-                        responseObj = eval("(" + xhr.responseText + ")");
+                        // 安全漏洞修复
+                        var responseObj = xhr.responseText;
                         if (responseObj.state == "SUCCESS") {
                             var imgObj = {},
                                 url = editor.options.scrawlUrlPrefix + responseObj.url;

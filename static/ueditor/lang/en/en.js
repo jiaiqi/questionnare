@@ -7,7 +7,7 @@
  */
 UE.I18N['en'] = {
     'labelMap':{
-        'anchor':'Anchor', 'undo':'Undo', 'redo':'Redo', 'bold':'Bold', 'indent':'Indent', 'snapscreen':'SnapScreen',
+        'anchor':'Anchor', 'undo':'Undo', 'redo':'Redo', 'bold':'Bold', 'indent':'Indent', 
         'italic':'Italic', 'underline':'Underline', 'strikethrough':'Strikethrough', 'subscript':'SubScript','fontborder':'text border',
         'superscript':'SuperScript', 'formatmatch':'Format Match', 'source':'Source', 'blockquote':'BlockQuote',
         'pasteplain':'PastePlain', 'selectall':'SelectAll', 'print':'Print', 'preview':'Preview',
@@ -24,8 +24,8 @@ UE.I18N['en'] = {
         'rowspacingtop':'RowSpacingTop', 'rowspacingbottom':'RowSpacingBottom', 'pagebreak':'PageBreak', 'insertframe':'Iframe', 'imagenone':'Default',
         'imageleft':'ImageLeft', 'imageright':'ImageRight', 'attachment':'Attachment', 'imagecenter':'ImageCenter', 'wordimage':'WordImage',
         'lineheight':'LineHeight','edittip':'EditTip','customstyle':'CustomStyle', 'scrawl':'Scrawl', 'autotypeset':'AutoTypeset',
-        'webapp':'WebAPP', 'touppercase':'UpperCase', 'tolowercase':'LowerCase','template':'Template','background':'Background','inserttable':'InsertTable',
-        'music':'Music', 'charts': 'charts','drafts': 'Load from Drafts'
+        'touppercase':'UpperCase', 'tolowercase':'LowerCase','template':'Template','background':'Background','inserttable':'InsertTable',
+        'music':'Music', 'drafts': 'Load from Drafts'
     },
     'insertorderedlist':{
         'num':'1,2,3...',
@@ -426,12 +426,6 @@ UE.I18N['en'] = {
         'errorHttp':'Http Error',
         'errorServerUpload':'Server Result Error.'
     },
-    'webapp':{
-        'tip1':"This function provided by Baidu APP,please apply for baidu APPKey webmaster first!",
-        'tip2':"And then open the file ueditor.config.js to set it! ",
-        'applyFor':"APPLY FOR",
-        'anthorApi':"Baidu API"
-    },
     'template':{
         'static':{
             'lang_template_bkcolor':'Background Color',
@@ -474,29 +468,6 @@ UE.I18N['en'] = {
     anchor:{
         'static':{
             'lang_input_anchorName':'Anchor Name:'
-        }
-    },
-    'charts':{
-        'static':{
-            'lang_data_source':'Data source:',
-            'lang_chart_format': 'Chart format:',
-            'lang_data_align': 'Align',
-            'lang_chart_align_same': 'Consistent with the X-axis Y-axis',
-            'lang_chart_align_reverse': 'X-axis Y-axis opposite',
-            'lang_chart_title': 'Title',
-            'lang_chart_main_title': 'main title:',
-            'lang_chart_sub_title': 'sub title:',
-            'lang_chart_x_title': 'X-axis title:',
-            'lang_chart_y_title': 'Y-axis title:',
-            'lang_chart_tip': 'Prompt',
-            'lang_cahrt_tip_prefix': 'prefix:',
-            'lang_cahrt_tip_description': '仅饼图有效， 当鼠标移动到饼图中相应的块上时，提示框内的文字的前缀',
-            'lang_chart_data_unit': 'Unit',
-            'lang_chart_data_unit_title': 'unit:',
-            'lang_chart_data_unit_description': '显示在每个数据点上的数据的单位， 比如： 温度的单位 ℃',
-            'lang_chart_type': 'Chart type:',
-            'lang_prev_btn': 'Previous',
-            'lang_next_btn': 'Next'
         }
     },
     emotion:{
@@ -592,14 +563,6 @@ UE.I18N['en'] = {
         getEnd:"Has the search to the bottom!",
         getStart:"Has the search to the top!",
         countMsg:"Altogether replaced {#count} character(s)!"
-    },
-    snapscreen:{
-        'static':{
-            lang_showMsg:"You should install the UEditor screenshots program first!",
-            lang_download:"Download!",
-            lang_step1:"Step1:Download the program and then run it",
-            lang_step2:"Step2:After complete install,try to click the button again"
-        }
     },
     spechars:{
         'static':{},

@@ -8082,14 +8082,15 @@
 
     // core/Editor.defaultoptions.js
     //维护编辑器一下默认的不在插件中的配置项
-    UE.Editor.defaultOptions = function(editor) {
+    UE.Editor.defaultOptions = function(editor){
 
-        var _url = editor.options.UEDITOR_PUBHOME_URL;
+        var _url = editor.options.UEDITOR_HOME_URL;
         return {
             isShow: true,
             initialContent: '',
-            initialStyle: '',
+            initialStyle:'',
             autoClearinitialContent: false,
+            iframeCssUrl: _url + 'themes/iframe.css',
             textarea: 'editorValue',
             focus: false,
             focusInEnd: true,
@@ -8107,7 +8108,7 @@
             allHtmlEnabled: false,
             scaleEnabled: false,
             tableNativeEditInFF: false,
-            autoSyncData: true,
+            autoSyncData : true,
             fileNameFormat: '{time}{rand:6}'
         }
     };
@@ -8118,38 +8119,6 @@
         UE.Editor.prototype.loadServerConfig = function() {
             var me = this;
             return;
-            setTimeout(function() {
-                try {
-                    me.options.imageUrl && me.setOpt('serverUrl', me.options.imageUrl.replace(/^(.*[\/]).+([\.].+)$/, '$1controller$2'));
-
-                    var configUrl = me.getActionUrl('config'),
-                        isJsonp = utils.isCrossDomainUrl(configUrl);
-
-                    /* 发出ajax请求 */
-                    me._serverConfigLoaded = false;
-
-                    configUrl && UE.ajax.request(configUrl, {
-                        'method': 'GET',
-                        'dataType': isJsonp ? 'jsonp' : '',
-                        'onsuccess': function(r) {
-                            try {
-                                var config = isJsonp ? r : eval("(" + r.responseText + ")");
-                                utils.extend(me.options, config);
-                                me.fireEvent('serverConfigLoaded');
-                                me._serverConfigLoaded = true;
-                            } catch (e) {
-                                showErrorMsg(me.getLang('loadconfigFormatError'));
-                            }
-                        },
-                        'onerror': function() {
-                            showErrorMsg(me.getLang('loadconfigHttpError'));
-                        }
-                    });
-                } catch (e) {
-                    showErrorMsg(me.getLang('loadconfigError'));
-                }
-            });
-
             function showErrorMsg(msg) {
                 console && console.error(msg);
                 //me.fireEvent('showMessage', {
@@ -10239,7 +10208,6 @@
                         case 'img':
                             if (val = node.getAttr('_src')) {
                                 node.setAttr({
-									'width':'100%',
                                     'src': node.getAttr('_src'),
                                     '_src': ''
                                 })
@@ -11227,7 +11195,6 @@
                 var first = opt.shift();
                 var floatStyle = first['floatStyle'];
                 delete first['floatStyle'];
-				img.style.width='100%';
                 ////                img.style.border = (first.border||0) +"px solid #000";
                 ////                img.style.margin = (first.margin||0) +"px";
                 //                img.style.cssText += ';margin:' + (first.margin||0) +"px;" + 'border:' + (first.border||0) +"px solid #000";
@@ -11249,7 +11216,7 @@
                     str = '<img src="' + ci.src + '" ' + (ci._src ? ' _src="' + ci._src + '" ' : '') +
                         (ci.width ? 'width="' + ci.width + '" ' : '') +
                         (ci.height ? ' height="' + ci.height + '" ' : '') +
-                        (ci['floatStyle'] == 'left' || ci['floatStyle'] == 'right' ? ' style="float:' + ci['floatStyle'] + ';width:100%"' : '') +
+                        (ci['floatStyle'] == 'left' || ci['floatStyle'] == 'right' ? ' style="float:' + ci['floatStyle'] + ';"' : '') +
                         (ci.title && ci.title != "" ? ' title="' + ci.title + '"' : '') +
                         (ci.border && ci.border != "0" ? ' border="' + ci.border + '"' : '') +
                         (ci.alt && ci.alt != "" ? ' alt="' + ci.alt + '"' : '') +
@@ -14565,78 +14532,6 @@
     };
 
 
-    // plugins/copy.js
-    UE.plugin.register('copy', function() {
-
-        var me = this;
-
-        function initZeroClipboard() {
-
-            ZeroClipboard.config({
-                debug: false,
-                swfPath: me.options.UEDITOR_PUBHOME_URL  + 'third-party/zeroclipboard/ZeroClipboard.swf'
-            });
-
-            var client = me.zeroclipboard = new ZeroClipboard();
-
-            // 复制内容
-            client.on('copy', function(e) {
-                var client = e.client,
-                    rng = me.selection.getRange(),
-                    div = document.createElement('div');
-
-                div.appendChild(rng.cloneContents());
-                client.setText(div.innerText || div.textContent);
-                client.setHtml(div.innerHTML);
-                rng.select();
-            });
-            // hover事件传递到target
-            client.on('mouseover mouseout', function(e) {
-                var target = e.target;
-                if (e.type == 'mouseover') {
-                    domUtils.addClass(target, 'edui-state-hover');
-                } else if (e.type == 'mouseout') {
-                    domUtils.removeClasses(target, 'edui-state-hover');
-                }
-            });
-            // flash加载不成功
-            client.on('wrongflash noflash', function() {
-                ZeroClipboard.destroy();
-            });
-        }
-
-        return {
-            bindEvents: {
-                'ready': function() {
-                    if (!browser.ie) {
-                        if (window.ZeroClipboard) {
-                            initZeroClipboard();
-                        } else {
-                            utils.loadFile(document, {
-                                src: me.options.UEDITOR_PUBHOME_URL  + "third-party/zeroclipboard/ZeroClipboard.js",
-                                tag: "script",
-                                type: "text/javascript",
-                                defer: "defer"
-                            }, function() {
-                                initZeroClipboard();
-                            });
-                        }
-                    }
-                }
-            },
-            commands: {
-                'copy': {
-                    execCommand: function(cmd) {
-                        if (!me.document.execCommand('copy')) {
-                            alert(me.getLang('copymsg'));
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-
     // plugins/paste.js
     ///import core
     ///import plugins/inserthtml.js
@@ -16587,26 +16482,26 @@
                 return oldQueryCommandState.apply(this, arguments);
             };
 
-            if (opt.sourceEditor == "codemirror") {
+            if(opt.sourceEditor == "codemirror"){
 
-                me.addListener("ready", function() {
-                    utils.loadFile(document, {
-                        src: opt.codeMirrorJsUrl || opt.UEDITOR_PUBHOME_URL  + "third-party/codemirror/codemirror.js",
-                        tag: "script",
-                        type: "text/javascript",
-                        defer: "defer"
-                    }, function() {
-                        if (opt.sourceEditorFirst) {
-                            setTimeout(function() {
+                me.addListener("ready",function(){
+                    utils.loadFile(document,{
+                        src : opt.codeMirrorJsUrl || opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.js",
+                        tag : "script",
+                        type : "text/javascript",
+                        defer : "defer"
+                    },function(){
+                        if(opt.sourceEditorFirst){
+                            setTimeout(function(){
                                 me.execCommand("source");
-                            }, 0);
+                            },0);
                         }
                     });
-                    utils.loadFile(document, {
-                        tag: "link",
-                        rel: "stylesheet",
-                        type: "text/css",
-                        href: opt.codeMirrorCssUrl || opt.UEDITOR_PUBHOME_URL + "third-party/codemirror/codemirror.css"
+                    utils.loadFile(document,{
+                        tag : "link",
+                        rel : "stylesheet",
+                        type : "text/css",
+                        href : opt.codeMirrorCssUrl || opt.UEDITOR_HOME_URL + "third-party/codemirror/codemirror.css"
                     });
 
                 });
@@ -17045,7 +16940,7 @@
 
             Scale.prototype = {
                 init: function(editor) {
-                    var me = this;
+                    var me = this,i;
                     me.editor = editor;
                     me.startPos = this.prePos = { x: 0, y: 0 };
                     me.dragId = -1;
@@ -17818,7 +17713,7 @@
                 case 'video':
                     var ext = url.substr(url.lastIndexOf('.') + 1);
                     if (ext == 'ogv') ext = 'ogg';
-                    str = '<video' + (id ? ' id="' + id + '"' : '') + ' class="' + classname + ' video-js" ' + (align ? ' style="float:' + align + '"' : '') +
+                    str = '<video' + (id ? ' id="' + id + '"' : '') + ' class="' + classname + '" ' + (align ? ' style="float:' + align + '"' : '') +
                         ' controls preload="none" width="' + width + '" height="' + height + '" src="' + url + '" data-setup="{}">' +
                         '<source src="' + url + '" type="video/' + ext + '" /></video>';
                     break;
@@ -17921,7 +17816,7 @@
                     cl;
                 for (var i = 0, vi, len = videoObjs.length; i < len; i++) {
                     vi = videoObjs[i];
-                    cl = (type == 'upload' ? 'edui-upload-video video-js vjs-default-skin' : 'edui-faked-video');
+                    cl = (type == 'upload' ? 'edui-upload-video vjs-default-skin' : 'edui-faked-video');
                     html.push(creatInsertStr(vi.url, vi.width || 420, vi.height || 280, id + i, null, cl, 'image'));
                 }
                 me.execCommand("inserthtml", html.join(""), true);
@@ -22434,14 +22329,6 @@
                     label: lang.insertparagraphafter,
                     cmdName: 'insertparagraph'
                 },
-                {
-                    label: lang['copy'],
-                    cmdName: 'copy'
-                },
-                {
-                    label: lang['paste'],
-                    cmdName: 'paste'
-                }
             ];
         if (!items.length) {
             return;
@@ -22565,19 +22452,6 @@
                 }
             }
         });
-
-        // 添加复制的flash按钮
-        me.addListener('aftershowcontextmenu', function(type, menu) {
-            if (me.zeroclipboard) {
-                var items = menu.items;
-                for (var key in items) {
-                    if (items[key].className == 'edui-for-copy') {
-                        me.zeroclipboard.clip(items[key].getDom());
-                    }
-                }
-            }
-        });
-
     };
 
 
@@ -23454,7 +23328,7 @@ UE.plugins['catchremoteimage'] = function () {
                 fd.append("app_no", me.srvApp);
                 fd.append("file_no", "");
 
-                // let queryString = "?bx_auth_ticket=" +localStorage.getItem("bx_auth_ticket");
+                // let queryString = "?bx_auth_ticket=" +sessionStorage.getItem("bx_auth_ticket");
                 // var path = window.pathConfig.fileServer + "upload" + queryString;
                 // console.log(path);
                 // // 20200316
@@ -23506,109 +23380,6 @@ UE.plugins['catchremoteimage'] = function () {
     });
 };
 
-    // plugins/snapscreen.js
-    /**
-     * 截屏插件，为UEditor提供插入支持
-     * @file
-     * @since 1.4.2
-     */
-    UE.plugin.register('snapscreen', function() {
-
-        var me = this;
-        var snapplugin;
-
-        function getLocation(url) {
-            var search,
-                a = document.createElement('a'),
-                params = utils.serializeParam(me.queryCommandValue('serverparam')) || '';
-
-            a.href = url;
-            if (browser.ie) {
-                a.href = a.href;
-            }
-
-
-            search = a.search;
-            if (params) {
-                search = search + (search.indexOf('?') == -1 ? '?' : '&') + params;
-                search = search.replace(/[&]+/ig, '&');
-            }
-            return {
-                'port': a.port,
-                'hostname': a.hostname,
-                'path': a.pathname + search || +a.hash
-            }
-        }
-
-        return {
-            commands: {
-                /**
-                 * 字体背景颜色
-                 * @command snapscreen
-                 * @method execCommand
-                 * @param { String } cmd 命令字符串
-                 * @example
-                 * ```javascript
-                 * editor.execCommand('snapscreen');
-                 * ```
-                 */
-                'snapscreen': {
-                    execCommand: function(cmd) {
-                        var url, local, res;
-                        var lang = me.getLang("snapScreen_plugin");
-
-                        if (!snapplugin) {
-                            var container = me.container;
-                            var doc = me.container.ownerDocument || me.container.document;
-                            snapplugin = doc.createElement("object");
-                            try { snapplugin.type = "application/x-pluginbaidusnap"; } catch (e) {
-                                return;
-                            }
-                            snapplugin.style.cssText = "position:absolute;left:-9999px;width:0;height:0;";
-                            snapplugin.setAttribute("width", "0");
-                            snapplugin.setAttribute("height", "0");
-                            container.appendChild(snapplugin);
-                        }
-
-                        function onSuccess(rs) {
-                            try {
-                                rs = eval("(" + rs + ")");
-                                if (rs.state == 'SUCCESS') {
-                                    var opt = me.options;
-                                    me.execCommand('insertimage', {
-                                        src: opt.snapscreenUrlPrefix + rs.url,
-                                        _src: opt.snapscreenUrlPrefix + rs.url,
-                                        alt: rs.title || '',
-                                        floatStyle: opt.snapscreenImgAlign
-                                    });
-                                } else {
-                                    alert(rs.state);
-                                }
-                            } catch (e) {
-                                alert(lang.callBackErrorMsg);
-                            }
-                        }
-                        url = me.getActionUrl(me.getOpt('snapscreenActionName'));
-                        local = getLocation(url);
-                        setTimeout(function() {
-                            try {
-                                res = snapplugin.saveSnapshot(local.hostname, local.path, local.port);
-                            } catch (e) {
-                                me.ui._dialogs['snapscreenDialog'].open();
-                                return;
-                            }
-
-                            onSuccess(res);
-                        }, 50);
-                    },
-                    queryCommandState: function() {
-                        return (navigator.userAgent.indexOf("Windows", 0) != -1) ? 0 : -1;
-                    }
-                }
-            }
-        }
-    });
-
 
     // plugins/insertparagraph.js
     /**
@@ -23655,177 +23426,6 @@ UE.plugins['catchremoteimage'] = function () {
             }
         }
     };
-
-
-
-    // plugins/webapp.js
-    /**
-     * 百度应用
-     * @file
-     * @since 1.2.6.1
-     */
-
-
-    /**
-     * 插入百度应用
-     * @command webapp
-     * @method execCommand
-     * @remind 需要百度APPKey
-     * @remind 百度应用主页： <a href="http://app.baidu.com/" target="_blank">http://app.baidu.com/</a>
-     * @param { Object } appOptions 应用所需的参数项， 支持的key有： title=>应用标题， width=>应用容器宽度，
-     * height=>应用容器高度，logo=>应用logo，url=>应用地址
-     * @example
-     * ```javascript
-     * //editor是编辑器实例
-     * //在编辑器里插入一个“植物大战僵尸”的APP
-     * editor.execCommand( 'webapp' , {
-     *     title: '植物大战僵尸',
-     *     width: 560,
-     *     height: 465,
-     *     logo: '应用展示的图片',
-     *     url: '百度应用的地址'
-     * } );
-     * ```
-     */
-
-    //UE.plugins['webapp'] = function () {
-    //    var me = this;
-    //    function createInsertStr( obj, toIframe, addParagraph ) {
-    //        return !toIframe ?
-    //                (addParagraph ? '<p>' : '') + '<img title="'+obj.title+'" width="' + obj.width + '" height="' + obj.height + '"' +
-    //                        ' src="' + me.options.UEDITOR_HOME_URL + 'themes/default/images/spacer.gif" style="background:url(' + obj.logo+') no-repeat center center; border:1px solid gray;" class="edui-faked-webapp" _url="' + obj.url + '" />' +
-    //                        (addParagraph ? '</p>' : '')
-    //                :
-    //                '<iframe class="edui-faked-webapp" title="'+obj.title+'" width="' + obj.width + '" height="' + obj.height + '"  scrolling="no" frameborder="0" src="' + obj.url + '" logo_url = '+obj.logo+'></iframe>';
-    //    }
-    //
-    //    function switchImgAndIframe( img2frame ) {
-    //        var tmpdiv,
-    //                nodes = domUtils.getElementsByTagName( me.document, !img2frame ? "iframe" : "img" );
-    //        for ( var i = 0, node; node = nodes[i++]; ) {
-    //            if ( node.className != "edui-faked-webapp" ){
-    //                continue;
-    //            }
-    //            tmpdiv = me.document.createElement( "div" );
-    //            tmpdiv.innerHTML = createInsertStr( img2frame ? {url:node.getAttribute( "_url" ), width:node.width, height:node.height,title:node.title,logo:node.style.backgroundImage.replace("url(","").replace(")","")} : {url:node.getAttribute( "src", 2 ),title:node.title, width:node.width, height:node.height,logo:node.getAttribute("logo_url")}, img2frame ? true : false,false );
-    //            node.parentNode.replaceChild( tmpdiv.firstChild, node );
-    //        }
-    //    }
-    //
-    //    me.addListener( "beforegetcontent", function () {
-    //        switchImgAndIframe( true );
-    //    } );
-    //    me.addListener( 'aftersetcontent', function () {
-    //        switchImgAndIframe( false );
-    //    } );
-    //    me.addListener( 'aftergetcontent', function ( cmdName ) {
-    //        if ( cmdName == 'aftergetcontent' && me.queryCommandState( 'source' ) ){
-    //            return;
-    //        }
-    //        switchImgAndIframe( false );
-    //    } );
-    //
-    //    me.commands['webapp'] = {
-    //        execCommand:function ( cmd, obj ) {
-    //            me.execCommand( "inserthtml", createInsertStr( obj, false,true ) );
-    //        }
-    //    };
-    //};
-
-    UE.plugin.register('webapp', function() {
-        var me = this;
-
-        function createInsertStr(obj, toEmbed) {
-            return !toEmbed ?
-                '<img title="' + obj.title + '" width="' + obj.width + '" height="' + obj.height + '"' +
-                ' src="' + me.options.UEDITOR_HOME_URL + 'themes/default/images/spacer.gif" _logo_url="' + obj.logo + '" style="background:url(' + obj.logo +
-                ') no-repeat center center; border:1px solid gray;" class="edui-faked-webapp" _url="' + obj.url + '" ' +
-                (obj.align && !obj.cssfloat ? 'align="' + obj.align + '"' : '') +
-                (obj.cssfloat ? 'style="float:' + obj.cssfloat + '"' : '') +
-                '/>' :
-                '<iframe class="edui-faked-webapp" title="' + obj.title + '" ' +
-                (obj.align && !obj.cssfloat ? 'align="' + obj.align + '"' : '') +
-                (obj.cssfloat ? 'style="float:' + obj.cssfloat + '"' : '') +
-                'width="' + obj.width + '" height="' + obj.height + '"  scrolling="no" frameborder="0" src="' + obj.url + '" logo_url = "' + obj.logo + '"></iframe>'
-
-        }
-        return {
-            outputRule: function(root) {
-                utils.each(root.getNodesByTagName('img'), function(node) {
-                    var html;
-                    if (node.getAttr('class') == 'edui-faked-webapp') {
-                        html = createInsertStr({
-                            title: node.getAttr('title'),
-                            'width': node.getAttr('width'),
-                            'height': node.getAttr('height'),
-                            'align': node.getAttr('align'),
-                            'cssfloat': node.getStyle('float'),
-                            'url': node.getAttr("_url"),
-                            'logo': node.getAttr('_logo_url')
-                        }, true);
-                        var embed = UE.uNode.createElement(html);
-                        node.parentNode.replaceChild(embed, node);
-                    }
-                })
-            },
-            inputRule: function(root) {
-                utils.each(root.getNodesByTagName('iframe'), function(node) {
-                    if (node.getAttr('class') == 'edui-faked-webapp') {
-                        var img = UE.uNode.createElement(createInsertStr({
-                            title: node.getAttr('title'),
-                            'width': node.getAttr('width'),
-                            'height': node.getAttr('height'),
-                            'align': node.getAttr('align'),
-                            'cssfloat': node.getStyle('float'),
-                            'url': node.getAttr("src"),
-                            'logo': node.getAttr('logo_url')
-                        }));
-                        node.parentNode.replaceChild(img, node);
-                    }
-                })
-
-            },
-            commands: {
-                /**
-                 * 插入百度应用
-                 * @command webapp
-                 * @method execCommand
-                 * @remind 需要百度APPKey
-                 * @remind 百度应用主页： <a href="http://app.baidu.com/" target="_blank">http://app.baidu.com/</a>
-                 * @param { Object } appOptions 应用所需的参数项， 支持的key有： title=>应用标题， width=>应用容器宽度，
-                 * height=>应用容器高度，logo=>应用logo，url=>应用地址
-                 * @example
-                 * ```javascript
-                 * //editor是编辑器实例
-                 * //在编辑器里插入一个“植物大战僵尸”的APP
-                 * editor.execCommand( 'webapp' , {
-                 *     title: '植物大战僵尸',
-                 *     width: 560,
-                 *     height: 465,
-                 *     logo: '应用展示的图片',
-                 *     url: '百度应用的地址'
-                 * } );
-                 * ```
-                 */
-                'webapp': {
-                    execCommand: function(cmd, obj) {
-
-                        var me = this,
-                            str = createInsertStr(utils.extend(obj, {
-                                align: 'none'
-                            }), false);
-                        me.execCommand("inserthtml", str);
-                    },
-                    queryCommandState: function() {
-                        var me = this,
-                            img = me.selection.getRange().getClosedNode(),
-                            flag = img && (img.className == "edui-faked-webapp");
-                        return flag ? 1 : 0;
-                    }
-                }
-            }
-        }
-    });
 
     // plugins/template.js
     ///import core
@@ -24034,11 +23634,11 @@ UE.plugins['catchremoteimage'] = function () {
                 return;
             }
             /* 判断文件格式是否超出允许 */
-            var fileext = file.name ? file.name.substr(file.name.lastIndexOf('.')) : '';
-            if ((fileext && filetype != 'image') || (allowFiles && (allowFiles.join('') + '.').indexOf(fileext.toLowerCase() + '.') == -1)) {
-                errorHandler(me.getLang('autoupload.exceedTypeError'));
-                return;
-            }
+            // var fileext = file.name ? file.name.substr(file.name.lastIndexOf('.')) : '';
+            // if ((fileext && filetype != 'image') || (allowFiles && (allowFiles.join('') + '.').indexOf(fileext.toLowerCase() + '.') == -1)) {
+            //     errorHandler(me.getLang('autoupload.exceedTypeError'));
+            //     return;
+            // }
 
             /* 拖放文件，截屏方式采用ajax提交 */
             let queryString = "?bx_auth_ticket=" +localStorage.getItem("bx_auth_ticket");
@@ -24274,148 +23874,7 @@ UE.plugins['catchremoteimage'] = function () {
 
     });
 
-    // plugins/charts.js
-    UE.plugin.register('charts', function() {
 
-        var me = this;
-
-        return {
-            bindEvents: {
-                'chartserror': function() {}
-            },
-            commands: {
-                'charts': {
-                    execCommand: function(cmd, data) {
-
-                        var tableNode = domUtils.findParentByTagName(this.selection.getRange().startContainer, 'table', true),
-                            flagText = [],
-                            config = {};
-
-                        if (!tableNode) {
-                            return false;
-                        }
-
-                        if (!validData(tableNode)) {
-                            me.fireEvent("chartserror");
-                            return false;
-                        }
-
-                        config.title = data.title || '';
-                        config.subTitle = data.subTitle || '';
-                        config.xTitle = data.xTitle || '';
-                        config.yTitle = data.yTitle || '';
-                        config.suffix = data.suffix || '';
-                        config.tip = data.tip || '';
-                        //数据对齐方式
-                        config.dataFormat = data.tableDataFormat || '';
-                        //图表类型
-                        config.chartType = data.chartType || 0;
-
-                        for (var key in config) {
-
-                            if (!config.hasOwnProperty(key)) {
-                                continue;
-                            }
-
-                            flagText.push(key + ":" + config[key]);
-
-                        }
-
-                        tableNode.setAttribute("data-chart", flagText.join(";"));
-                        domUtils.addClass(tableNode, "edui-charts-table");
-
-
-
-                    },
-                    queryCommandState: function(cmd, name) {
-
-                        var tableNode = domUtils.findParentByTagName(this.selection.getRange().startContainer, 'table', true);
-                        return tableNode && validData(tableNode) ? 0 : -1;
-
-                    }
-                }
-            },
-            inputRule: function(root) {
-                utils.each(root.getNodesByTagName('table'), function(tableNode) {
-
-                    if (tableNode.getAttr("data-chart") !== undefined) {
-                        tableNode.setAttr("style");
-                    }
-
-                })
-
-            },
-            outputRule: function(root) {
-                utils.each(root.getNodesByTagName('table'), function(tableNode) {
-
-                    if (tableNode.getAttr("data-chart") !== undefined) {
-                        tableNode.setAttr("style", "display: none;");
-                    }
-
-                })
-
-            }
-        }
-
-        function validData(table) {
-
-            var firstRows = null,
-                cellCount = 0;
-
-            //行数不够
-            if (table.rows.length < 2) {
-                return false;
-            }
-
-            //列数不够
-            if (table.rows[0].cells.length < 2) {
-                return false;
-            }
-
-            //第一行所有cell必须是th
-            firstRows = table.rows[0].cells;
-            cellCount = firstRows.length;
-
-            for (var i = 0, cell; cell = firstRows[i]; i++) {
-
-                if (cell.tagName.toLowerCase() !== 'th') {
-                    return false;
-                }
-
-            }
-
-            for (var i = 1, row; row = table.rows[i]; i++) {
-
-                //每行单元格数不匹配， 返回false
-                if (row.cells.length != cellCount) {
-                    return false;
-                }
-
-                //第一列不是th也返回false
-                if (row.cells[0].tagName.toLowerCase() !== 'th') {
-                    return false;
-                }
-
-                for (var j = 1, cell; cell = row.cells[j]; j++) {
-
-                    var value = utils.trim((cell.innerText || cell.textContent || ''));
-
-                    value = value.replace(new RegExp(UE.dom.domUtils.fillChar, 'g'), '').replace(/^\s+|\s+$/g, '');
-
-                    //必须是数字
-                    if (!/^\d*\.?\d+$/.test(value)) {
-                        return false;
-                    }
-
-                }
-
-            }
-
-            return true;
-
-        }
-
-    });
 
     // plugins/section.js
     /**
@@ -24726,10 +24185,8 @@ UE.plugins['catchremoteimage'] = function () {
         if (!input.value) return;
         var loadingId = 'loading_' + (+new Date()).toString(36);
         var allowFiles =[".png", ".jpg", ".jpeg", ".gif", ".bmp"];
-        // me.focus();
-        // me.execCommand('inserthtml', '<p style="text-align:center"><img class="loadingclass" id="' + loadingId + '" src="' + me.options.themePath + me.options.theme + '/images/spacer.gif" title="' + (me.getLang('simpleupload.loading') || '') + '" ></p>');
-		me.focus();
-        me.execCommand('inserthtml', '<p style="text-align:center"><img class="loadingclass" id="' + loadingId + '" src="' + me.options.themePath + me.options.theme + '/images/spacer.gif" title="' + (me.getLang('simpleupload.loading') || '') + '" ></p>');
+        me.focus();
+        me.execCommand('inserthtml', '<p style="text-align:center"><img class="loadingclass" id="' + loadingId + '" src="' + me.options.themePath + me.options.theme + '/images/spacer.gif" title="' + (me.getLang('simpleupload.loading') || '') + '" ></p><p><br></p>');
 
         function showErrorLoader(title) {
             if (loadingId) {
@@ -24746,7 +24203,6 @@ UE.plugins['catchremoteimage'] = function () {
         // 判断文件格式是否错误
         // var filename = input.value,
         //     fileext = filename ? filename.substr(filename.lastIndexOf('.')) : '';
-        //     console.log('fileext:'+fileext)
         // if (!fileext || (allowFiles && (allowFiles.join('') + '.').indexOf(fileext.toLowerCase() + '.') == -1)) {
         //     showErrorLoader(me.getLang('simpleupload.exceedTypeError'));
         //     return;
@@ -28012,9 +27468,7 @@ UE.plugins['catchremoteimage'] = function () {
             'spechars': '~/dialogs/spechars/spechars.html',
             'searchreplace': '~/dialogs/searchreplace/searchreplace.html',
             'map': '~/dialogs/map/map.html',
-            'gmap': '~/dialogs/gmap/gmap.html',
             'insertvideo': '~/dialogs/video/video.html',
-            'help': '~/dialogs/help/help.html',
             'preview': '~/dialogs/preview/preview.html',
             'emotion': '~/dialogs/emotion/emotion.html',
             'wordimage': '~/dialogs/wordimage/wordimage.html',
@@ -28023,13 +27477,10 @@ UE.plugins['catchremoteimage'] = function () {
             'edittip': '~/dialogs/table/edittip.html',
             'edittable': '~/dialogs/table/edittable.html',
             'edittd': '~/dialogs/table/edittd.html',
-            'webapp': '~/dialogs/webapp/webapp.html',
-            'snapscreen': '~/dialogs/snapscreen/snapscreen.html',
             'scrawl': '~/dialogs/scrawl/scrawl.html',
             'music': '~/dialogs/music/music.html',
             'template': '~/dialogs/template/template.html',
             'background': '~/dialogs/background/background.html',
-            'charts': '~/dialogs/charts/charts.html'
         };
         //为工具栏添加按钮，以下都是统一的按钮触发命令，所以写在一起
         var btnCmds = ['undo', 'redo', 'formatmatch',
@@ -28156,9 +27607,9 @@ UE.plugins['catchremoteimage'] = function () {
 
 
         var dialogBtns = {
-            noOk: ['searchreplace', 'help', 'spechars', 'webapp', 'preview'],
-            ok: ['attachment', 'anchor', 'link', 'insertimage', 'map', 'gmap', 'insertframe', 'wordimage',
-                'insertvideo', 'insertframe', 'edittip', 'edittable', 'edittd', 'scrawl', 'template', 'music', 'background', 'charts'
+            noOk: ['searchreplace', 'help', 'spechars', 'preview'],
+            ok: ['attachment', 'anchor', 'link', 'insertimage', 'map', 'insertframe', 'wordimage',
+                'insertvideo', 'insertframe', 'edittip', 'edittable', 'edittd', 'scrawl', 'template', 'music', 'background'
             ]
         };
 
@@ -28183,7 +27634,6 @@ UE.plugins['catchremoteimage'] = function () {
                                     className: 'edui-for-' + cmd,
                                     title: title,
                                     holdScroll: cmd === 'insertimage',
-                                    fullscreen: /charts/.test(cmd),
                                     closeDialog: editor.getLang("closeDialog")
                                 }, type == 'ok' ? {
                                     buttons: [{
@@ -28235,7 +27685,7 @@ UE.plugins['catchremoteimage'] = function () {
                                     }
                                 },
                                 theme: editor.options.theme,
-                                disabled: (cmd == 'scrawl' && editor.queryCommandState("scrawl") == -1) || (cmd == 'charts')
+                                disabled: (cmd == 'scrawl' && editor.queryCommandState("scrawl") == -1) 
                             });
                             editorui.buttons[cmd] = ui;
                             editor.addListener('selectionchange', function() {
@@ -28258,52 +27708,6 @@ UE.plugins['catchremoteimage'] = function () {
             })(p, dialogBtns[p]);
         }
 
-        editorui.snapscreen = function(editor, iframeUrl, title) {
-            title = editor.options.labelMap['snapscreen'] || editor.getLang("labelMap.snapscreen") || '';
-            var ui = new editorui.Button({
-                className: 'edui-for-snapscreen',
-                title: title,
-                onclick: function() {
-                    editor.execCommand("snapscreen");
-                },
-                theme: editor.options.theme
-
-            });
-            editorui.buttons['snapscreen'] = ui;
-            iframeUrl = iframeUrl || (editor.options.iframeUrlMap || {})["snapscreen"] || iframeUrlMap["snapscreen"];
-            if (iframeUrl) {
-                var dialog = new editorui.Dialog({
-                    iframeUrl: editor.ui.mapUrl(iframeUrl),
-                    editor: editor,
-                    className: 'edui-for-snapscreen',
-                    title: title,
-                    buttons: [{
-                            className: 'edui-okbutton',
-                            label: editor.getLang("ok"),
-                            editor: editor,
-                            onclick: function() {
-                                dialog.close(true);
-                            }
-                        },
-                        {
-                            className: 'edui-cancelbutton',
-                            label: editor.getLang("cancel"),
-                            editor: editor,
-                            onclick: function() {
-                                dialog.close(false);
-                            }
-                        }
-                    ]
-
-                });
-                dialog.render();
-                editor.ui._dialogs["snapscreenDialog"] = dialog;
-            }
-            editor.addListener('selectionchange', function() {
-                ui.setDisabled(editor.queryCommandState('snapscreen') == -1);
-            });
-            return ui;
-        };
 
         editorui.insertcode = function(editor, list, title) {
             list = editor.options['insertcode'] || [];
@@ -29091,17 +28495,12 @@ UE.plugins['catchremoteimage'] = function () {
                             if (img.className.indexOf("edui-faked-video") != -1 || img.className.indexOf("edui-upload-video") != -1) {
                                 dialogName = "insertvideoDialog"
                             }
-                            if (img.className.indexOf("edui-faked-webapp") != -1) {
-                                dialogName = "webappDialog"
-                            }
+                            
                             if (img.src.indexOf("http://api.map.baidu.com") != -1) {
                                 dialogName = "mapDialog"
                             }
                             if (img.className.indexOf("edui-faked-music") != -1) {
                                 dialogName = "musicDialog"
-                            }
-                            if (img.src.indexOf("http://maps.google.com/maps/api/staticmap") != -1) {
-                                dialogName = "gmapDialog"
                             }
                             if (img.getAttribute("anchorname")) {
                                 dialogName = "anchorDialog";
@@ -29799,7 +29198,7 @@ UE.plugins['catchremoteimage'] = function () {
  */
 UE.I18N['zh-cn'] = {
     'labelMap':{
-        'anchor':'锚点', 'undo':'撤销', 'redo':'重做', 'bold':'加粗', 'indent':'首行缩进', 'snapscreen':'截图',
+        'anchor':'锚点', 'undo':'撤销', 'redo':'重做', 'bold':'加粗', 'indent':'首行缩进', 
         'italic':'斜体', 'underline':'下划线', 'strikethrough':'删除线', 'subscript':'下标','fontborder':'字符边框',
         'superscript':'上标', 'formatmatch':'格式刷', 'source':'源代码', 'blockquote':'引用',
         'pasteplain':'纯文本粘贴模式', 'selectall':'全选', 'print':'打印', 'preview':'预览',
@@ -29809,15 +29208,15 @@ UE.I18N['zh-cn'] = {
         'splittocols':'拆分成列', 'splittocells':'完全拆分单元格','deletecaption':'删除表格标题','inserttitle':'插入标题',
         'mergecells':'合并多个单元格', 'deletetable':'删除表格', 'cleardoc':'清空文档','insertparagraphbeforetable':"表格前插入行",'insertcode':'代码语言',
         'fontfamily':'字体', 'fontsize':'字号', 'paragraph':'段落格式', 'simpleupload':'单图上传', 'insertimage':'多图上传','edittable':'表格属性','edittd':'单元格属性', 'link':'超链接',
-        'emotion':'表情', 'spechars':'特殊字符', 'searchreplace':'查询替换', 'map':'Baidu地图', 'gmap':'Google地图',
+        'emotion':'表情', 'spechars':'特殊字符', 'searchreplace':'查询替换', 'map':'Baidu地图', 
         'insertvideo':'视频', 'help':'帮助', 'justifyleft':'居左对齐', 'justifyright':'居右对齐', 'justifycenter':'居中对齐',
         'justifyjustify':'两端对齐', 'forecolor':'字体颜色', 'backcolor':'背景色', 'insertorderedlist':'有序列表',
         'insertunorderedlist':'无序列表', 'fullscreen':'全屏', 'directionalityltr':'从左向右输入', 'directionalityrtl':'从右向左输入',
         'rowspacingtop':'段前距', 'rowspacingbottom':'段后距',  'pagebreak':'分页', 'insertframe':'插入Iframe', 'imagenone':'默认',
         'imageleft':'左浮动', 'imageright':'右浮动', 'attachment':'附件', 'imagecenter':'居中', 'wordimage':'图片转存',
         'lineheight':'行间距','edittip' :'编辑提示','customstyle':'自定义标题', 'autotypeset':'自动排版',
-        'webapp':'百度应用','touppercase':'字母大写', 'tolowercase':'字母小写','background':'背景','template':'模板','scrawl':'涂鸦',
-        'music':'音乐','inserttable':'插入表格','drafts': '从草稿箱加载', 'charts': '图表'
+        'touppercase':'字母大写', 'tolowercase':'字母小写','background':'背景','template':'模板','scrawl':'涂鸦',
+        'music':'音乐','inserttable':'插入表格','drafts': '从草稿箱加载', 
     },
     'insertorderedlist':{
         'num':'1,2,3...',
@@ -30218,12 +29617,6 @@ UE.I18N['zh-cn'] = {
         'errorHttp':'http请求错误',
         'errorServerUpload':'服务器返回出错'
     },
-    'webapp':{
-        'tip1':"本功能由百度APP提供，如看到此页面，请各位站长首先申请百度APPKey!",
-        'tip2':"申请完成之后请至ueditor.config.js中配置获得的appkey! ",
-        'applyFor':"点此申请",
-        'anthorApi':"百度API"
-    },
     'template':{
         'static':{
             'lang_template_bkcolor':'背景颜色',
@@ -30270,29 +29663,6 @@ UE.I18N['zh-cn'] = {
             'lang_input_anchorName':'锚点名字：'
         }
     },
-    'charts':{
-        'static':{
-            'lang_data_source':'数据源：',
-            'lang_chart_format': '图表格式：',
-            'lang_data_align': '数据对齐方式',
-            'lang_chart_align_same': '数据源与图表X轴Y轴一致',
-            'lang_chart_align_reverse': '数据源与图表X轴Y轴相反',
-            'lang_chart_title': '图表标题',
-            'lang_chart_main_title': '主标题：',
-            'lang_chart_sub_title': '子标题：',
-            'lang_chart_x_title': 'X轴标题：',
-            'lang_chart_y_title': 'Y轴标题：',
-            'lang_chart_tip': '提示文字',
-            'lang_cahrt_tip_prefix': '提示文字前缀：',
-            'lang_cahrt_tip_description': '仅饼图有效， 当鼠标移动到饼图中相应的块上时，提示框内的文字的前缀',
-            'lang_chart_data_unit': '数据单位',
-            'lang_chart_data_unit_title': '单位：',
-            'lang_chart_data_unit_description': '显示在每个数据点上的数据的单位， 比如： 温度的单位 ℃',
-            'lang_chart_type': '图表类型：',
-            'lang_prev_btn': '上一个',
-            'lang_next_btn': '下一个'
-        }
-    },
     'emotion':{
         'static':{
             'lang_input_choice':'精选',
@@ -30304,34 +29674,7 @@ UE.I18N['zh-cn'] = {
             'lang_input_youa':'有啊'
         }
     },
-    'gmap':{
-        'static':{
-            'lang_input_address':'地址',
-            'lang_input_search':'搜索',
-            'address':{value:"北京"}
-        },
-        searchError:'无法定位到该地址!'
-    },
-    'help':{
-        'static':{
-            'lang_input_about':'关于UEditor',
-            'lang_input_shortcuts':'快捷键',
-            'lang_input_introduction':'UEditor是由百度web前端研发部开发的所见即所得富文本web编辑器，具有轻量，可定制，注重用户体验等特点。开源基于BSD协议，允许自由使用和修改代码。',
-            'lang_Txt_shortcuts':'快捷键',
-            'lang_Txt_func':'功能',
-            'lang_Txt_bold':'给选中字设置为加粗',
-            'lang_Txt_copy':'复制选中内容',
-            'lang_Txt_cut':'剪切选中内容',
-            'lang_Txt_Paste':'粘贴',
-            'lang_Txt_undo':'重新执行上次操作',
-            'lang_Txt_redo':'撤销上一次操作',
-            'lang_Txt_italic':'给选中字设置为斜体',
-            'lang_Txt_underline':'给选中字加下划线',
-            'lang_Txt_selectAll':'全部选中',
-            'lang_Txt_visualEnter':'软回车',
-            'lang_Txt_fullscreen':'全屏'
-        }
-    },
+
     'insertframe':{
         'static':{
             'lang_input_address':'地址：',
@@ -30386,14 +29729,6 @@ UE.I18N['zh-cn'] = {
         getEnd:"已经搜索到文章末尾！",
         getStart:"已经搜索到文章头部",
         countMsg:"总共替换了{#count}处！"
-    },
-    'snapscreen':{
-        'static':{
-            lang_showMsg:"截图功能需要首先安装UEditor截图插件！ ",
-            lang_download:"点此下载",
-            lang_step1:"第一步，下载UEditor截图插件并运行安装。",
-            lang_step2:"第二步，插件安装完成后即可使用，如不生效，请重启浏览器后再试！"
-        }
     },
     'spechars':{
         'static':{},

@@ -130,13 +130,6 @@
             domUtils.setStyle($G("colorPicker"), "background-color", color);
         }
 
-        if(url && /^\//.test(url)) {
-            var a = document.createElement('a');
-            a.href = url;
-            browser.ie && (a.href = a.href);
-            url = browser.ie ? a.href:(a.protocol + '//' + a.host + a.pathname + a.search + a.hash);
-        }
-
         if(url || url === '') {
             $G('url').value = url;
         }
@@ -269,7 +262,7 @@
                     'method': 'get',
                     'onsuccess': function (r) {
                         try {
-                            var json = isJsonp ? r:eval('(' + r.responseText + ')');
+                            var json = r.responseText;
                             if (json.state == 'SUCCESS') {
                                 _this.pushData(json.list);
                                 _this.listIndex = parseInt(json.start) + parseInt(json.list.length);
