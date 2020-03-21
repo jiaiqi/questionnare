@@ -1,28 +1,10 @@
 <template>
   <view class="page-wrap">
     <view v-for="(pageItem, itemIndex) in pageItemList" :key="itemIndex">
-      <view class="carousel-view" v-if="pageItem.div_type === 'carousel'">
-        <swiper class="screen-swiper" :class="dotStyle ? 'square-dot' : 'round-dot'" :indicator-dots="true" :circular="true" :autoplay="true" interval="5000" duration="500">
-          <swiper-item v-for="(item, index) in swiperList" :key="index" @click="clickSwiper(item)">
-            <image :src="item.picUrl" mode="aspectFill" v-if="item.picUrl"></image>
-          </swiper-item>
-        </swiper>
-      </view>
-      <view class="menu-view" v-if="pageItem.div_type === 'buttons'">
-        <swiper class="screen-swiper round-dot" :indicator-dots="true" :circular="true" :autoplay="false" interval="5000" duration="500">
-          <swiper-item v-for="(item, index) in menuList" :key="index">
-            <view class="bg-white  menu-item">
-              <view class="bg-imgs " v-for="(item2, index2) in item" :key="index2" @click="clickMenu(item2)">
-                <view class="menu-pic bg-blue">{{ item2.dest_app.slice(0, 2) }}</view>
-                <!-- <view class="menu-pic bg-blue" v-if="!item2.type">{{ item2.dest_app }}</view> -->
-                <!-- <view class="menu-pic2" v-if="item2.type && item2.type === 'more'"><image src="../../../static/img/more2.png" mode=""></image></view> -->
-                <view class="label">{{ item2.dest_app }}</view>
-              </view>
-            </view>
-          </swiper-item>
-        </swiper>
-      </view>
+      <SwiperCarousel :swiperList="swiperList" v-if="pageItem.div_type === 'carousel'" @clickSwiper="clickSwiper" :imgCol="'picUrl'"></SwiperCarousel>
+      <SwiperMenu class="menu-view" v-if="pageItem.div_type === 'buttons'" :menuList="menuList" @clickMenu="clickMenu"></SwiperMenu>
       <TabList
+        @clickListItem="clickListItem"
         v-if="pageItem.div_type === 'tablist'"
         :pageItem="pageItem"
         :srvApp="tabListConfig['srvApp']"
@@ -30,16 +12,35 @@
         :cateService="tabListConfig['cateService']"
         :contentTemplate="tabListConfig['contentTemplate']"
       ></TabList>
+      <!-- <keep-alive>
+      <component
+        :swiperList="swiperList"
+        :menuList="menuList"
+        @clickSwiper="clickSwiper"
+        @clickMenu="clickMenu"
+        @clickListItem="clickListItem"
+        :pageItem="pageItem"
+        :srvApp="tabListConfig['srvApp']"
+        :contentService="tabListConfig['contentService']"
+        :cateService="tabListConfig['cateService']"
+        :contentTemplate="tabListConfig['contentTemplate']"
+        :is="pageItem['componentsType']"
+      ></component>
+      </keep-alive> -->
+      <!-- :is="pageItem.div_type === 'carousel' ? 'SwiperCarousel' : pageItem.div_type === 'buttons' ? 'SwiperMenu' : pageItem.div_type === 'tablist' ? 'TabList' : ''" -->
     </view>
   </view>
 </template>
 
 <script>
 import TabList from '@/components/bx-tablist/bx-tablist.vue';
+import SwiperCarousel from '@/components/bx-swiper/bx-swiper.vue';
+import SwiperMenu from '@/components/bx-swiper-menu/bx-swiper-menu.vue';
 export default {
-  components: { TabList },
+  components: { TabList, SwiperCarousel, SwiperMenu },
   data() {
     return {
+      scrollTop: 0,
       TabCur: 0,
       scrollLeft: 0,
       dotStyle: true,
@@ -89,6 +90,16 @@ export default {
     }
   },
   methods: {
+    upper: function(e) {
+      console.log(e);
+    },
+    lower: function(e) {
+      console.log(e);
+    },
+    scroll: function(e) {
+      console.log(e);
+      this.old.scrollTop = e.detail.scrollTop;
+    },
     tabSelect(e) {
       //点击tab
       this.TabCur = Number(e.currentTarget.dataset.id);
@@ -107,18 +118,15 @@ export default {
         uni.navigateTo({
           url: '/pages/public/home/home'
         });
-        // this.showMoreMenu();
       } else if (e.type && e.type === 'health') {
         uni.navigateTo({
           url: '/pages/specific/symptom/symptom'
         });
+      } else if (e.dest_page) {
+        uni.navigateTo({
+          url: e.dest_page
+        });
       }
-    },
-    showMoreMenu() {
-      // 展示所有按钮
-      uni.redirectTo({
-        url: '/pages/public/home/home'
-      });
     },
     clickListItem(e) {
       // 列表点击事件
@@ -144,11 +152,24 @@ export default {
       uni.hideLoading();
       if (res.data.state === 'SUCCESS') {
         this.pageItemList = res.data.data;
-        res.data.data.forEach((item, index) => {
+        res.data.data.map((item, index) => {
+          switch (item.div_type) {
+            case 'buttons':
+              item['componentsType'] = 'SwiperMenu';
+              break;
+            case 'carousel':
+              item['componentsType'] = 'SwiperCarousel';
+              break;
+            case 'tablist':
+              item['componentsType'] = 'TabList';
+              break;
+              return;
+          }
           this.getPageItem(item).then(data => {
             item['data'] = data;
             this.$set(this.pageItemList, index, item);
           });
+          return item;
         });
         return res.data.data;
       }
@@ -206,7 +227,7 @@ export default {
               case 'buttons':
                 let itemLists = [];
                 // {type:'health',dest_app: '更多'},{ type: 'more', dest_app: '更多' }
-                itemList = itemList.concat([{ type: 'health', dest_app: '症状自检' }, { type: 'more', dest_app: '更多' }]);
+                // itemList = itemList.concat([{ type: 'health', dest_menu_no: '症状自检' }, { type: 'more', dest_menu_no: '更多' }]);
                 if (itemList.length <= 8) {
                   // itemLists = [[...itemList]];
                   itemLists = [itemList];
@@ -218,25 +239,28 @@ export default {
                 this.menuList = itemLists;
                 break;
               case 'carousel':
-                this.getPictureUrl(pageitem.carousel_image).then(url => {
-                  pageitem['picUrl'] = url;
-                  this.$set(itemList, index, pageitem);
-                  this.swiperList = itemList;
-                });
+              pageitem['picUrl'] = this.$api.serverURL + '/file/download?fileNo='+pageitem.carousel_image
+              this.$set(itemList, index, pageitem);
+               this.swiperList = itemList;
+                // this.getPictureUrl(pageitem.carousel_image).then(url => {
+                //   pageitem['picUrl'] = url;
+                //   this.$set(itemList, index, pageitem);
+                //   this.swiperList = itemList;
+                // });
                 break;
               case 'tablist':
                 // this.newsList = itemList;
-                this.getPictureUrl(pageitem.icon_image).then(url => {
-                  pageitem['picUrl'] = url;
-                  this.$set(itemList, index, pageitem);
-                  this.newsList = itemList;
-                });
-                this.getCategoryList(pageitem.no).then(data => {
-                  pageitem['cate_name'] = data.cate_name;
-                  pageitem['cate_no'] = data.no;
-                  this.$set(itemList, index, pageitem);
-                  this.newsList = itemList;
-                });
+                // this.getPictureUrl(pageitem.icon_image).then(url => {
+                //   pageitem['picUrl'] = url;
+                //   this.$set(itemList, index, pageitem);
+                //   this.newsList = itemList;
+                // });
+                // this.getCategoryList(pageitem.no).then(data => {
+                //   pageitem['cate_name'] = data.cate_name;
+                //   pageitem['cate_no'] = data.no;
+                //   this.$set(itemList, index, pageitem);
+                //   this.newsList = itemList;
+                // });
                 break;
             }
             itemList = res.data.data;
@@ -303,6 +327,7 @@ export default {
     margin: 0 auto;
     // display: flex;
     display: grid;
+    padding: 0 20upx;
   }
   // &/deep/ .screen-swiper {
   //     min-height: 300px!important;
@@ -407,137 +432,143 @@ export default {
   }
   .screen-sm {
   }
-  .menu-view {
-    min-height: 400upx;
-    padding: 20upx 0;
-    // &/deep/ .screen-swiper {
-    //     min-height: 300px!important;
-    // }
-    .menu-item {
-      display: flex;
-      box-sizing: border-box;
-      flex-wrap: wrap;
-    }
-    .bg-imgs {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      margin: 10upx;
-      width: 22%;
-      .menu-pic2 {
-        width: 100upx;
-        height: 100upx;
-        border-radius: 20upx;
-      }
-      .menu-pic {
-        width: 100upx;
-        height: 100upx;
-        border-radius: 20upx;
-        font-size: 30upx;
-        margin: 0 auto;
-        justify-content: center;
-        align-items: center;
-        display: flex;
-        font-family: '黑体';
-        // background-color: #409EFF;
-        z-index: 1;
-        &::before {
-          content: '';
-          position: absolute;
-          width: 100upx;
-          height: 100upx;
-          // opacity: 1;
-          background: rgba($color: #0081ff, $alpha: 0.8);
-          transform: translate(3px, 4px);
-          border-radius: 20upx;
-          z-index: -1;
-          box-shadow: 10px 10px 22px 2px rgba(0, 0, 100, 0.2);
-        }
-        &:active {
-          transform: translate(2px, 2px);
-        }
-      }
-      .label {
-        line-height: 50upx;
-        margin-top: 10upx;
-      }
-    }
+  .page-wrap {
+    position: relative;
+    overflow: hidden;
+    // background-color: #EEEEEE;
   }
-  .news-view {
-    display: flex;
-    flex-direction: column;
-    .news-list {
-      width: calc(100% - 20upx);
-      margin: 30upx 0;
-      display: flex;
-      .news-list-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        &.none-image {
-          line-height: 40upx;
-          position: relative;
-          text-indent: 40upx;
-          &::before {
-            content: '';
-            width: 10upx;
-            height: 10upx;
-            border-radius: 50%;
-            color: #333;
-            left: 20upx;
-            top: calc(50% - 5upx);
-            position: absolute;
-            background-color: #333;
-          }
-        }
-        &.single-image {
-          width: calc(100% - 40upx);
-          margin: 0 auto;
-          // padding-left: 40upx;
-          .image {
-            width: 150upx;
-            height: 150upx;
-            margin-right: 20upx;
-            border-radius: 20upx;
-          }
-          .content {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            padding: 0;
-            flex: 1;
-            height: 160upx;
-            max-width: 520upx;
-            .title {
-              font-weight: 600;
-              height: auto;
-              overflow: hidden;
-              // text-overflow: ellipsis;
-              // white-space: nowrap;
-            }
-            .text {
-              width: 95%;
-              max-height: 120upx;
-              font-size: 24upx;
-              color: #666;
-              padding-top: 10upx;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              display: -webkit-box;
-              -webkit-line-clamp: 2;
-              -webkit-box-orient: vertical;
-            }
-          }
-        }
+  // .menu-view {
+  //   // width: 100%;
+  //   // min-height: 400upx;
+  //   // padding: 20upx 0;
+  //   // &/deep/ .screen-swiper {
+  //   //     min-height: 300px!important;
+  //   // }
+  //   .menu-item {
+  //     display: flex;
+  //     box-sizing: border-box;
+  //     flex-wrap: wrap;
+  //   }
+  //   .bg-imgs {
+  //     display: flex;
+  //     flex-direction: column;
+  //     justify-content: center;
+  //     align-items: center;
+  //     margin: 10upx;
+  //     width: 22%;
+  //     .menu-pic2 {
+  //       width: 100upx;
+  //       height: 100upx;
+  //       border-radius: 20upx;
+  //     }
+  //     .menu-pic {
+  //       width: 100upx;
+  //       height: 100upx;
+  //       border-radius: 20upx;
+  //       font-size: 30upx;
+  //       margin: 0 auto;
+  //       justify-content: center;
+  //       align-items: center;
+  //       display: flex;
+  //       font-family: '黑体';
+  //       // background-color: #409EFF;
+  //       z-index: 1;
+  //       &::before {
+  //         content: '';
+  //         position: absolute;
+  //         width: 100upx;
+  //         height: 100upx;
+  //         // opacity: 1;
+  //         background: rgba($color: #0081ff, $alpha: 0.8);
+  //         transform: translate(3px, 4px);
+  //         border-radius: 20upx;
+  //         z-index: -1;
+  //         box-shadow: 10px 10px 22px 2px rgba(0, 0, 100, 0.2);
+  //       }
+  //       &:active {
+  //         transform: translate(2px, 2px);
+  //       }
+  //     }
+  //     .label {
+  //       line-height: 50upx;
+  //       margin-top: 10upx;
+  //     }
+  //   }
+  // }
+  // .news-view {
+  //   display: flex;
+  //   flex-direction: column;
+  //   .news-list {
+  //     width: calc(100% - 20upx);
+  //     margin: 30upx 0;
+  //     display: flex;
+  //     .news-list-item {
+  //       display: flex;
+  //       justify-content: space-between;
+  //       align-items: center;
+  //       &.none-image {
+  //         line-height: 40upx;
+  //         position: relative;
+  //         text-indent: 40upx;
+  //         &::before {
+  //           content: '';
+  //           width: 10upx;
+  //           height: 10upx;
+  //           border-radius: 50%;
+  //           color: #333;
+  //           left: 20upx;
+  //           top: calc(50% - 5upx);
+  //           position: absolute;
+  //           background-color: #333;
+  //         }
+  //       }
+  //       &.single-image {
+  //         width: calc(100% - 40upx);
+  //         margin: 0 auto;
+  //         // padding-left: 40upx;
+  //         .image {
+  //           width: 150upx;
+  //           height: 150upx;
+  //           margin-right: 20upx;
+  //           border-radius: 20upx;
+  //         }
+  //         .content {
+  //           display: flex;
+  //           flex-direction: column;
+  //           justify-content: space-around;
+  //           padding: 0;
+  //           flex: 1;
+  //           height: 160upx;
+  //           max-width: 520upx;
+  //           .title {
+  //             font-weight: 600;
+  //             height: auto;
+  //             overflow: hidden;
+  //             // text-overflow: ellipsis;
+  //             // white-space: nowrap;
+  //           }
+  //           .text {
+  //             width: 95%;
+  //             max-height: 120upx;
+  //             font-size: 24upx;
+  //             color: #666;
+  //             padding-top: 10upx;
+  //             overflow: hidden;
+  //             text-overflow: ellipsis;
+  //             display: -webkit-box;
+  //             -webkit-line-clamp: 2;
+  //             -webkit-box-orient: vertical;
+  //           }
+  //         }
+  //       }
 
-        .content {
-          flex: 1;
-          line-height: 40upx;
-          padding: 10upx;
-        }
-      }
-    }
-  }
+  //       .content {
+  //         flex: 1;
+  //         line-height: 40upx;
+  //         padding: 10upx;
+  //       }
+  //     }
+  //   }
+  // }
 }
 </style>

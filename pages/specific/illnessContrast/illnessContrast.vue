@@ -1,46 +1,41 @@
 <template>
-  <view v-if="IllData.length > 0" class="vip-wrap">
-    <view class="cu-bar bg-white solid-bottom">
+  <view v-if="IllData.length > 0" class="illness-wrap">
+    <cu-custom bgColor="bg-blue" :isBack="true"><block slot="backText">返回</block><block slot="content">自检症状对照</block></cu-custom>
+ <!--   <view class="cu-bar bg-white ">
       <view data-v-310fc9f9="" class="action sub-title">
         <text data-v-310fc9f9="" class="text-xl text-bold text-green">自检症状对照</text>
         <uni-text data-v-310fc9f9="" class="bg-green"><span></span></uni-text>
       </view>
-      <!-- <view class="action">
-				<text class="cuIcon-titles text-orange"></text> 自检症状对照
-			</view> -->
-    </view>
-    <view class="cu-list menu">
-      <view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-        <view class="content">
-          <text class="cuIcon-circlefill text-grey"></text>
-          <text class="text-grey">症状：</text>
-          <text class="text-grey">{{ sickName }}</text>
+    </view> -->
+    <view class="cu-list menu illness-card">
+      <view class="sickName">
+        <text>{{ sickName }}</text>
+      </view>
+      <view v-for="(item, index) in IllData" class="cu-list menu illness-item" :key="index">
+        <view class="cu-item">
+          <view class="content">
+            <text class="cuIcon-circlefill text-grey"></text>
+            <text class="text-grey">符合疾病：</text>
+            <text class="text-grey">{{ item.illName }}</text>
+          </view>
+        </view>
+        <view class="cu-item">
+          <view class="content">
+            <text class="cuIcon-circlefill text-grey"></text>
+            <text class="text-grey">所属科室：</text>
+            <text class="text-grey">{{ item.keName }}</text>
+          </view>
+        </view>
+        <view class="cu-item">
+          <view class="content">
+            <text class="cuIcon-circlefill text-grey"></text>
+            <text class="text-grey">科室说明：</text>
+            <text class="text-grey">{{ item.explain }}</text>
+          </view>
         </view>
       </view>
     </view>
-    <view v-for="(item, index) in IllData" class="cu-list menu" :key="index">
-      <view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-        <view class="content">
-          <text class="cuIcon-circlefill text-grey"></text>
-          <text class="text-grey">符合疾病：</text>
-          <text class="text-grey">{{ item.illName }}</text>
-        </view>
-      </view>
-      <view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-        <view class="content">
-          <text class="cuIcon-circlefill text-grey"></text>
-          <text class="text-grey">所属科室：</text>
-          <text class="text-grey">{{ item.keName }}</text>
-        </view>
-      </view>
-      <view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-        <view class="content">
-          <text class="cuIcon-circlefill text-grey"></text>
-          <text class="text-grey">科室说明：</text>
-          <text class="text-grey">{{ item.explain }}</text>
-        </view>
-      </view>
-    </view>
+    
   </view>
 </template>
 
@@ -51,7 +46,8 @@ export default {
   data() {
     return {
       IllData: [],
-      sickName: ''
+      sickName: '',
+      menuArrow: false
     };
   },
   methods: {
@@ -166,4 +162,25 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.illness-wrap {
+  display: flex;
+  flex-direction: column;
+  .illness-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    margin: 20upx 10upx;
+    border-radius: 20upx;
+    .sickName{
+      margin: 20upx 30upx;
+      font-size: 36upx;
+      font-weight: 600;
+      color: #333;
+    }
+    .illness-item{
+      border-bottom: 1px dashed #f1f1f1;
+    }
+  }
+}
+</style>

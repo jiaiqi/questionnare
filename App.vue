@@ -125,11 +125,11 @@
 	@import "colorui/icon.css";
 	/*每个页面公共css */
 	#app,uni-page-body,uni-page-wrapper{
-		background: #FFFFFF !important;
+		background: #f1f1f1 !important;
 	}
 	html,body{
 		height: auto;
-		background: #FFFFFF !important;
+		background: #f1f1f1 !important;
 	}
 	uni-page-body>uni-view{
 		height: 100%;

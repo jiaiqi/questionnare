@@ -2,20 +2,21 @@
   <view class="article-wrap" v-if="articleData.title">
     <view class="header">
       <view class="title">{{ articleData.title }}</view>
-      
     </view>
-    <view class="category">
+    <!-- <view class="category">
       <text class="lg cuIcon-tagfill"></text>
       {{ cate_name }}
-    </view>
-    <view class="create-time">{{ articleData.create_time }} {{ editor }}</view>
+    </view> -->
+    <view class="create-time">{{ articleData.create_time }} </view>
 
-    <view class="content" v-if="articleData.content"><view class="" v-html="JSON.parse(JSON.stringify(articleData.content).replace(/\<img/gi, '<img width=100% height=100%   '))"></view></view>
+    <view class="content" v-if="articleData.content">
+      <view class="" v-html="JSON.parse(JSON.stringify(articleData.content).replace(/\<img/gi, '<img width=100% height=100%   '))"></view>
+    </view>
     <view class="footer">
       <!-- <view class="create-user">
         责任编辑:{{articleData.create_user}}
       </view> -->
-      <view class="modify-time">修改时间:{{ articleData.modify_time }}</view>
+      <!-- <view class="modify-time">修改时间:{{ articleData.modify_time }}</view> -->
     </view>
   </view>
 </template>
@@ -34,51 +35,51 @@ export default {
   data() {
     return {
       articleData: {},
-      content_no:'',
-      cate_name:'',
-      serviceName:'srvdaq_cms_content_select'
+      content_no: '',
+      cate_name: '',
+      serviceName: 'srvdaq_cms_content_select'
     };
   },
   methods: {
     getArticleData() {
       uni.showLoading({
-        mask:true
-      })
+        mask: true
+      });
       let url = this.getServiceUrl('daq', this.serviceName, 'select');
-      let req = {"serviceName":this.serviceName,"colNames":["*"],"condition":[{colName:'content_no',ruleType:'in',value:this.content_no}]}
-      this.$http.post(url,req).then(res=>{
-        uni.hideLoading()
-        if(res.data.state==="SUCCESS"&&res.data.data.length>0){
-          this.articleData = res.data.data[0]
-        }else{
+      let req = { serviceName: this.serviceName, colNames: ['*'], condition: [{ colName: 'content_no', ruleType: 'in', value: this.content_no }] };
+      this.$http.post(url, req).then(res => {
+        uni.hideLoading();
+        if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+          this.articleData = res.data.data[0];
+        } else {
           uni.showModal({
-            title:'提示',
-            content:'未查找到对应文章，点击确定返回上一级',
+            title: '提示',
+            content: '未查找到对应文章，点击确定返回上一级',
             success(res) {
-              if(res.confirm){
+              if (res.confirm) {
                 uni.redirectTo({
-                  url:'/pages/specific/index/index',
-                })
+                  url: '/pages/specific/index/index'
+                });
               }
             }
-          })
+          });
         }
-      })
+      });
     }
   },
   onLoad(option) {
     if (option.article) {
       this.articleData = JSON.parse(decodeURIComponent(option.article));
     }
-    if(option.cate_name){
-      this.cate_name= option.cate_name
+    if (option.cate_name) {
+      this.cate_name = option.cate_name;
     }
-    if(option.serviceName){
-      this.serviceName = decodeURIComponent(option.serviceName)
+    if (option.serviceName) {
+      this.serviceName = decodeURIComponent(option.serviceName);
     }
-    if(option.content_no){
-      this.content_no = decodeURIComponent(option.content_no)
-      this.getArticleData()
+    if (option.content_no) {
+      this.content_no = decodeURIComponent(option.content_no);
+      this.getArticleData();
     }
   }
 };
@@ -86,6 +87,7 @@ export default {
 
 <style lang="scss">
 .article-wrap {
+  background-color: #fff;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -107,7 +109,6 @@ export default {
       align-items: center;
       flex: 1;
     }
-    
   }
   .category {
     width: 100%;

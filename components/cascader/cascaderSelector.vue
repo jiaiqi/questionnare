@@ -11,7 +11,7 @@
 			:lineDataDefault="lineDataDefault"
 		></cascader>
 		<view class="button-box">
-			<button type="primary" @click="emitSelectVal">{{ lineDataDefault[lineDataDefault.length - 1] ? '确 定' : '取 消' }}</button>
+			<button type="primary" @click="emitSelectVal">{{lineDataDefault[lineDataDefault.length-1]?'确 定':'取 消'}}</button>
 			<button type="primary" @click="resetData">重 置</button>
 		</view>
 	</view>
@@ -26,7 +26,7 @@ export default {
 		return {
 			areaList: [],
 			total: 0,
-			confirmText: '',
+			confirmText:'',
 			parent_no: '',
 			page: { total: 0, pageNo: 1, rownumber: 50 },
 			showSelect: true,
@@ -103,6 +103,7 @@ export default {
 					rownumber: this.page.rownumber
 				}
 			};
+			
 			const res = await this.$http.post(url, req);
 			uni.hideLoading();
 			if (res && res.data && res.data.state === 'SUCCESS') {
@@ -142,6 +143,13 @@ export default {
 				this.outputData = e;
 				this.$emit('clickTag', e);
 				// this.page = { total: 0, pageNo: 1, rownumber: 50 };
+				
+				 if(e.path.split('/').length>5){
+				          this.areaList = []
+				          this.showSelect = false
+				          return}
+				
+				
 				this.page.pageNo = 1;
 				let condition = [
 					{
@@ -150,15 +158,17 @@ export default {
 						value: e.no
 					}
 				];
-				this.lineDataDefault.push(e);
+				// this.lineDataDefault.push(e);
+		let lineDataDefault = [...this.lineDataDefault,e]
+		        this.lineDataDefault = lineDataDefault
 				this.parent_no = e.no;
 				console.log('parent_no', e);
 				if (e.is_leaf === '是') {
 					this.showSelect = false;
 				} else {
 					this.showSelect = true;
-					this.getAreaData(condition);
 				}
+				this.getAreaData(condition);
 			}
 		},
 		clickLine(e, index) {
@@ -180,10 +190,10 @@ export default {
 				];
 				console.log('parent_no', e);
 				this.parent_no = e.no;
+				this.getAreaData(condition);
 				if (e.is_leaf === '是') {
 					this.showSelect = false;
 				} else {
-					this.getAreaData(condition);
 					this.showSelect = true;
 				}
 			} else if (!e) {
@@ -193,7 +203,7 @@ export default {
 			}
 		},
 		emitSelectVal() {
-			this.$emit('getCascaderValue', this.lineDataDefault[this.lineDataDefault.length - 1], 'sure');
+			this.$emit('getCascaderValue', this.lineDataDefault[this.lineDataDefault.length-1],'sure');
 			// this.$emit('getCascaderValue', this.outputData);
 		},
 		setLineData() {
@@ -245,6 +255,9 @@ export default {
 		if (this.srvInfo.serviceName) {
 			this.getAreaData();
 		}
+		// if(this.defaultLineVal){
+		// 	this.setLineData()
+		// }
 	},
 	watch: {
 		defaultLineVal(newValue, oldValue) {

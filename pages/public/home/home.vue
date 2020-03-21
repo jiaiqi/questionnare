@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="home">
 		<bxGrid :gridData="appMenu" :disColName="'title'" :nodeKey="'name'" v-if="appMenu.length > 0"></bxGrid>
 		<!-- <view class="" @click="target()">
 			我的
@@ -65,6 +65,9 @@
 	}
 </script>
 
-<style>
-
+<style scoped lang="scss">
+.home{
+  min-height: 100vh;
+  background-color: #fff;
+}
 </style>

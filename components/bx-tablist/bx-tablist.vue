@@ -1,32 +1,41 @@
 <template>
   <view class="tab-list" v-if="cateList.length > 0">
-    <view class="cu-bar bg-white">
+    <!--  <view class="cu-bar bg-white center">
       <view class="action sub-title">
         <text class="text-xl text-bold text-blue">{{ pageItem.item_name }}</text>
         <text class="bg-blue"></text>
       </view>
-    </view>
-    <scroll-view scroll-x class="bg-white nav" scroll-with-animation :scroll-left="scrollLeft">
+    </view> -->
+    <!--  <scroll-view scroll-x class="bg-white nav" scroll-with-animation :scroll-left="scrollLeft">
       <view class="cu-item" :class="index == TabCur ? 'text-blue cur' : ''" v-for="(cate, index) in cateList" :key="index" @tap="tabSelect($event, cate)" :data-id="index">
         <view v-if="cate && cate.tablist_name">{{ cate.tablist_name }}</view>
       </view>
-    </scroll-view>
-    <view class="news-list" v-for="(list, index) in contList" :key="index" @click="clickListItem(list)">
-      <!-- 单图布局 -->
-      <view class="news-list-item single-image left-image" v-if="list[contentTemplate['imgCol']]">
-        <image :src="list.picUrl" mode="" class="image" :lazy-load="true"></image>
-        <view class="content">
-          <view class="title">{{ list[contentTemplate['titleCol']] }}</view>
-          <view class="text">{{ list[contentTemplate['dateCol']] }}</view>
+    </scroll-view> -->
+    <view class="tab-view">
+      <view class="tab-item  " :class="index === TabCur ? 'current-tab' : ''" :data-id="index" v-for="(cate, index) in cateList" :key="index" @tap="tabSelect($event, cate)">
+        <view v-if="cate && cate.tablist_name">{{ cate.tablist_name }}</view>
+      </view>
+    </view>
+    <view class="content-view">
+      <view class="news-list" v-for="(list, index) in contList" :key="index" @click="clickListItem(list)">
+        <!-- 单图布局 -->
+        <view class="news-list-item single-image left-image" v-if="list[contentTemplate['imgCol']]">
+          <image :src="list.picUrl" mode="" class="image"  v-if="list.picUrl"></image>
+          <image src="../../static/img/loading-1.gif" mode="" class="image" v-if="!list.picUrl"></image>
+          <view class="content">
+            <view class="title">{{ list[contentTemplate['titleCol']] }}</view>
+            <view class="text">{{ list[contentTemplate['dateCol']] }}</view>
+          </view>
+        </view>
+        <!-- 单行 纯文本布局 -->
+        <view class="news-list-item none-image" v-if="!list[contentTemplate['imgCol']]">
+          <view class="content">
+            <view class="title">{{ list[contentTemplate['titleCol']] }}</view>
+            <view class="text"></view>
+          </view>
         </view>
       </view>
-      <!-- 单行 纯文本布局 -->
-      <view class="news-list-item none-image" v-if="!list[contentTemplate['imgCol']]">
-        <view class="content">
-          <view class="title">{{ list[contentTemplate['titleCol']] }}</view>
-          <view class="text"></view>
-        </view>
-      </view>
+      <view class=""><button class="bg-blue light" v-if="page.total > 5">更多</button></view>
     </view>
   </view>
 </template>
@@ -51,16 +60,19 @@ export default {
     srvApp: {
       //服务对应的app
       type: String,
+      required: true,
       default: 'daq'
     },
     cateService: {
       //分类服务名
       type: String,
+      required: true,
       default: 'srvdaq_page_item_tablist_select'
     },
     contentService: {
       // 内容服务名
       type: String,
+      required: true,
       default: 'srvdaq_cms_content_select'
     },
     contentTemplate: {
@@ -82,14 +94,15 @@ export default {
   },
   methods: {
     clickListItem(e) {
-      //点击列表项
-      console.log('点击了列表项,', e);
+      // //点击列表项
+      // console.log('点击了列表项,', e);
+      this.$emit('clickListItem', e);
     },
     tabSelect(e, item) {
       //点击tab
       this.TabCur = Number(e.currentTarget.dataset.id);
       this.scrollLeft = (e.currentTarget.dataset.id - 1) * 60;
-      console.log('点击了Tab,', item);
+      console.log('点击了Tab,', e, item);
       this.getContList(item.no);
     },
     /**
@@ -122,14 +135,17 @@ export default {
       let res = await this.$http.post(url, req);
       uni.hideLoading();
       if (res.data.state === 'SUCCESS' && res.data.data.length >= 0) {
+        this.page = res.data.page;
         let data = res.data.data;
         this.contList = data;
         data.forEach((item, index) => {
-          this.getPictureUrl(item.icon_image).then(url => {
-            item['picUrl'] = url;
-            this.$set(data, index, item);
-            this.contList = data;
-          });
+          item['picUrl'] = this.$api.serverURL + '/file/download?fileNo='+item.icon_image
+          this.$set(data, index, item);
+          // this.getPictureUrl(item.icon_image).then(url => {
+          //   item['picUrl'] = url;
+          //   this.$set(data, index, item);
+          //   this.contList = data;
+          // });
         });
         // this.contList = data;
         return data;
@@ -171,13 +187,45 @@ export default {
 
 <style lang="scss">
 .tab-list {
-  // display: flex;
-  // flex-direction: column;
-  min-height: 1000upx;
+  min-height: 400upx;
+  max-height: 1000upx;
+  background-color: #fff;
+  border-radius: 20upx;
+  padding-top: 20upx;
+  margin: 0upx 10upx 20upx;
+  .tab-view {
+    align-items: center;
+    display: flex;
+    padding-left: 20upx;
+    .tab-item {
+      border: 1px solid #ff9700;
+      min-width: 150upx;
+      padding: 0 20upx;
+      height: 60upx;
+      line-height: 60upx;
+      text-align: center;
+      &:first-child{
+        // border-top-left-radius: 20upx;
+        // border-bottom-left-radius: 20upx;
+        border-right: none;
+      }
+      &:last-child{
+        // border-top-right-radius: 20upx;
+        // border-bottom-right-radius: 20upx;
+        border-left: none;
+      }
+    }
+    .current-tab {
+      background-color: #ff9700;
+      color: #fff;
+      
+    }
+  }
+  .content-view {
+  }
   .news-list {
     width: 100%;
-    // width: calc(100% - 20upx);
-    margin: 20upx 0;
+    padding: 20upx 0;
     display: flex;
     .news-list-item {
       display: flex;
@@ -202,7 +250,6 @@ export default {
       &.single-image {
         width: calc(100% - 40upx);
         margin: 0 auto;
-        // padding-left: 40upx;
         .image {
           width: 150upx;
           height: 150upx;
@@ -221,8 +268,6 @@ export default {
             font-weight: 600;
             height: auto;
             overflow: hidden;
-            // text-overflow: ellipsis;
-            // white-space: nowrap;
           }
           .text {
             width: 95%;

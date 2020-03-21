@@ -1,20 +1,39 @@
 <template>
   <view class="symptom">
-    <treeGrid :treeData="appMenu" :childNodeCol="'_childNode'" :disColName="'name'" :nodeKey="'no'" @on-tree-grid-change="onTreeGridChange" @on-tree-lastcode="onMenu"></treeGrid>
+    <!-- <cascader-selector  @getCascaderValue="getCascaderValue" :srvInfo="srvInfo" :defaultLineVal="defaultLineVal"></cascader-selector> -->
+    <!-- <treeGrid :treeData="appMenu" :childNodeCol="'_childNode'" :disColName="'name'" :nodeKey="'no'" @on-tree-grid-change="onTreeGridChange" @on-tree-lastcode="onMenu"></treeGrid> -->
+    <treeSelector
+      :srvInfo="srvInfo"
+      :treeData="appMenu"
+      :childNodeCol="'_childNode'"
+      :disColName="'name'"
+      :nodeKey="'no'"
+      @clickParentNode="onTreeGridChange"
+      @clickLastNode="onMenu"
+    ></treeSelector>
   </view>
 </template>
 
 <script>
 import treeGrid from './bx-tree-grid/bx-tree-grid.vue';
+import treeSelector from '@/components/tree-selector/tree-selector.vue';
+import cascaderSelector from '../../../components/cascader/cascaderSelector.vue';
 export default {
   name: 'symptom', //自检症状
-  components: { treeGrid },
+  components: { treeGrid, cascaderSelector, treeSelector },
   data() {
     return {
-      appMenu: []
+      appMenu: [],
+      srvInfo: {
+        serviceName: 'srvhealth_self_symptoms_select',
+        appNo: 'health'
+      },
+      defaultLineVal: ''
     };
   },
   methods: {
+    getCascaderValue() {},
+    getAllNode() {},
     getAppMenu() {
       let self = this;
       let req = {
@@ -71,13 +90,13 @@ export default {
       //     title: '无效服务'
       //   });
       // }
+      console.log('onMenu', e);
       if (e.item.name && e.item.no) {
         // 跳转到疾病对照页面
         uni.navigateTo({
           url: `/pages/specific/illnessContrast/illnessContrast?name=${e.item.name}&no=${e.item.no}`
         });
       }
-      console.log('onMenu', e);
     }
   },
   created() {
@@ -93,7 +112,11 @@ export default {
 </script>
 
 <style lang="scss">
-  .symptom{
-    padding-top: 50upx;
-  }
+.symptom {
+  padding-top: 50upx;
+  height: 100vh;
+  background-color: #fff;
+}
+.cascader {
+}
 </style>

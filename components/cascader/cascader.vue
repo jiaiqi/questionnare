@@ -14,11 +14,9 @@
 						'line-end': lineDataDefault.length - 1 === index && !showSelect
 					}"
 				>
-					<view class="content">{{ item.name }}</view>
+					<view class="content tag-item">{{ item.name }}</view>
 				</view>
-				<view class="bx-item bx-text-yellow line-end" v-if="showSelect || (lineData.length === 0 && areaList.length > 0)">
-				<view class="content">请选择</view>
-				</view>
+				<view class="bx-item bx-text-yellow line-end" v-if="showSelect || (lineData.length === 0 && areaList.length > 0)">请选择</view>
 			</view>
 			<view class="bx-tagbox" v-if="showSelect">
 				<view class="bx-item  bx-text-white bx-bg-blue radius" @click="selectArea(item)" v-for="(item, index) in areaList" :key="index">
@@ -73,7 +71,7 @@ export default {
 			handler: function(newV, oldV) {
 				this.areaList = newV;
 				this.lineData = this.lineDataDefault;
-				console.log('areaListwatch中：', newV, thi.lineData);
+				// console.log('areaListwatch中：', newV, thi.lineData);
 			}
 		}
 	},
