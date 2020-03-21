@@ -9,11 +9,11 @@
         </swiper>
       </view>
       <view class="menu-view" v-if="pageItem.div_type === 'buttons'">
-        <swiper class="screen-swiper round-dot screen-sm" :indicator-dots="true" :circular="true" :autoplay="false" interval="5000" duration="500">
+        <swiper class="screen-swiper round-dot" :indicator-dots="true" :circular="true" :autoplay="false" interval="5000" duration="500">
           <swiper-item v-for="(item, index) in menuList" :key="index">
             <view class="bg-white  menu-item">
               <view class="bg-imgs " v-for="(item2, index2) in item" :key="index2" @click="clickMenu(item2)">
-                <view class="menu-pic bg-blue">{{ item2.dest_app }}</view>
+                <view class="menu-pic bg-blue">{{ item2.dest_app.slice(0, 2) }}</view>
                 <!-- <view class="menu-pic bg-blue" v-if="!item2.type">{{ item2.dest_app }}</view> -->
                 <!-- <view class="menu-pic2" v-if="item2.type && item2.type === 'more'"><image src="../../../static/img/more2.png" mode=""></image></view> -->
                 <view class="label">{{ item2.dest_app }}</view>
@@ -21,59 +21,23 @@
             </view>
           </swiper-item>
         </swiper>
-        <!--  <view class="screen-xl">
-          <view v-for="(item, index) in menuList" :key="index">
-            <view class="bg-white  menu-item">
-              <view class="bg-imgs " v-for="(item2, index2) in item" :key="index2" @click="clickMenu(item2)">
-                <view class="menu-pic bg-blue" v-if="!item2.type">{{ item2.dest_app }}</view>
-                <view class="menu-pic" v-if="item2.type && item2.type === 'more'"><image src="../../../static/img/more2.png" mode=""></image></view>
-                <view class="label">{{ item2.dest_app }}</view>
-              </view>
-            </view>
-          </view>
-        </view> -->
       </view>
-
-      <view class="news-view" v-if="pageItem.div_type === 'tablist'">
-       <!-- <scroll-view scroll-x class="bg-white nav text-center" scroll-with-animation :scroll-left="scrollLeft" v-if="tabNewsList&&tabNewsList.length>0">
-          <view class="cu-item" :class="index == TabCur ? 'text-white cur' : ''" v-for="(item, index) in tabNewsList" :key="index" @tap="tabSelect" :data-id="index">{{ item.name }}</view>
-        </scroll-view> -->
-        <scroll-view scroll-x class="bg-white nav" scroll-with-animation :scroll-left="scrollLeft">
-        	<view class="cu-item" :class="index==TabCur?'text-blue cur':''" v-for="(item,index) in tabNewsList" :key="index" @tap="tabSelect" :data-id="index">
-        		<view v-if="item&&item.name">
-        		  {{ item.name }}
-        		</view>
-        	</view>
-        </scroll-view>
-        <view v-if="tabNewsList[TabCur]&&tabNewsList[TabCur].data">
-          <view class="news-list" v-for="(list, index) in tabNewsList[TabCur].data" :key="index" @click="clickListItem(list)">
-            <!-- 单图布局 -->
-            <view class="news-list-item single-image left-image" v-if="list.picUrl">
-              <image :src="list.picUrl" mode="" class="image" :lazy-load="true"></image>
-              <view class="content">
-                <view class="title">{{ list.title }}</view>
-                <!-- <view class="text" v-html="list.content"></view> -->
-                <view class="text" >{{list.create_time}}</view>
-              </view>
-            </view>
-            <!-- 单行 纯文本布局 -->
-            <view class="news-list-item none-image" v-if="!list.picUrl">
-              <view class="content">
-                <view class="title">{{ list.title }}</view>
-                <view class="text"></view>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
+      <TabList
+        v-if="pageItem.div_type === 'tablist'"
+        :pageItem="pageItem"
+        :srvApp="tabListConfig['srvApp']"
+        :contentService="tabListConfig['contentService']"
+        :cateService="tabListConfig['cateService']"
+        :contentTemplate="tabListConfig['contentTemplate']"
+      ></TabList>
     </view>
   </view>
 </template>
 
 <script>
-import bxList from '@/components/bx-list/bx-list.vue';
+import TabList from '@/components/bx-tablist/bx-tablist.vue';
 export default {
-  components: { bxList },
+  components: { TabList },
   data() {
     return {
       TabCur: 0,
@@ -84,15 +48,14 @@ export default {
       newsList: [], //新闻列表
       swiperList: [], //轮播图列表
       categoryList: [], //分类列表
-      listConfig: {
-        serviceName: 'srvdaq_cms_content_select',
-        pageType: 'list',
-        viewTemp: {
-          // title: 'name',
-          // tip: 'desc',
-          // img: 'img',
-          // price: 'current_price',
-          // footer: 'shop_name'
+      tabListConfig: {
+        srvApp: 'daq',
+        contentService: 'srvdaq_cms_content_select',
+        cateService: 'srvdaq_page_item_tablist_select',
+        contentTemplate: {
+          imgCol: 'icon_image',
+          titleCol: 'title',
+          dateCol: 'create_time'
         }
       }
       // tabsList:{}
@@ -130,7 +93,6 @@ export default {
       //点击tab
       this.TabCur = Number(e.currentTarget.dataset.id);
       this.scrollLeft = (e.currentTarget.dataset.id - 1) * 60;
-      
     },
     clickSwiper(e) {
       // 点击了轮播图
@@ -142,14 +104,21 @@ export default {
       if (e.type && e.type === 'more') {
         // 点击了更多按钮
         console.log('点击了更多按钮');
-        this.showMoreMenu();
+        uni.navigateTo({
+          url: '/pages/public/home/home'
+        });
+        // this.showMoreMenu();
+      } else if (e.type && e.type === 'health') {
+        uni.navigateTo({
+          url: '/pages/specific/symptom/symptom'
+        });
       }
     },
     showMoreMenu() {
       // 展示所有按钮
       uni.redirectTo({
-        url:'/pages/public/home/home'
-      })
+        url: '/pages/public/home/home'
+      });
     },
     clickListItem(e) {
       // 列表点击事件
@@ -199,6 +168,7 @@ export default {
           break;
         case 'tablist':
           serviceName = 'srvdaq_cms_content_select';
+          return;
           break;
       }
       if (item.div_type === 'tablist' && serviceName) {
@@ -235,15 +205,15 @@ export default {
             switch (item.div_type) {
               case 'buttons':
                 let itemLists = [];
-                if (itemList.length <= 7) {
-                  itemLists = [[...itemList, { type: 'more', dest_app: '更多' }]];
-                  // itemLists = [itemList];
-                } else if (itemList.length > 7 && itemList.length < 16) {
-                  // } else if (itemList.length > 8 && itemList.length <= 16) {
-                  itemLists = [itemList.slice(0, 7), [...itemList.slice(8, 15), { type: 'more', dest_app: '更多' }]];
-                  // itemLists = [itemList.slice(0, 8), itemList.slice(8)];
+                // {type:'health',dest_app: '更多'},{ type: 'more', dest_app: '更多' }
+                itemList = itemList.concat([{ type: 'health', dest_app: '症状自检' }, { type: 'more', dest_app: '更多' }]);
+                if (itemList.length <= 8) {
+                  // itemLists = [[...itemList]];
+                  itemLists = [itemList];
+                } else if (itemList.length > 8 && itemList.length <= 16) {
+                  itemLists = [itemList.slice(0, 8), itemList.slice(8)];
                 } else if (itemList.length > 16) {
-                  itemLists = [itemList.slice(0, 8), [...itemList.slice(8, 15), { type: 'more', dest_app: '更多' }]];
+                  itemLists = [itemList.slice(0, 8), itemList.slice(8, 16)];
                 }
                 this.menuList = itemLists;
                 break;
@@ -269,6 +239,7 @@ export default {
                 });
                 break;
             }
+            itemList = res.data.data;
           });
           return itemList;
         }
