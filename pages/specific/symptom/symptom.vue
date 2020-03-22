@@ -2,7 +2,7 @@
   <view class="symptom">
     <!-- <cascader-selector  @getCascaderValue="getCascaderValue" :srvInfo="srvInfo" :defaultLineVal="defaultLineVal"></cascader-selector> -->
     <!-- <treeGrid :treeData="appMenu" :childNodeCol="'_childNode'" :disColName="'name'" :nodeKey="'no'" @on-tree-grid-change="onTreeGridChange" @on-tree-lastcode="onMenu"></treeGrid> -->
-    <treeSelector
+   <!-- <treeSelector
       :srvInfo="srvInfo"
       :treeData="appMenu"
       :childNodeCol="'_childNode'"
@@ -10,17 +10,18 @@
       :nodeKey="'no'"
       @clickParentNode="onTreeGridChange"
       @clickLastNode="onMenu"
-    ></treeSelector>
+    ></treeSelector> -->
+	<MultilevelMenu :menuList="appMenu"></MultilevelMenu>
   </view>
 </template>
 
 <script>
-import treeGrid from './bx-tree-grid/bx-tree-grid.vue';
-import treeSelector from '@/components/tree-selector/tree-selector.vue';
-import cascaderSelector from '../../../components/cascader/cascaderSelector.vue';
+// import treeSelector from '@/components/tree-selector/tree-selector.vue';
+import MultilevelMenu from '@/components/MultilevelMenu/MultilevelMenu.vue'
 export default {
   name: 'symptom', //自检症状
-  components: { treeGrid, cascaderSelector, treeSelector },
+  // components: {treeSelector },
+  components:{MultilevelMenu},
   data() {
     return {
       appMenu: [],
