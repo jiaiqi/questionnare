@@ -3,7 +3,7 @@
 		<view class="menu-item animation-slide-left" v-for="(menu, index) in listData" :key="index">
 			<view class="menu-title ">
 				<text class="lg text-green icon cuIcon-add margin-right-xs" v-if="menu._childNode.length > 0 && !menu.showChild" @click="showChildNode(menu, index)"></text>
-				<text class="lg text-green icon cuIcon-refresharrow margin-right-xs"  v-if="menu._childNode.length > 0 && menu.showChild" @click="showChildNode(menu, index)"></text>
+				<text class="lg text-green icon cuIcon-refresharrow margin-right-xs"  v-if="menu._childNode.length > 0 && menu.showChild" @click="showChildNode(menu, index,)"></text>
 				<text class="label bg-gradual-green padding radius text-center shadow-blur" :class="{ 'margin-left': menu._childNode.length === 0 }" @click="clickMenu(menu, index)">{{ menu.name }}</text>
 			</view>
 			<view class="menu-children" v-if="menu._childNode.length > 0 && menu.showChild"><MultilevelMenu :menuList="menu._childNode"></MultilevelMenu></view>
@@ -17,6 +17,8 @@ export default {
 	data() {
 		return {
 			listData: [],
+			showChild:true,
+			activeNode:{}
 		};
 	},
 	props: {
@@ -43,7 +45,7 @@ export default {
 		clickMenu(menu, index) {
 			this.showChildNode(menu, index);
 			if (menu['_childNode'].length > 0) {
-				console.log('clickMenu：', menu);
+				// console.log('clickMenu：', menu);
 				this.$emit('clickMenu', menu);
 			} else {
 				this.clickLastNode(menu);
@@ -54,14 +56,15 @@ export default {
 			this.$emit('clickLastNode', menu);
 		},
 		showChildNode(menu, index,show) {
+			let listData = JSON.parse(JSON.stringify(this.listData))
 			this.listData.map((item, itemIndex) => {
 				if (menu.no === item.no) {
 					item.showChild = !item.showChild;
-					this.$set(this.listData, index, item);
+					console.log(menu.no,item.showChild)
 				}else{
-					// item.showChild = false;
-					// this.$set(this.listData, index, item);
+					item.showChild = false;
 				}
+				this.$set(this.listData, itemIndex, item);
 			});
 		}
 	},
@@ -72,6 +75,7 @@ export default {
 			handler(newValue, oldValue) {
 				let list = newValue.map(item => {
 					item['showChild'] = false;
+					console.log('111')
 					return item;
 				});
 				this.listData = list;
@@ -104,8 +108,7 @@ export default {
 				min-width: 120upx;
 				min-height: 60upx;
 				line-height: 60upx;
-				// border: 1px #007aff solid;
-				// border-radius: 20upx;
+				box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
 				&.margin-left {
 					margin-left: 60upx;
 				}
