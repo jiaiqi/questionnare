@@ -2,13 +2,15 @@
 	<view class="multilevel-menu">
 		<view class="menu-item animation-slide-left" v-for="(menu, index) in listData" :key="index">
 			<view class="menu-title ">
-				<text class="lg text-green icon cuIcon-add margin-right-xs" v-if="menu._childNode.length > 0 && !menu.showChild" @click="showChildNode(menu, index)"></text>
-				<text class="lg text-green icon cuIcon-refresharrow margin-right-xs"  v-if="menu._childNode.length > 0 && menu.showChild" @click="showChildNode(menu, index,)"></text>
+				<text class="lg text-green icon cuIcon-add margin-right-xs"
+				 v-if="menu._childNode.length > 0 && !menu.showChild" @click="showChildNode(menu, index)"></text>
+				<text class="lg text-blue icon cuIcon-refresharrow margin-right-xs"  v-if="menu._childNode.length > 0 && menu.showChild" @click="showChildNode(menu, index,)"></text>
 				<text class="label padding  radius text-center shadow-blur" 
 				:class="{ 
 					'margin-left': menu._childNode.length === 0,
 				'bg-blue':menu.no===activeNode.no,
-				 'bg-gradual-green':menu.no!==activeNode.no}" @click="clickMenu(menu, index)">{{ menu.name }}</text>
+				 'bg-gradual-green':menu.no!==activeNode.no}" 
+				 @click="clickMenu(menu, index)">{{ menu.name }}</text>
 			</view>
 			<view class="menu-children" v-if="menu._childNode.length > 0 && menu.showChild"><MultilevelMenu :menuList="menu._childNode"></MultilevelMenu></view>
 		</view>
