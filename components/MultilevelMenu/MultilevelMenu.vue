@@ -4,7 +4,11 @@
 			<view class="menu-title ">
 				<text class="lg text-green icon cuIcon-add margin-right-xs" v-if="menu._childNode.length > 0 && !menu.showChild" @click="showChildNode(menu, index)"></text>
 				<text class="lg text-green icon cuIcon-refresharrow margin-right-xs"  v-if="menu._childNode.length > 0 && menu.showChild" @click="showChildNode(menu, index,)"></text>
-				<text class="label bg-gradual-green padding radius text-center shadow-blur" :class="{ 'margin-left': menu._childNode.length === 0 }" @click="clickMenu(menu, index)">{{ menu.name }}</text>
+				<text class="label padding  radius text-center shadow-blur" 
+				:class="{ 
+					'margin-left': menu._childNode.length === 0,
+				'bg-blue':menu.no===activeNode.no,
+				 'bg-gradual-green':menu.no!==activeNode.no}" @click="clickMenu(menu, index)">{{ menu.name }}</text>
 			</view>
 			<view class="menu-children" v-if="menu._childNode.length > 0 && menu.showChild"><MultilevelMenu :menuList="menu._childNode"></MultilevelMenu></view>
 		</view>
@@ -60,6 +64,11 @@ export default {
 			this.listData.map((item, itemIndex) => {
 				if (menu.no === item.no) {
 					item.showChild = !item.showChild;
+					if(item.showChild){
+						this.activeNode = menu
+					}else{
+						this.activeNode={}
+					}
 					console.log(menu.no,item.showChild)
 				}else{
 					item.showChild = false;
