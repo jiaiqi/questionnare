@@ -22,7 +22,8 @@
                   <view class="titleWrap" @click.stop="toPreview(item.activity_no, item.status, item.fill_batch_no)">
                     <view class="text-cut">{{ item.title }}</view>
                     <text class="placehold"></text>
-                    <view class="cu-tag round " :class="item.status == '未开始' ? 'bg-orange' : item.status == '已结束' ? 'bg-grey' : 'bg-olive'">{{ item.status }}</view>
+                    <view class="cu-tag round " v-if="currentTab===0" :class="item.status == '未开始' ? 'bg-orange' : item.status == '已结束' ? 'bg-grey' : 'bg-olive'">{{ item.status }}</view>
+                    <view class="cu-tag round " v-if="currentTab===1" :class="item.state == '未完成' ? 'bg-orange' : item.status == '完成' ? 'bg-grey' : 'bg-olive'">{{ item.state }}</view>
                   </view>
                   <view class="text-gray text-sm" style="display: flex;">
                     <view class="" @click="toViewList('view', item)">

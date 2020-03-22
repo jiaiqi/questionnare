@@ -1,6 +1,6 @@
 <template>
 	<view class="multilevel-menu">
-		<view class="menu-item " :class="animationType?'animation-fade':'animation-fade'" v-for="(menu, index) in listData" :key="index">
+		<view class="menu-item animation-slide-left" v-for="(menu, index) in listData" :key="index">
 			<view class="menu-title ">
 				<text class="lg text-green icon cuIcon-add margin-right-xs" v-if="menu._childNode.length > 0 && !menu.showChild" @click="showChildNode(menu, index)"></text>
 				<text class="lg text-green icon cuIcon-refresharrow margin-right-xs"  v-if="menu._childNode.length > 0 && menu.showChild" @click="showChildNode(menu, index)"></text>
@@ -17,7 +17,6 @@ export default {
 	data() {
 		return {
 			listData: [],
-			animationType:true,
 		};
 	},
 	props: {
@@ -55,10 +54,8 @@ export default {
 			this.$emit('clickLastNode', menu);
 		},
 		showChildNode(menu, index,show) {
-			this.animationType = !this.animationType
 			this.listData.map((item, itemIndex) => {
 				if (menu.no === item.no) {
-					console.log(menu.no,item.no)
 					item.showChild = !item.showChild;
 					this.$set(this.listData, index, item);
 				}else{
@@ -111,6 +108,9 @@ export default {
 				// border-radius: 20upx;
 				&.margin-left {
 					margin-left: 60upx;
+				}
+				&:active{
+					transform: translate(2px,2px);
 				}
 			}
 		}

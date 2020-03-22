@@ -22,10 +22,10 @@
           <!-- <view class="text-content">{{ formData.end_remark }}</view> -->
         </view>
       </view>
-      <view class="button-box" style="margin: 30upx;" v-if="formType === 'form' && configCols && configCols.length > 0">
+      <view class="button-box" style="margin: 30upx;" v-if="formType === 'form' && configCols && configCols.length > 0&&formData['user_state']==='未完成'">
         <button class="bg-blue line-white" type="" @click="submitForm('submit')">提交</button>
       </view>
-      <view class="button-box" style="margin: 30upx;" v-if="formType === 'detail' && configCols && configCols.length > 0 && formData.info_collect_type === '评估' && fill_batch_no">
+      <view class="button-box" style="margin: 30upx;" v-if="formType === 'detail' && configCols && configCols.length > 0 && formData.info_collect_type === '评估' &&formData.user_state==='完成'&& fill_batch_no">
         <button class="bg-blue line-white" type="" @click="seeReport()">查看评估结果</button>
       </view>
     </view>
@@ -272,11 +272,11 @@ export default {
                       title: '提交成功',
                       icon: 'none'
                     });
-                    self.formType = detail;
-                    // self.getQuestionnaireData(self.formData)
-                    uni.redirectTo({
-                      url: '../home/home'
-                    });
+                    self.formType = 'detail';
+                    self.getQuestionnaireData(self.formData)
+                    // uni.redirectTo({
+                    //   url: '../home/home'
+                    // });
                   }
                 } else {
                   if (res.data.resultCode === 'FAILURE') {
@@ -390,7 +390,7 @@ export default {
                   this.$set(this.formData, 'fileUrl', url);
                 });
               }
-              if (data.user_data && data.answer_times !== '多次') {
+              if (data.user_data) {
                 console.log('data.answer_times', data.answer_times);
                 configCols.forEach(item => {
                   if (this.formType === 'detail') {

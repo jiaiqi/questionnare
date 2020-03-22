@@ -1,6 +1,6 @@
 <template>
   <view class="symptom">
-    <!-- <cascader-selector  @getCascaderValue="getCascaderValue" :srvInfo="srvInfo" :defaultLineVal="defaultLineVal"></cascader-selector> -->
+	  <cu-custom bgColor="bg-gradual-green" :isBack="true"><block slot="backText">返回</block><block slot="content">疾病自检</block></cu-custom>
     <!-- <treeGrid :treeData="appMenu" :childNodeCol="'_childNode'" :disColName="'name'" :nodeKey="'no'" @on-tree-grid-change="onTreeGridChange" @on-tree-lastcode="onMenu"></treeGrid> -->
    <!-- <treeSelector
       :srvInfo="srvInfo"
