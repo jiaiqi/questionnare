@@ -1,7 +1,7 @@
 <template>
   <view class="page-wrap">
     <view v-for="(pageItem, itemIndex) in pageItemList" :key="itemIndex">
-      <!-- <SwiperCarousel :swiperList="swiperList" v-if="pageItem.div_type === 'carousel'" @clickSwiper="clickSwiper" :imgCol="'picUrl'"></SwiperCarousel>
+      <SwiperCarousel :swiperList="swiperList" v-if="pageItem.div_type === 'carousel'" @clickSwiper="clickSwiper" :imgCol="'picUrl'"></SwiperCarousel>
       <SwiperMenu class="menu-view" v-if="pageItem.div_type === 'buttons'" :menuList="menuList" @clickMenu="clickMenu"></SwiperMenu>
       <TabList
         @clickListItem="clickListItem"
@@ -11,7 +11,7 @@
         :contentService="tabListConfig['contentService']"
         :cateService="tabListConfig['cateService']"
         :contentTemplate="tabListConfig['contentTemplate']"
-      ></TabList> -->
+      ></TabList>
       <!-- <keep-alive>
       <component
         :swiperList="swiperList"
@@ -33,11 +33,11 @@
 </template>
 
 <script>
-// import TabList from '@/components/bx-tablist/bx-tablist.vue';
-// import SwiperCarousel from '@/components/bx-swiper/bx-swiper.vue';
-// import SwiperMenu from '@/components/bx-swiper-menu/bx-swiper-menu.vue';
+import TabList from '@/components/bx-tablist/bx-tablist.vue';
+import SwiperCarousel from '@/components/bx-swiper/bx-swiper.vue';
+import SwiperMenu from '@/components/bx-swiper-menu/bx-swiper-menu.vue';
 export default {
-  // components: { TabList, SwiperCarousel, SwiperMenu },
+  components: { TabList, SwiperCarousel, SwiperMenu },
   data() {
     return {
       scrollTop: 0,

@@ -1,41 +1,41 @@
 <template>
   <view v-if="IllData.length > 0" class="illness-wrap">
-    <cu-custom bgColor="bg-blue" :isBack="true"><block slot="backText">返回</block><block slot="content">自检症状对照</block></cu-custom>
- <!--   <view class="cu-bar bg-white ">
-      <view data-v-310fc9f9="" class="action sub-title">
-        <text data-v-310fc9f9="" class="text-xl text-bold text-green">自检症状对照</text>
-        <uni-text data-v-310fc9f9="" class="bg-green"><span></span></uni-text>
-      </view>
-    </view> -->
+    <cu-custom bgColor="bg-gradual-green" :isBack="true">
+      <block slot="backText">返回</block>
+      <block slot="content">自检症状对照</block>
+    </cu-custom>
     <view class="cu-list menu illness-card">
       <view class="sickName">
+        <text class="cuIcon-warn "></text>
         <text>{{ sickName }}</text>
       </view>
-      <view v-for="(item, index) in IllData" class="cu-list menu illness-item" :key="index">
+      <view v-for="(item, index) in IllData" class="cu-list menu illness-item animation-slide-left" :key="index">
         <view class="cu-item">
           <view class="content">
-            <text class="cuIcon-circlefill text-grey"></text>
-            <text class="text-grey">符合疾病：</text>
-            <text class="text-grey">{{ item.illName }}</text>
+            <text class="cuIcon-questionfill text-red"></text>
+            <text class="text-grey"></text>
+            <text class="text-red text-bold">{{ item._disease_no_disp }}</text>
           </view>
         </view>
         <view class="cu-item">
           <view class="content">
-            <text class="cuIcon-circlefill text-grey"></text>
-            <text class="text-grey">所属科室：</text>
-            <text class="text-grey">{{ item.keName }}</text>
+            <text class="cuIcon-news text-cyan"></text>
+            <!-- <text class="text-cyan">科室：</text> -->
+            <text class="text-cyan">{{ item.keName }}</text>
           </view>
         </view>
         <view class="cu-item">
           <view class="content">
-            <text class="cuIcon-circlefill text-grey"></text>
+            <text class="cuIcon-read text-grey"></text>
             <text class="text-grey">科室说明：</text>
             <text class="text-grey">{{ item.explain }}</text>
+            <!-- <view class="department-explain">
+              <text class="text-grey">{{ item.explain }}</text>
+            </view> -->
           </view>
         </view>
       </view>
     </view>
-    
   </view>
 </template>
 
@@ -122,9 +122,6 @@ export default {
       if (res.data.state === 'SUCCESS') {
         this.getDeptName(ksNum, endData);
       }
-      // if(res.data.data.length > 0){
-      // 	this.getDeptName(ksNum,endData)
-      // }
     },
     async getDeptName(ksNum, disData) {
       let serviceName = 'srvhealth_his_dept_select';
@@ -145,12 +142,23 @@ export default {
       });
       uni.hideLoading();
       this.IllData = disData;
-      console.log('getDeptName---------------', disData);
+      if (disData.length === 0) {
+        uni.showModal({
+          title: '提示',
+          content: '未找到对应疾病，即将返回上一级',
+          showCancel: false,
+          success(res) {
+            if (res.confirm) {
+              uni.redirectTo({
+                url: '/pages/specific/symptom/symptom'
+              });
+            }
+          }
+        });
+      }
     }
   },
   onLoad(option) {
-    // let vips = JSON.parse(decodeURIComponent(option.params))
-    // this.vipDef = vips
     let symNo = option.no;
     if (!symNo) {
       symNo = 'A12';
@@ -169,18 +177,62 @@ export default {
   .illness-card {
     display: flex;
     flex-direction: column;
-    background-color: #fff;
-    margin: 20upx 10upx;
-    border-radius: 20upx;
-    .sickName{
-      margin: 20upx 30upx;
-      font-size: 36upx;
+    // background-color: #fff;
+    margin: 20upx;
+    // border-radius: 20upx;
+    .sickName {
+      margin: 0 0 20upx;
+      padding-left: 20upx;
+      font-size: 40upx;
       font-weight: 600;
-      color: #333;
+      color: #39b54a;
+      line-height: 80upx;
+      background-color: #ffffff;
+      border-radius: 20upx;
+      text {
+        padding-right: 20upx;
+      }
     }
-    .illness-item{
-      border-bottom: 1px dashed #f1f1f1;
+    .illness-item {
+      border-radius: 20upx;
+      background-color: #ffffff;
+      padding: 0upx 0 40upx;
+      .department-explain {
+        text-indent: 60upx;
+      }
     }
+  }
+}
+[class*='animation-'] {
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+.animation-slide-left {
+  animation-name: slide-left;
+}
+.animation-slide-right {
+  animation-name: slide-right;
+}
+@keyframes slide-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slide-right {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 </style>

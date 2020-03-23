@@ -1,8 +1,10 @@
 <template>
   <view class="symptom">
-	  <cu-custom bgColor="bg-gradual-green" :isBack="true"><block slot="backText">返回</block><block slot="content">疾病自检</block></cu-custom>
-    <!-- <treeGrid :treeData="appMenu" :childNodeCol="'_childNode'" :disColName="'name'" :nodeKey="'no'" @on-tree-grid-change="onTreeGridChange" @on-tree-lastcode="onMenu"></treeGrid> -->
-   <!-- <treeSelector
+    <cu-custom bgColor="bg-gradual-green" :isBack="true">
+      <block slot="backText">返回</block>
+      <block slot="content">自检症状</block>
+    </cu-custom>
+    <treeSelector
       :srvInfo="srvInfo"
       :treeData="appMenu"
       :childNodeCol="'_childNode'"
@@ -10,18 +12,18 @@
       :nodeKey="'no'"
       @clickParentNode="onTreeGridChange"
       @clickLastNode="onMenu"
-    ></treeSelector> -->
-	<MultilevelMenu :menuList="appMenu"></MultilevelMenu>
+    ></treeSelector>
+    <!-- <MultilevelMenu :menuList="appMenu" @clickLastNode="clickLastNode" @clickMenu="clickMenu"></MultilevelMenu> -->
   </view>
 </template>
 
 <script>
-// import treeSelector from '@/components/tree-selector/tree-selector.vue';
-import MultilevelMenu from '@/components/MultilevelMenu/MultilevelMenu.vue'
+import treeSelector from '@/components/tree-selector/tree-selector.vue';
+// import MultilevelMenu from '@/components/MultilevelMenu/MultilevelMenu.vue';
 export default {
   name: 'symptom', //自检症状
-  // components: {treeSelector },
-  components:{MultilevelMenu},
+  components: { treeSelector },
+  // components: { MultilevelMenu },
   data() {
     return {
       appMenu: [],
@@ -33,14 +35,11 @@ export default {
     };
   },
   methods: {
-    getCascaderValue() {},
-    getAllNode() {},
     getAppMenu() {
       let self = this;
       let req = {
         serviceName: 'srvhealth_self_symptoms_select',
         colNames: ['*']
-        // condition: [{ colName: 'parent_no', ruleType: 'isnull' }]
       };
       self.onRequest('select', 'srvhealth_self_symptoms_select', req, 'health').then(res => {
         console.log('appmenu1', res);
@@ -56,7 +55,7 @@ export default {
               seq: '',
               link: '',
               type: 'button',
-              _childNode: ''
+              _childNode: []
             };
             a.title = item.name;
             a.name = item.remark;
@@ -73,27 +72,27 @@ export default {
           });
         }
       });
-      console.log('appmenu2', this.appMenu);
+      console.log('appmenu', this.appMenu);
     },
     onTreeGridChange(e) {
       console.log('onTreeGridChange', e);
     },
+    clickMenu(e) {
+      console.log('clickMenu：', e);
+    },
+    clickLastNode(e) {
+      //点击最底层节点
+      console.log('clickLastNode：', e);
+      if (e.name && e.no) {
+        uni.navigateTo({
+          url: `/pages/specific/illnessContrast/illnessContrast?name=${e.name}&no=${e.no}`
+        });
+      }
+    },
     onMenu(e) {
-      // if (this.isInvalid(e.item.service_name)) {
-      //   let viewTemp = e.item.app_temp_col_map;
-      //   if (this.isInvalid(e.item.app_temp_col_map)) {
-      //   }
-      //   uni.navigateTo({
-      //     url: '/pages/public/list/list?serviceName=' + e.item.service_name + '&pageType=list' + (this.isInvalid(e.item.app_temp_col_map) ? '&viewTemp=' + viewTemp : '')
-      //   });
-      // } else {
-      //   uni.showToast({
-      //     title: '无效服务'
-      //   });
-      // }
-      console.log('onMenu', e);
+      console.log('clickLastNode', e);
       if (e.item.name && e.item.no) {
-        // 跳转到疾病对照页面
+        // 跳转到疾病对照页面;
         uni.navigateTo({
           url: `/pages/specific/illnessContrast/illnessContrast?name=${e.item.name}&no=${e.item.no}`
         });
@@ -101,9 +100,9 @@ export default {
     }
   },
   created() {
-    uni.setNavigationBarTitle({
-      title: '自检症状'
-    });
+    // uni.setNavigationBarTitle({
+    //   title: '自检症状'
+    // });
     this.getAppMenu();
   },
   onShow() {
@@ -116,8 +115,6 @@ export default {
 .symptom {
   padding-top: 50upx;
   height: 100vh;
-  background-color: #fff;
-}
-.cascader {
+  // background-color: #fff;
 }
 </style>

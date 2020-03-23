@@ -1,13 +1,14 @@
 <template>
   <view class="selector-wrap cu-timeline">
-    <view class=" parent-node cu-item text-blue">
+    <view class="parent-node cu-item text-blue animation-slide-top">
       <view class="parent-list  ">
         <view class="list-item" v-for="(item, index) in treeData" :key="index" @click="clickParentNode(item, index)">
-          <view class="label" :class="currentNodes === index ? 'active' : ''">{{ item[disColName] }}</view>
+          <view class="label" :class="item[nodeKey] === activeNode[nodeKey] ? 'active' : 'normal'">{{ item[disColName] }}</view>
         </view>
       </view>
     </view>
-    <childSelector
+    <treeSelector
+      :key="key"
       v-if="childNode.length > 0"
       :name="activeNode[nodeKey]"
       :treeData="childNode"
@@ -15,23 +16,18 @@
       :disColName="disColName"
       @clickLastNode="clickLastNode"
       :nodeKey="nodeKey"
-    ></childSelector>
-    <!-- <view class="child-list">
-      <view class="list-item" v-for="(item, index) in childNode" :key="index" @click="clickLastNode(item)">{{ item[disColName] }}</view>
-    </view> -->
+    ></treeSelector>
   </view>
 </template>
 
 <script>
 export default {
-  components: {
-    childSelector: e => import('@/components/tree-selector/tree-selector.vue')
-  },
+  name: 'treeSelector',
   data() {
     return {
       activeNode: {},
-      currentNodes: -1,
-      childNode: []
+      childNode: [],
+      key: false
     };
   },
   props: {
@@ -59,38 +55,31 @@ export default {
       }
     },
     clickParentNode(item, index) {
-      console.log('onclick', item, index);
-      this.currentNodes = index;
+      this.key = !this.key;
       if (item._childNode.length === 0) {
-        console.log('onclick', item, index);
         this.$emit('clickLastNode', { item, index });
       } else {
         if (this.activeNode[this.nodeKey] === item[this.nodeKey]) {
           this.activeNode = {};
-          this.childNode.length = 0;
+          this.childNode = [];
+          debugger;
         } else {
           this.activeNode = item;
           this.childNode = item[this.childNodeCol];
         }
       }
       this.$emit('clickParentNode', { item, index });
-      // this.currentNodes = index;
-      // this.$emit('clickParentNode', e);
-      // if (e._childNode) {
-      //   this.childNode = e._childNode;
-      // }
     },
     clickLastNode(e) {
       //点击最底层节点
       if (e.item._childNode.length === 0) {
         this.$emit('clickLastNode', e);
       }
-      // this.$emit('clickLastNode', e);
     }
   },
   treeData: {
     handler: function(nVal, oVal) {
-      console.log('------new  VAL', nVal);
+      console.log('newVal', nVal);
       this.childNode.length = 0;
       this.activeNode = {};
     },
@@ -100,70 +89,114 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.cu-timeline {
-  // background-color: #efefef;
+.cu-timeline > .cu-item::before {
+  background-color: #efefef;
 }
+.cu-timeline > .cu-item::after {
+  background-color: #0081ff;
+  // background-color: #999;
+}
+.cu-timeline > .cu-item {
+  padding: 5px 15px 5px 60px;
+}
+.cu-timeline {
+  background-color: #efefef;
+}
+.left-timeline {
+  &::before {
+    font-family: 'cuIcon';
+    display: block;
+    position: absolute;
+    top: 18px;
+    z-index: 9;
+    background-color: #ffffff;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    border: none;
+    line-height: 25px;
+    left: 18px;
+    content: '⚪';
+  }
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 0.5px;
+    background-color: #ddd;
+    left: 30px;
+    height: 50%;
+    top: 0;
+    z-index: 8;
+  }
+}
+
 .selector-wrap {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  // background-color: #efefef;
   width: 100%;
   .parent-node {
     display: flex;
     width: 100%;
-    // background-color: #efefef;
     .line-box {
       width: 30upx;
       height: 100upx;
       flex: 1;
     }
   }
-  // &::before{
-  //   // content: '⚪';
-  //   content: '\26AA';
-  //   position: absolute;
-  //   left: 30upx;
-  //   top: 100upx;
-  //   color: #fff;
-  //   // background-color: #fff;
-  //   // left: -50upx;
-  //   // top: 0;
-  // }
-  // &::after{
-  //   // content: '⚪';
-  //   content: '';
-  //   position: absolute;
-  //   width: 2px;
-  //   color: #333;
-  //   height: 200upx;
-  //   left: 40upx;
-  //   top: 100upx;
-  //   // background-color: #fff;
-  //   // left: -50upx;
-  //   // top: 0;
-  // }
   .parent-list {
     width: 100%;
-    // flex: 1;
-    margin-right: 20upx;
-    margin: 0 20upx 40upx 0;
     background-color: #fff;
     min-height: 200upx;
     border-radius: 20upx;
     display: flex;
-background-color: #efefef;
-color: #333;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    color: #333;
+    box-shadow: 3px 3px 5px rgba($color: #333, $alpha: 0.5);
     .list-item {
+      box-sizing: border-box;
       .label {
         padding: 10upx 20upx;
-        margin: 10upx 20upx;
+        margin: 10upx;
+        border: 1px solid #0081ff;
+        border-radius: 20upx;
         &.active {
           background-color: #0081ff;
           color: #fff;
         }
+        &.normal {
+          box-sizing: border-box;
+        }
       }
     }
+  }
+}
+[class*='animation-'] {
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+.animation-slide-top {
+  animation-name: slide-top;
+}
+.animation-slide-bottom {
+  animation-name: slide-top;
+  animation-direction: reverse;
+}
+@keyframes slide-top {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  50%{
+    opacity: .1;
+    transform: translateY(-50%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
