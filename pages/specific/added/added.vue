@@ -138,12 +138,13 @@ export default {
     toUpdate() {
       let self = this;
       let type = this.type
+      let itemData = self.$refs.bxForm.getFieldModel();
+      if(!itemData){return}
       uni.showModal({
         title: '提示',
         content: type==='add'? '确认创建问卷？':type==='update'?'确认修改问卷信息？':'',
         success(res) {
           if (res.confirm) {
-            let itemData = self.$refs.bxForm.getFieldModel();
             console.log('itemData', itemData);
             let url = self.getServiceUrl('daq', 'srvdaq_activity_cfg_add', 'add');
             let req = [{ serviceName: 'srvdaq_activity_cfg_add', data: [itemData] }];

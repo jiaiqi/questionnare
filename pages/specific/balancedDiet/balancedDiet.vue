@@ -45,12 +45,12 @@
         <view class="operate">=</view>
         <view class="energy-item">
           <view class="text">体重变化</view>
-          <view class="number text-red">
-            {{ parseFloat(energyChange) > 0 ? `+${parseFloat(energyChange).toFixed(1)}` : parseFloat(energyChange).toFixed(1) }}
+          <view class="number text-red" style="display: flex; width: 90px; justify-content: space-between;">
+           <text style="width: 60%;"> {{ parseFloat(energyChange) > 0 ? `+${parseFloat(energyChange).toFixed(1)}` : parseFloat(energyChange).toFixed(1) }}</text>
             <text class="units">大卡</text>
           </view>
-          <view class="number text-red">
-            {{ energyChange === 0 ? '0.0' : parseFloat(energyChange / 7.7) > 0 ? `+${parseFloat(energyChange / 7.7).toFixed(1)}` : parseFloat(energyChange / 7.7).toFixed(1) }}
+          <view class="number text-red" style="display: flex; width: 90px; justify-content: space-between;">
+            <text style="width: 60%;">{{ energyChange === 0 ? '0.0' : parseFloat(energyChange / 7.7) > 0 ? `+${parseFloat(energyChange / 7.7).toFixed(1)}` : parseFloat(energyChange / 7.7).toFixed(1) }}</text>
             <text class="units">g脂肪</text>
           </view>
         </view>
@@ -65,7 +65,7 @@
         <view class="table" v-if="dietRecord">
           <view class="row" v-for="(item, index) in dietRecord" :key="index">
             <view class="readonly">
-              <view class="column" @click="openPopup(dietRecord, index, 'htime', 'food')">{{ item.htime }}</view>
+              <view class="column" @click="openPopup(dietRecord, index, 'htime', 'food')">{{ item.htime?item.htime.slice(0, 5):'' }}</view>
               <view class="column">{{ item.name }}</view>
               <!-- <view class="column" @click="openPopup(dietRecord, index, 'name', 'food')">{{ item.name }}</view> -->
               <view class="column" @click="openPopup(dietRecord, index, 'amount', 'food')">{{ item.amount + item.unit }}</view>
@@ -86,7 +86,7 @@
         <view class="table" v-if="sportsRecord">
           <view class="row" v-for="(item, index) in sportsRecord" :key="index">
             <view class="readonly">
-              <view class="column" @click="openPopup(sportsRecord, index, 'htime', 'sport')">{{ item.htime }}</view>
+              <view class="column" @click="openPopup(sportsRecord, index, 'htime', 'sport')">{{ item.htime?item.htime.slice(0, 5):'' }}</view>
               <view class="column">{{ item.name }}</view>
               <!-- <view class="column" @click="openPopup(sportsRecord, index, 'name', 'sport')">{{ item.name }}</view> -->
               <view class="column" @click="openPopup(sportsRecord, index, 'amount', 'sport')">{{ item.amount + item.unit }}</view>
@@ -329,6 +329,8 @@ export default {
     energyChange() {
       if (this.dietIn && this.sportOut && this.basicOut) {
         return Number(this.dietIn) - Number(this.sportOut) - Number(this.basicOut);
+      } else if (this.basicOut) {
+        return this.basicOut * -1;
       } else {
         return 0;
       }
@@ -467,6 +469,10 @@ export default {
         // } else if (this.addType === 'sport') {
         // 	this.addData('sport');
         // }
+      } else {
+        for (let i in this.formData) {
+          this.formData[i] = '';
+        }
       }
       this.$refs.showForm.close();
     },
@@ -539,6 +545,9 @@ export default {
           this.getDietRecord();
           // } else if (type === 'sport') {
           this.getSportsRecord();
+          for (let i in this.formData) {
+            this.formData[i] = '';
+          }
           // }
         } else {
           uni.showToast({
@@ -1237,6 +1246,7 @@ export default {
         }
         .number {
           font-size: 30upx;
+          text-align: center;
         }
         .text-red {
           color: #red;

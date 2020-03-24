@@ -19,7 +19,7 @@
         </view>
         <view class="cu-item">
           <view class="content">
-            <text class="cuIcon-news text-cyan"></text>
+            <text class="cuIcon-homefill text-cyan"></text>
             <!-- <text class="text-cyan">科室：</text> -->
             <text class="text-cyan">{{ item.keName }}</text>
           </view>

@@ -114,6 +114,22 @@
             "path" : "pages/specific/illnessContrast/illnessContrast",
             "style" : {}
         }
+        ,{
+            "path" : "pages/specific/courseGrid/courseGrid",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/specific/newsList/newsList",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/public/proc/procList/procList",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/public/proc/procDetail/procDetail",
+            "style" : {}
+        }
     ],
   "globalStyle": {
     // "navigationBarTitleText": "百想软件开发平台",

@@ -1,26 +1,15 @@
 <template>
   <view class="tab-list" v-if="cateList.length > 0">
-    <!--  <view class="cu-bar bg-white center">
-      <view class="action sub-title">
-        <text class="text-xl text-bold text-blue">{{ pageItem.item_name }}</text>
-        <text class="bg-blue"></text>
-      </view>
-    </view> -->
-    <!--  <scroll-view scroll-x class="bg-white nav" scroll-with-animation :scroll-left="scrollLeft">
-      <view class="cu-item" :class="index == TabCur ? 'text-blue cur' : ''" v-for="(cate, index) in cateList" :key="index" @tap="tabSelect($event, cate)" :data-id="index">
-        <view v-if="cate && cate.tablist_name">{{ cate.tablist_name }}</view>
-      </view>
-    </scroll-view> -->
-    <view class="tab-view">
+    <view class="tab-view" v-if="!onlyList">
       <view class="tab-item  " :class="index === TabCur ? 'current-tab' : ''" :data-id="index" v-for="(cate, index) in cateList" :key="index" @tap="tabSelect($event, cate)">
         <view v-if="cate && cate.tablist_name">{{ cate.tablist_name }}</view>
       </view>
     </view>
     <view class="content-view">
-      <view class="news-list" v-for="(list, index) in contList" :key="index" @click="clickListItem(list)">
+      <view class="news-list " v-for="list in contList" :key="list.id" @click="clickListItem(list)">
         <!-- 单图布局 -->
-        <view class="news-list-item single-image left-image" v-if="list[contentTemplate['imgCol']]">
-          <image :src="list.picUrl" mode="" class="image"  v-if="list.picUrl"></image>
+        <view class="news-list-item single-image left-image animation-slide-left" v-if="list[contentTemplate['imgCol']]">
+          <image :src="list.picUrl" mode="" class="image" v-if="list.picUrl"></image>
           <image src="../../static/img/loading-1.gif" mode="" class="image" v-if="!list.picUrl"></image>
           <view class="content">
             <view class="title">{{ list[contentTemplate['titleCol']] }}</view>
@@ -28,14 +17,14 @@
           </view>
         </view>
         <!-- 单行 纯文本布局 -->
-        <view class="news-list-item none-image" v-if="!list[contentTemplate['imgCol']]">
+        <view class="news-list-item none-image animation-slide-left" v-if="!list[contentTemplate['imgCol']]">
           <view class="content">
             <view class="title">{{ list[contentTemplate['titleCol']] }}</view>
             <view class="text"></view>
           </view>
         </view>
       </view>
-      <view class=""><button class="bg-blue light" v-if="page.total > 5">更多</button></view>
+      <view class=""><button class="bg-blue light" v-if="page.total > 5" @click="showMore">更多</button></view>
     </view>
   </view>
 </template>
@@ -49,6 +38,7 @@ export default {
       scrollLeft: 0,
       cateList: [], //分类列表
       contList: [], //内容列表
+      currentTab: {}, //当前分类
       page: {
         total: 0,
         rownumber: 5,
@@ -90,6 +80,11 @@ export default {
       //页面项数据
       type: Object,
       default: () => {}
+    },
+    onlyList: {
+      // 当前页面是否只显示list
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -101,6 +96,7 @@ export default {
     tabSelect(e, item) {
       //点击tab
       this.TabCur = Number(e.currentTarget.dataset.id);
+      this.currentTab = this.cateList[this.TabCur];
       this.scrollLeft = (e.currentTarget.dataset.id - 1) * 60;
       console.log('点击了Tab,', e, item);
       this.getContList(item.no);
@@ -131,7 +127,7 @@ export default {
         mask: true
       });
       const url = this.getServiceUrl(this.srvApp, this.contentService, 'select');
-      const req = { serviceName: this.contentService, colNames: ['*'], condition: [{ colName: 'no', value: cate_no, ruleType: 'eq' }] };
+      const req = { serviceName: this.contentService, colNames: ['*'], condition: [{ colName: 'no', value: cate_no, ruleType: 'eq' }], page: { rownumber: 5 } };
       let res = await this.$http.post(url, req);
       uni.hideLoading();
       if (res.data.state === 'SUCCESS' && res.data.data.length >= 0) {
@@ -139,7 +135,7 @@ export default {
         let data = res.data.data;
         this.contList = data;
         data.forEach((item, index) => {
-          item['picUrl'] = this.$api.serverURL + '/file/download?fileNo='+item.icon_image
+          item['picUrl'] = this.$api.serverURL + '/file/download?fileNo=' + item.icon_image;
           this.$set(data, index, item);
           // this.getPictureUrl(item.icon_image).then(url => {
           //   item['picUrl'] = url;
@@ -150,6 +146,9 @@ export default {
         // this.contList = data;
         return data;
       }
+    },
+    showMore() {
+      this.$emit('showMore', this.currentTab);
     },
     /**
      * 根据文件编号查找对应文件url
@@ -175,12 +174,28 @@ export default {
       }
     }
   },
-  mounted() {
-    this.getCateList().then(data => {
-      if (data && data.length > 0) {
-        this.getContList(data[0].no);
+  watch: {
+    contList: {
+      deep:true,
+      handler(newValue, oldValue){
+        
       }
-    });
+    }
+  },
+  mounted() {
+    if(!this.onlyList){
+      this.getCateList().then(data => {
+        if (data && data.length > 0) {
+          this.getContList(data[0].no);
+          this.currentTab = this.cateList[0];
+        }
+      });
+    }else{
+      if(this.pageItem.cate_no){
+        this.getContList(this.pageItem.cate_no);
+      }
+    }
+    
   }
 };
 </script>
@@ -188,10 +203,11 @@ export default {
 <style lang="scss">
 .tab-list {
   min-height: 400upx;
-  max-height: 1000upx;
+  max-height: 1200upx;
   background-color: #fff;
   border-radius: 20upx;
   padding-top: 20upx;
+  overflow: hidden;
   margin: 0upx 10upx 20upx;
   .tab-view {
     align-items: center;
@@ -204,12 +220,12 @@ export default {
       height: 60upx;
       line-height: 60upx;
       text-align: center;
-      &:first-child{
+      &:first-child {
         // border-top-left-radius: 20upx;
         // border-bottom-left-radius: 20upx;
         border-right: none;
       }
-      &:last-child{
+      &:last-child {
         // border-top-right-radius: 20upx;
         // border-bottom-right-radius: 20upx;
         border-left: none;
@@ -218,7 +234,6 @@ export default {
     .current-tab {
       background-color: #ff9700;
       color: #fff;
-      
     }
   }
   .content-view {
@@ -289,6 +304,81 @@ export default {
         padding: 10upx;
       }
     }
+  }
+}
+[class*='animation-'] {
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+.animation-fade {
+  animation-name: fade;
+  animation-duration: 0.8s;
+  animation-timing-function: linear;
+}
+.animation-slide-top {
+  animation-name: slide-top;
+}
+.animation-slide-bottom {
+  animation-name: slide-bottom;
+}
+.animation-slide-left {
+  animation-name: slide-left;
+}
+.animation-slide-right {
+  animation-name: slide-right;
+}
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes slide-top {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slide-bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slide-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slide-right {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 </style>

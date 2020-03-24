@@ -55,3 +55,44 @@ item_type_attr属性:
 - 3、“长按下方二维码，识别关注公众号”上面加一行“为了及时获取最新信息” ok
 - 4、我反馈的，对应的查看和反馈人数不允许点进去看列表；ok
 - 5、单选和多选的圆圈和方框再稍微调小一点；ok
+
+流程业务梳理
+
+## 流程列表(tabList)
+### 新建
+1. `srvsys_service_columnex_v2_select` 根据服务名查对应v2数据
+  ```js
+    {
+      "serviceName":"srvsys_service_columnex_v2_select",
+      "colNames":["*"],
+      "condition":[
+        {"colName":"service_name","value":"srvoa_issue_info_select","ruleType":"eq"},
+        {"colName":"use_type","value":"proclist","ruleType":"eq"}
+        ],
+      "order":[{"colName":"seq","orderType":"asc"}]
+    }
+  ```
+## 流畅详情
+### 查看
+1. `/oa/select/srvprocess_basic_cfg_select` 查找流程数据
+   ```js
+   <!-- 请求参数 -->
+   {
+     colNames: ["*"],
+     condition: [
+         {
+           colName: "proc_instance_no", 
+           ruleType: "eq", 
+           value: "20200314164454639100" //流程编号
+         }
+       ],
+     serviceName: "srvprocess_basic_cfg_select",
+   }
+   <!-- 响应数据 -->
+   {
+     mainData:{
+       
+     }
+   }
+   ```
+2. 

@@ -5,6 +5,7 @@
       <SwiperMenu class="menu-view" v-if="pageItem.div_type === 'buttons'" :menuList="menuList" @clickMenu="clickMenu"></SwiperMenu>
       <TabList
         @clickListItem="clickListItem"
+        @showMore="showMore($event,pageItem)"
         v-if="pageItem.div_type === 'tablist'"
         :pageItem="pageItem"
         :srvApp="tabListConfig['srvApp']"
@@ -12,22 +13,6 @@
         :cateService="tabListConfig['cateService']"
         :contentTemplate="tabListConfig['contentTemplate']"
       ></TabList>
-      <!-- <keep-alive>
-      <component
-        :swiperList="swiperList"
-        :menuList="menuList"
-        @clickSwiper="clickSwiper"
-        @clickMenu="clickMenu"
-        @clickListItem="clickListItem"
-        :pageItem="pageItem"
-        :srvApp="tabListConfig['srvApp']"
-        :contentService="tabListConfig['contentService']"
-        :cateService="tabListConfig['cateService']"
-        :contentTemplate="tabListConfig['contentTemplate']"
-        :is="pageItem['componentsType']"
-      ></component>
-      </keep-alive> -->
-      <!-- :is="pageItem.div_type === 'carousel' ? 'SwiperCarousel' : pageItem.div_type === 'buttons' ? 'SwiperMenu' : pageItem.div_type === 'tablist' ? 'TabList' : ''" -->
     </view>
   </view>
 </template>
@@ -75,14 +60,10 @@ export default {
         tabNewsList[index] = [];
         this.newsList.forEach(listItem => {
           if (cate.no === listItem.cate_no) {
-            // tabNewsList[listItem.cate_name] = tabNewsList[listItem.cate_name].concat([listItem]);
             tabNewsList[index] = tabNewsList[index].concat([listItem]);
-            // this.$set(this.tabNewsList, index, tabNewsList[index]);
             NewsList[index] = {};
             NewsList[index]['data'] = tabNewsList[index];
             NewsList[index]['name'] = listItem.cate_name;
-            // NewsList[listItem.cate_name]= tabNewsList[index]
-            // NewsList[index]['name'] = listItem.cate_name
           }
         });
       });
@@ -90,15 +71,11 @@ export default {
     }
   },
   methods: {
-    upper: function(e) {
-      console.log(e);
-    },
-    lower: function(e) {
-      console.log(e);
-    },
-    scroll: function(e) {
-      console.log(e);
-      this.old.scrollTop = e.detail.scrollTop;
+    showMore(e,pageitem) {
+      console.log('点击了更多按钮', e,pageitem);
+      uni.navigateTo({
+        url:"/pages/specific/newsList/newsList?cate_no="+e.no
+      })
     },
     tabSelect(e) {
       //点击tab
@@ -136,7 +113,6 @@ export default {
         // url: '/pages/specific/article/article?article=' + encodeURIComponent(JSON.stringify(e))
       });
     },
-    clickFootBtn() {},
     async getPageItemList() {
       //获取页面项列表
       uni.showLoading({
@@ -239,9 +215,9 @@ export default {
                 this.menuList = itemLists;
                 break;
               case 'carousel':
-              pageitem['picUrl'] = this.$api.serverURL + '/file/download?fileNo='+pageitem.carousel_image
-              this.$set(itemList, index, pageitem);
-               this.swiperList = itemList;
+                pageitem['picUrl'] = this.$api.serverURL + '/file/download?fileNo=' + pageitem.carousel_image;
+                this.$set(itemList, index, pageitem);
+                this.swiperList = itemList;
                 // this.getPictureUrl(pageitem.carousel_image).then(url => {
                 //   pageitem['picUrl'] = url;
                 //   this.$set(itemList, index, pageitem);

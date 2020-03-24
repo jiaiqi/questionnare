@@ -2,7 +2,7 @@
   <view class="cu-card article bg-blue" style="min-height: 100vh;">
     <view class="cu-item shadow" style="padding: 10upx;">
       <view class="question-title">
-        <view class="text-cut" style="">{{ formData.title }}</view>
+        <view>{{ formData.title }}</view>
       </view>
       <view class="content" style="padding: 0 30upx;">
         <view class="desc">
@@ -23,7 +23,7 @@
         </view>
       </view>
       <view class="button-box" style="margin: 30upx;" v-if="formType === 'form' && configCols && configCols.length > 0&&formData['user_state']==='未完成'">
-        <button class="bg-blue line-white" type="" @click="submitForm('submit')">提交</button>
+        <button class="bg-blue line-white" type="" @click="submitForm()">提交</button>
       </view>
       <view class="button-box" style="margin: 30upx;" v-if="formType === 'detail' && configCols && configCols.length > 0 && formData.info_collect_type === '评估' &&formData.user_state==='完成'&& fill_batch_no">
         <button class="bg-blue line-white" type="" @click="seeReport()">查看评估结果</button>
@@ -224,76 +224,80 @@ export default {
     },
     submitForm() {
       let self = this;
-      uni.showModal({
-        title: '提示',
-        content: '确认提交问卷?',
-        success: function(res) {
-          if (res.confirm) {
-            if (self.status !== '进行中') {
-              uni.showToast({
-                title: '状态非进行中的问卷不支持提交',
-                icon: 'none'
-              });
-            } else {
-              let itemData = self.$refs.bxform.getFieldModel();
-              console.log('itemData', itemData);
-              let resultData = [];
-              Object.keys(itemData).forEach(item => {
-                let obj = {
-                  item_no: item,
-                  option_data: [itemData[item]]
-                };
-                if (Array.isArray(itemData[item])) {
-                  obj.option_data = itemData[item];
-                }
-                if (itemData[item]) {
-                  resultData.push(obj);
-                }
-              });
-              let serviceName = 'srvdaq_activity_result_submit';
-              const url = self.getServiceUrl('daq', serviceName, 'operate');
-              let req = [
-                {
-                  serviceName: serviceName,
-                  data: [
-                    {
-                      fill_batch_no: self.fill_batch_no,
-                      activity_no: self.activity_no,
-                      item_data: resultData
+      let itemData = self.$refs.bxform.getFieldModel();
+      if(itemData !==false){
+        uni.showModal({
+          title: '提示',
+          content: '确认提交问卷?',
+          success: function(res) {
+            if (res.confirm) {
+              if (self.status !== '进行中') {
+                uni.showToast({
+                  title: '状态非进行中的问卷不支持提交',
+                  icon: 'none'
+                });
+              } else {
+                // let itemData = self.$refs.bxform.getFieldModel();
+                console.log('itemData', itemData);
+                let resultData = [];
+                Object.keys(itemData).forEach(item => {
+                  let obj = {
+                    item_no: item,
+                    option_data: [itemData[item]]
+                  };
+                  if (Array.isArray(itemData[item])) {
+                    obj.option_data = itemData[item];
+                  }
+                  if (itemData[item]) {
+                    resultData.push(obj);
+                  }
+                });
+                let serviceName = 'srvdaq_activity_result_submit';
+                const url = self.getServiceUrl('daq', serviceName, 'operate');
+                let req = [
+                  {
+                    serviceName: serviceName,
+                    data: [
+                      {
+                        fill_batch_no: self.fill_batch_no,
+                        activity_no: self.activity_no,
+                        item_data: resultData
+                      }
+                    ]
+                  }
+                ];
+                console.log('resultData', resultData);
+                self.$http.post(url, req).then(res => {
+                  if (res.data.state === 'SUCCESS') {
+                    if (res.data.resultCode === 'SUCCESS') {
+                      uni.showToast({
+                        title: '提交成功',
+                        icon: 'none'
+                      });
+                      self.formType = 'detail';
+                      self.getQuestionnaireData(self.formData)
+                      // uni.redirectTo({
+                      //   url: '../home/home'
+                      // });
                     }
-                  ]
-                }
-              ];
-              console.log('resultData', resultData);
-              self.$http.post(url, req).then(res => {
-                if (res.data.state === 'SUCCESS') {
-                  if (res.data.resultCode === 'SUCCESS') {
-                    uni.showToast({
-                      title: '提交成功',
-                      icon: 'none'
-                    });
-                    self.formType = 'detail';
-                    self.getQuestionnaireData(self.formData)
-                    // uni.redirectTo({
-                    //   url: '../home/home'
-                    // });
+                  } else {
+                    if (res.data.resultCode === 'FAILURE') {
+                      uni.showToast({
+                        title: res.data.resultMessage,
+                        icon: 'none'
+                      });
+                    }
+                    console.log(res);
                   }
-                } else {
-                  if (res.data.resultCode === 'FAILURE') {
-                    uni.showToast({
-                      title: res.data.resultMessage,
-                      icon: 'none'
-                    });
-                  }
-                  console.log(res);
-                }
-              });
+                });
+              }
+            } else if (res.cancel) {
+              console.log('用户点击取消');
             }
-          } else if (res.cancel) {
-            console.log('用户点击取消');
           }
-        }
-      });
+        });
+      }
+     
     },
     getQuestionnaireData(questionData) {
       // 获取问卷数据
@@ -777,7 +781,7 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   color: #333;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 18px;
   display: flex;
   justify-content: center;

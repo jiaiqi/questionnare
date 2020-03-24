@@ -1,6 +1,6 @@
 <template>
   <view class="selector-wrap cu-timeline">
-    <view class="parent-node cu-item text-blue animation-slide-top">
+    <view class="parent-node cu-item text-green animation-slide-top">
       <view class="parent-list  ">
         <view class="list-item" v-for="(item, index) in treeData" :key="index" @click="clickParentNode(item, index)">
           <view class="label" :class="item[nodeKey] === activeNode[nodeKey] ? 'active' : 'normal'">{{ item[disColName] }}</view>
@@ -93,7 +93,7 @@ export default {
   background-color: #efefef;
 }
 .cu-timeline > .cu-item::after {
-  background-color: #0081ff;
+  background-color: #39b54a;
   // background-color: #999;
 }
 .cu-timeline > .cu-item {
@@ -160,10 +160,12 @@ export default {
       .label {
         padding: 10upx 20upx;
         margin: 10upx;
-        border: 1px solid #0081ff;
+        // border: 1px solid #0081ff;#39b54a
+        border: 1px solid #39b54a;
         border-radius: 20upx;
         &.active {
-          background-color: #0081ff;
+          background-color: #39b54a;
+          // background-color: #0081ff;
           color: #fff;
         }
         &.normal {
