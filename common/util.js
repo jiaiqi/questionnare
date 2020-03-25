@@ -114,7 +114,7 @@ export default {
         if (useType === 'list') {
           pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.gridButton)
         } else {
-          pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.formButton)
+          // pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.formButton)
         }
         console.log("pageConfigs", pageConfigs)
         return pageConfigs
@@ -137,6 +137,7 @@ export default {
         })
 
       }
+      
       cols = cols.map((item, index) => {
         fieldInfo = {
           column: "",
@@ -198,6 +199,10 @@ export default {
             fieldInfo.showExp = (item.in_detail === 1)
             fieldInfo.display = (item.in_detail === 1)
             break;
+           case "proclist":
+             fieldInfo.showExp = (item.in_list === 1)
+             fieldInfo.display = (item.in_list === 1)
+             break;
           case "cond":
             break;
           default:

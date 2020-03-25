@@ -51,9 +51,6 @@
       "path": "pages/public/formPage/formPage",
       "style": {}
     }, {
-      "path": "pages/specific/list/list",
-      "style": {}
-    }, {
       "path": "pages/public/add/add",
       "style": {}
     }, {
@@ -64,9 +61,7 @@
       "style": {}
     }, {
       "path": "pages/specific/address/address",
-      "style": {
-
-      }
+      "style": {}
     },
     {
       "path": "pages/specific/activityUpdate/activityUpdate",
@@ -77,9 +72,7 @@
     },
     {
       "path": "pages/specific/added/added",
-      "style": {
-
-      }
+      "style": {}
     },
     {
       "path": "pages/specific/balancedDiet/balancedDiet",
@@ -105,32 +98,29 @@
         "navigationBarTitleText": "百想科技",
         "navigationBarBackgroundColor": "#0bc99d"
       }
+    }, {
+      "path": "pages/specific/symptom/symptom",
+      "style": {}
+    }, {
+      "path": "pages/specific/illnessContrast/illnessContrast",
+      "style": {}
+    }, {
+      "path": "pages/specific/courseGrid/courseGrid",
+      "style": {}
+    }, {
+      "path": "pages/specific/newsList/newsList",
+      "style": {}
+    }, {
+      "path": "pages/public/proc/procList/procList",
+      "style": {}
+    }, {
+      "path": "pages/public/proc/procDetail/procDetail",
+      "style": {}
+    }, {
+      "path": "pages/public/proc/apply/apply",
+      "style": {}
     }
-      ,{
-            "path" : "pages/specific/symptom/symptom",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/specific/illnessContrast/illnessContrast",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/specific/courseGrid/courseGrid",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/specific/newsList/newsList",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/public/proc/procList/procList",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/public/proc/procDetail/procDetail",
-            "style" : {}
-        }
-    ],
+  ],
   "globalStyle": {
     // "navigationBarTitleText": "百想软件开发平台",
     // "navigationBarBackgroundColor": "#0bc99d",

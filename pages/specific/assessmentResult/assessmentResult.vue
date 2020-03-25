@@ -37,7 +37,7 @@ export default {
   methods: {
     toContcat() {
       uni.redirectTo({
-        url: '/pages/specific/questionnaire/questionnaire?activity_no=20200319161730000131'
+        url: '/pages/specific/questionnaire/questionnaire?activity_no=20200319161730000131&formType=form&status=进行中'
       });
     },
     async seeReport(obj) {

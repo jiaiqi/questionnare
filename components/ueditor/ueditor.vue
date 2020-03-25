@@ -61,9 +61,9 @@ export default {
       return this.fieldData.value;
     },
     async initUeditor() {
-      const config = await import('../../static/ueditor/ueditor.config.js');
-      const all = await import('../../static/ueditor/ueditor.all.js');
-      const parser = await import('../../static/ueditor/ueditor.parse.js');
+      const config = await import('@/static/ueditor/ueditor.config.js');
+      const all = await import('@/static/ueditor/ueditor.all.js');
+      const parser = await import('@/static/ueditor/ueditor.parse.js');
 
       this.ue = UE.getEditor(this.eleId, {
         UEDITOR_HOME_URL: '/static/ueditor/',
