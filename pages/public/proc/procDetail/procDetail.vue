@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <view class="proc-wrap">
     <cu-custom bgColor="bg-blue" :isBack="true">
       <block slot="backText">返回</block>
       <block slot="content">流程步骤</block>
@@ -380,9 +380,13 @@ export default {
 </script>
 
 <style scoped lang="scss">
+  .proc-wrap{
+    // padding-bottom: 150upx;
+    // background-color: #fff;
+  }
 .steps-view {
   // margin-top: 100upx;
-  margin-bottom: 100upx;
+  padding-bottom: 150upx;
 }
 .flow-view {
   width: calc(100% - 20upx);
@@ -421,6 +425,7 @@ export default {
   }
 }
 .detail-view {
+  padding-bottom: 150upx;
   min-height: 100vh;
   background-color: #fff;
   display: flex;
