@@ -24,6 +24,7 @@
       </view>
 
       <view class="" v-if="pageFormType === 'form' || pageFormType === 'add' || pageFormType === 'update'">
+        
         <radio-group @change="radioChange" v-if="fieldData.type === 'radio'" :class="!valid.valid ? 'valid_error' : ''">
           <radio
             :key="index"
@@ -106,7 +107,7 @@
           v-else-if="(fieldData.type === 'textarea') && showTextarea"
           :placeholder="'输入' + fieldData.label"
         ></textarea>
-        <bx-editor :field='fieldData' v-if="fieldData.type === 'snote'&&!fieldData.disabled" ref="bxEditor" @fieldData-value-changed="editorValueChange"></bx-editor>
+        <bx-editor :field='fieldData' v-if="(fieldData.type === 'snote'||fieldData.type==='Note')&&!fieldData.disabled" ref="bxEditor" @fieldData-value-changed="editorValueChange"></bx-editor>
         <view
           class="content padding-0"
           style="padding:0;width: 100%!important;flex-direction: column;position: relative;"

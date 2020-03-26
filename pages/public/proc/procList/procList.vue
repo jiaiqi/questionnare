@@ -28,35 +28,35 @@
       @clickFootBtn="clickFootBtn"
       @loadEnd="loadEnd"
     ></bx-list>
-    <view class="cu-modal bottom-modal" :class="showModal?'show':''">
-    	<view class="cu-dialog" style="max-height: 800upx;">
-    		<view class="cu-bar bg-white">
-    			<view class="action text-green">确定</view>
-    			<view class="action text-blue" @tap="hideModal">取消</view>
-    		</view>
-    		<view class="padding-xl" v-if="listConfig.listConfig">
-          <bxform ref="bxformApplyProc" :pageType="'add'" :fields="listConfig.listConfig.srv_cols" :BxformType="'add'" @value-blur="valueChange" ></bxform>
-    		</view>
-    	</view>
+    <view class="cu-modal bottom-modal" :class="showModal ? 'show' : ''">
+      <view class="cu-dialog" style="max-height: 800upx;">
+        <view class="cu-bar bg-white">
+          <view class="action text-green">确定</view>
+          <view class="action text-blue" @tap="hideModal">取消</view>
+        </view>
+        <view class="padding-xl" v-if="listConfig.listConfig">
+          <bxform ref="bxformApplyProc" :pageType="'add'" :fields="listConfig.listConfig.srv_cols" :BxformType="'add'" @value-blur="valueChange"></bxform>
+        </view>
+      </view>
     </view>
   </view>
 </template>
 
 <script>
 import bxList from '@/components/bx-list/bx-list.vue';
-import bxform from '@/components/bx-form/bx-form.vue'
+import bxform from '@/components/bx-form/bx-form.vue';
 export default {
   name: 'ProcList',
-  components: { bxList,bxform },
+  components: { bxList, bxform },
   data() {
     return {
       publicButton: [],
       applyButton: {},
-      applyFormFields:[],
-      showModal:false,
+      applyFormFields: [],
+      showModal: false,
       listConfig: {
         serviceName: 'srvoa_issue_info_select',
-        addService:'srvoa_issue_info_add',
+        addService: 'srvoa_issue_info_add',
         detailList: false,
         condition: [],
         order: [],
@@ -75,15 +75,15 @@ export default {
     };
   },
   methods: {
-    hideModal(){
-      this.showModal = false
+    hideModal() {
+      this.showModal = false;
     },
-    toApply(){
+    toApply() {
       // this.$refs.popup.open()
       // this.showModal = true
       uni.navigateTo({
-        url:'../apply/apply?serviceName='+this.listConfig.addService
-      })
+        url: '../apply/apply?serviceName=' + this.listConfig.addService
+      });
     },
     async applyFlow() {
       //申请流程
@@ -91,11 +91,7 @@ export default {
       let req = [
         {
           serviceName: serviceName,
-          data: [
-            {
-              
-            }
-          ]
+          data: [{}]
         }
       ];
       let res = await this.onRequest('apply', serviceName, req, 'oa');
@@ -110,14 +106,44 @@ export default {
       console.log(e);
       if (e.button.button_type === 'edit') {
         //跳转到编辑页面
-      } else if (e.button.button_type === 'delete') {
+      } else if (e.button.button_type === 'delete' || e.button.button_type === 'deleteproc') {
         //删除页面
         this.deleteItem(e);
+      } else if (e.button.button_type === 'procdetail') {
+        uni.navigateTo({
+          url: '../procDetail/procDetail?proc_instance_no=' + e.row.proc_instance_no
+        });
       }
     },
     deleteItem(e) {
       let proc_instance_no = e.row.proc_instance_no;
-      let serviceName = e.button.serviceName;
+      let serviceName = e.button.service_name;
+      let req = [{ serviceName: serviceName, condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: proc_instance_no }] }];
+      let url = this.getServiceUrl('oa', serviceName, 'operate');
+      this.$http
+        .post(url, req)
+        .then(res => {
+          if (res.data.state === 'SUCCESS') {
+            uni.showToast({
+              title: '删除成功'
+            });
+            this.$refs.bxList.onRefresh();
+          } else {
+            uni.showToast({
+              title: res.data.resultMessage
+            });
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          uni.showToast({
+            title: '删除失败',
+            icon: 'none'
+          });
+        });
+      // this.onRequest('operate', serviceName, req, 'oa').then(res => {
+
+      // });
     },
     loadEnd(e) {
       console.log(e);
@@ -129,7 +155,7 @@ export default {
       colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1);
       console.log('colVs', colVs);
       this.listConfig.listConfig = colVs;
-      this.applyFormFields = colVs
+      this.applyFormFields = colVs;
       this.publicButton = colVs.gridButton.filter(item => {
         if (item.permission === true) {
           switch (item.button_type) {

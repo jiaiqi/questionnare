@@ -68,6 +68,7 @@ export default {
     this.oldField.forEach((item, index) => {
       this.oldFieldModel[item.column] = item.value;
     });
+    console.log( this.oldField,this.oldFieldModel)
     this.getAllField();
   },
   methods: {
