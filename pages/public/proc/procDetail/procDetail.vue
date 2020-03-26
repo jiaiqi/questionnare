@@ -78,8 +78,14 @@
       </view>
     </view> -->
     <view class="bottom-bar">
-      <view class=""><text class="text-gray">当前步骤：</text><text class="value text-blue">{{currentStepInfo.step_name}}</text></view>
-      <view class=""><text class="text-gray">审批人：</text><text>{{currentStepInfo._approval_user}}</text></view>
+      <view class="">
+        <text class="text-gray">当前步骤：</text>
+        <text class="value text-blue">{{ currentStepInfo.step_name }}</text>
+      </view>
+      <view class="">
+        <text class="text-gray">审批人：</text>
+        <text>{{ currentStepInfo._approval_user }}</text>
+      </view>
     </view>
   </view>
 </template>
@@ -91,7 +97,7 @@ export default {
   components: { bxform },
   data() {
     return {
-      TabCur: 0,
+      TabCur: 1,
       scrollLeft: 0,
       tabList: [
         {
@@ -194,7 +200,7 @@ export default {
       }
     },
     handleBasicConfig(e) {
-      if (e) {
+      if (e&&e.state!=="未开始") {
         this.currentStepInfo = e;
         this.authority = e.authority;
         if (!this.authority) {
@@ -380,10 +386,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .proc-wrap{
-    // padding-bottom: 150upx;
-    // background-color: #fff;
-  }
+.proc-wrap {
+  // padding-bottom: 150upx;
+  // background-color: #fff;
+}
 .steps-view {
   // margin-top: 100upx;
   padding-bottom: 150upx;
@@ -446,7 +452,7 @@ export default {
   border-top: 1px solid rgba($color: #999, $alpha: 0.5);
   position: fixed;
   bottom: 0;
-  .text-blue{
+  .text-blue {
     font-weight: bold;
     font-size: 32upx;
   }
