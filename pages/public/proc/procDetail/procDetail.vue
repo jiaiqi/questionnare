@@ -2,7 +2,7 @@
   <view class="proc-wrap">
     <cu-custom bgColor="bg-blue" :isBack="true">
       <block slot="backText">返回</block>
-      <block slot="content">流程步骤</block>
+      <block slot="content">流程详情</block>
     </cu-custom>
     <scroll-view scroll-x class="bg-white nav ">
       <view class="flex text-center">
@@ -14,8 +14,8 @@
 
     <view class="steps-view" v-if="TabCur === 1">
       <view class="flow-view" v-if="procBasicConfig.proCharData && procBasicConfig.proCharData.length > 0">
-        <scroll-view scroll-x class="bg-white  response cu-steps  scroll-view" :scroll-into-view="'scroll-' + scroll" scroll-with-animation>
-          <view
+        <!-- <scroll-view scroll-x class="bg-white  response cu-steps  scroll-view" :scroll-into-view="'scroll-' + scroll" scroll-with-animation> -->
+         <!-- <view
             class="cu-item padding-lr-xl"
             :class="{ 'text-green': index < scroll, 'text-blue': index === scroll }"
             v-for="(item, index) in procBasicConfig.proCharData"
@@ -28,55 +28,58 @@
               <text>{{ item.step_name }}</text>
               <text>[ {{ item.state }} ]</text>
             </view>
-          </view>
-        </scroll-view>
-      </view>
-      <view class="step-list">
-        <view class="step-list-item" v-for="(item, index) in procBasicConfig.proCharData" :key="index" @click="clickSteps({ data: item, index: index })">
-          <view class="title">
-            <text class="label">步骤名称：</text>
-            <text class="value">{{ item.step_name }}</text>
-          </view>
-          <view class="status">
-            <text class="label">状态：</text>
-            <text class="value">{{ item.state }}</text>
-          </view>
-          <view class="detail" v-if="item._record_data">
-            <view class="detail-item">
-              <view class="label" v-if="item._record_data.data_status">数据状态：{{ item._record_data.data_status }}</view>
-              <view class="value"></view>
-            </view>
-            <view class="detail-item">
-              <view class="label" v-if="item._approval_user">审核人：{{ item._approval_user }}</view>
-              <view class="value"></view>
-            </view>
-            <view class="detail-item">
-              <view class="label" v-if="item._record_data.create_user_disp">创建人：{{ item._record_data.create_user_disp }}</view>
-              <view class="value"></view>
-            </view>
-
-            <view class="detail-item">
-              <view class="label">审核时间：{{ item._record_data.modify_time.slice(0, 10) }}</view>
-              <view class="value"></view>
+          </view> -->
+        <!-- </scroll-view> -->
+        <view class="cu-timeline" v-if="procBasicConfig.proCharData && procBasicConfig.proCharData.length > 0">
+          <!-- <view class="cu-time">06-17</view> -->
+          <view class="cu-item " v-for="(item, index) in procBasicConfig.proCharData" :key="index" :class="{ 'text-green': index < scroll, 'text-blue': index === scroll }">
+            <view class="content" :class="{'bg-gradual-green': index < scroll, 'bg-blue': index === scroll}">
+              <view class="name">{{ item.step_name }}</view>
+              <view class="state">
+               状态：{{ item.state }} <text v-if="item._approval_user">({{item._approval_user}})</text>
+              </view>
+              <view class="user">
+              </view>
             </view>
           </view>
         </view>
       </view>
+      
     </view>
     <view class="detail-view" v-else-if="TabCur === 0">
-      <view class=" detail-form"><bxform ref="bxDetailForm" :pageType="type" :BxformType="type" :fields="fields"></bxform></view>
-      <view class=" approval-form"><bxform ref="bxForm" :pageType="type" :BxformType="type" :fields="approvalFormCfg"></bxform></view>
-      <button type="primary" v-if="authority">提交审批</button>
+      <view class="detail-form"><bxform ref="bxDetailForm" :pageType="type" :BxformType="type" :fields="fields"></bxform></view>
     </view>
-    <!--    <view class="cu-modal bottom-modal " :class="{ show: showProcApproval }">
-      <view class="cu-dialog">
-        <view class=" approval-form"><bxform ref="bxForm" :pageType="type" :BxformType="type" :fields="approvalFormCfg"></bxform></view>
-        <view class="cu-bar bg-white">
-          <view class="action text-green">提交审批</view>
-          <view class="action text-blue" @tap="hideModal">取消</view>
+    <view class="step-list" v-else-if="TabCur === 2">
+      <view class="step-list-item" v-for="(item, index) in procRecord" :key="index" @click="toRecordDetail(item)">
+        <view class="title">
+          <text class="label">步骤名称：</text>
+          <text class="value">{{ item.step_no_name }}</text>
+        </view>
+        <view class="status">
+          <text class="label">处理结果：</text>
+          <text class="value">{{ item.proc_result }}</text>
+        </view>
+        <view class="detail">
+          <view class="detail-item">
+            <view class="label" v-if="item.data_status">数据状态：{{ item.data_status }}</view>
+            <view class="value"></view>
+          </view>
+          <view class="detail-item">
+            <view class="label" v-if="item.create_user">审核人：{{ item.create_user }}</view>
+            <view class="value"></view>
+          </view>
+          <view class="detail-item">
+            <view class="label" v-if="item.create_user">创建人：{{ item.create_user }}</view>
+            <view class="value"></view>
+          </view>
+
+          <view class="detail-item">
+            <view class="label">审核时间：{{ item.modify_time.slice(0, 10) }}</view>
+            <view class="value"></view>
+          </view>
         </view>
       </view>
-    </view> -->
+    </view>
     <view class="bottom-bar">
       <view class="">
         <text class="text-gray">当前步骤：</text>
@@ -104,7 +107,10 @@ export default {
           label: '基本信息'
         },
         {
-          label: '流程记录'
+          label: '流程步骤'
+        },
+        {
+          label: '流程审批记录'
         }
       ],
       activityData: {},
@@ -112,6 +118,7 @@ export default {
       userInfo: {},
       scroll: 0,
       type: 'add',
+      procRecord: [],
       procBasicConfig: {},
       colsV2Data: {},
       srvInfo: {
@@ -119,6 +126,8 @@ export default {
         serviceName: 'srvprocess_basic_cfg_select'
       },
       currentStepInfo: {}, //当前步骤的信息
+      firstStepInfo: {}, //基础信息
+      firstStepForm: [],
       formInfo: {
         serviceName: '',
         formType: ''
@@ -131,6 +140,7 @@ export default {
         step_no: ''
       },
       fields: [],
+      currentStepFields: [],
       authority: false, //编辑权限
       approvalFormCfg: [
         {
@@ -171,21 +181,37 @@ export default {
       ]
     };
   },
+  computed: {
+    remarkRun: function() {
+      if (true) {
+        return '';
+      }
+    }
+  },
   methods: {
-    hideModal() {
-      this.showProcApproval = false;
-    },
     tabSelect(e) {
       this.TabCur = Number(e.currentTarget.dataset.id);
       this.scrollLeft = (e.currentTarget.dataset.id - 1) * 60;
     },
+    toRecordDetail(data) {
+      //查看流程审批记录详情
+    },
     clickSteps(e) {
-      console.log(e);
-      this.handleBasicConfig(e.data);
+      console.log('clickSteps', e);
+      if (e.index === 0) {
+        this.TabCur = 0;
+      }
+      if (e.data.state === '已处理') {
+      } else if (e.data.state === '正在处理') {
+      }
+      // this.handleBasicConfig(e.data);
       // this.showProcApproval = true;
-      // uni.navigateTo({
-      //   url: '../procStepDetail/procStepDetail?stepData=' + encodeURIComponent(JSON.stringify(e.data))
-      // });
+      if (e.data.state !== '未开始' && e.index !== 0) {
+        const type = e.data.state === '已处理' ? 'detail' : 'update';
+        uni.navigateTo({
+          url: `../procStepDetail/procStepDetail?step_no=${e.data.step_no}&proc_instance_no=${this.proc_instance_no}&type=${type}`
+        });
+      }
       // this.scroll = e.index;
     },
     async getBasicCfg(proc_instance_no) {
@@ -195,20 +221,62 @@ export default {
       let res = await this.onRequest('select', 'srvprocess_basic_cfg_select', req, 'oa');
       if (res.data.state === 'SUCCESS') {
         this.procBasicConfig = res.data;
-        this.handleBasicConfig(res.data['proCharData'][res.data.proHanleData.activeStep]);
+        this.activityData = res.data.mainData;
+        this.getCurStepConfig(res.data['proCharData'][res.data['proHanleData']['activeStep']]);
+        this.getCurStepConfig(res.data['proCharData'][0], 'firstStep');
+        this.currentStepInfo = res.data['proCharData'][res.data['proHanleData']['activeStep']];
+        this.firstStepInfo = res.data['proCharData'][0];
         this.scroll = res.data.proHanleData.activeStep;
       }
     },
-    handleBasicConfig(e) {
-      if (e&&e.state!=="未开始") {
-        this.currentStepInfo = e;
-        this.authority = e.authority;
-        if (!this.authority) {
-          this.approvalFormCfg.map(item => {
-            item.disabled = true;
+    async getProcRecord() {
+      //查找流程审批记录
+      let req = {
+        serviceName: 'srvprocess_record_select',
+        colNames: ['*'],
+        condition: [{ colName: 'proc_instance_no', value: this.proc_instance_no, ruleType: 'eq' }],
+        order: [{ colName: 'id', orderType: 'desc' }]
+      };
+      let res = await this.onRequest('select', 'srvprocess_record_select', req, 'oa');
+      if (res.data.state === 'SUCCESS') {
+        this.procRecord = res.data.data;
+      }
+    },
+    async getDetail(e, type) {
+      console.log('getDetail', e);
+      // if(e.biz_cfg_data&&e.biz_cfg_data.length>0){
+      //   let biz_cfg = e.biz_cfg_data
+      //   for(let i=0;i<biz_cfg.length;i++){
+      //     const item = biz_cfg[i]
+
+      //   }
+      // }
+      let col = this.fields.map(item => item.column);
+      let req = {
+        serviceName: type && type === 'firstStep' ? e.select_service : '',
+        condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: this.proc_instance_no }],
+        colNames: col,
+        hisVer: true
+      };
+      let res = await this.onRequest('select', req.serviceName, req, 'oa');
+      if (res.data.state === 'SUCCESS') {
+        console.log('getDetail111', res.data.data);
+        if (res.data.data.length > 0) {
+          this.firstStepForm.push(res.data.data[0]);
+          Object.keys(res.data.data[0]).forEach(key => {
+            this.fields.forEach((field, index) => {
+              if (field.column === key) {
+                field['value'] = res.data.data[0][key];
+                this.$set(this.fields, index, field);
+              }
+            });
           });
         }
-        console.log('handleBasicConfig', e);
+      }
+    },
+    getCurStepConfig(e, type) {
+      if (e && e.state !== '未开始') {
+        console.log('getCurStepConfig', e);
         if (e.biz_cfg_data && e.biz_cfg_data.length > 0) {
           const biz_cfg = e.biz_cfg_data;
           biz_cfg.map(item => {
@@ -216,10 +284,44 @@ export default {
               this.formInfo.formType = item._type_form;
               this.type = item._type_form;
               this.formInfo.serviceName = item[`${item._type_form}_service`];
-              this.getColV2(this.formInfo.serviceName, item._type_form).then(() => {
-                this.TabCur = 0;
+              this.getColV2(this.formInfo.serviceName, item._type_form).then(fields => {
+                if (type === 'firstStep') {
+                  this.fields = fields;
+                  Object.keys(this.procBasicConfig.mainData).forEach(key => {
+                    this.fields.forEach((field, index) => {
+                      if (field.column === key) {
+                        field['value'] = this.procBasicConfig.mainData[key];
+                        this.$set(this.fields, index, field);
+                      }
+                    });
+                  });
+                  // this.getDetail(item, 'firstStep');
+                  // this.TabCur = 0
+                } else {
+                  this.currentStepFields = fields;
+                }
               });
-              // this.approvalFormCfg[0].options = [];
+            } else if (item.select_service) {
+              this.formInfo.formType = 'detail';
+              this.type = 'detail';
+              this.formInfo.serviceName = item.select_service;
+              this.getColV2(this.formInfo.serviceName, this.type).then(fields => {
+                if (type === 'firstStep') {
+                  this.fields = fields;
+                  Object.keys(this.procBasicConfig.mainData).forEach(key => {
+                    this.fields.forEach((field, index) => {
+                      if (field.column === key) {
+                        field['value'] = this.procBasicConfig.mainData[key];
+                        this.$set(this.fields, index, field);
+                      }
+                    });
+                  });
+                  // this.getDetail(item, 'firstStep');
+                  // this.TabCur = 0
+                } else {
+                  this.currentStepFields = fields;
+                }
+              });
             }
           });
         }
@@ -356,7 +458,6 @@ export default {
         default:
           break;
       }
-      console.log('fields:', fields, type);
       if (fields && Array.isArray(fields)) {
         fields = fields.filter((item, index) => {
           if (!item.value) {
@@ -365,13 +466,13 @@ export default {
           if (!this.authority) {
             item.disabled = true;
           }
-          if (item['in_' + type] === 1) {
-            return item;
-          }
+          // if (item['in_' + type] === 1) {
+          return item;
+          // }
         });
-        console.log('this.fields ', fields);
-        this.fields = fields;
+        // this.fields = fields;
       }
+      return fields;
     }
   },
   onLoad(option) {
@@ -380,6 +481,7 @@ export default {
       this.proc_instance_no = option.proc_instance_no;
       this.srvInfo.app = uni.getStorageSync('activeApp');
       this.getBasicCfg(option.proc_instance_no);
+      this.getProcRecord(option.proc_instance_no);
     }
   }
 };
@@ -401,6 +503,15 @@ export default {
   overflow: hidden;
   .scroll-view {
     padding: 30upx 10upx;
+  }
+  .cu-timeline{
+    .name{
+      font-size: 34upx;
+      font-weight: 700;
+    }
+    .state{
+      font-size: 30upx;
+    }
   }
 }
 .step-list {

@@ -137,7 +137,14 @@ export default {
         })
 
       }
-      
+      if (cols && useType === "detail") {
+        cols = cols.filter((item, index) => {
+          if (item.in_detail === 1) {
+            return item
+          }
+        })
+
+      }
       cols = cols.map((item, index) => {
         fieldInfo = {
           column: "",
@@ -170,7 +177,7 @@ export default {
           fieldInfo.options = item.option_list_v2
         } else if (item.col_type === "MultilineText") {
           fieldInfo.type = "textarea"
-        } else if (item.col_type === "Money") {
+        } else if (item.col_type === "Money" || item.col_type === "Float" || item.col_type === "int") {
           fieldInfo.type = "digit"
         } else if (item.col_type === "Integer") {
           fieldInfo.type = "number"
@@ -199,10 +206,10 @@ export default {
             fieldInfo.showExp = (item.in_detail === 1)
             fieldInfo.display = (item.in_detail === 1)
             break;
-           case "proclist":
-             fieldInfo.showExp = (item.in_list === 1)
-             fieldInfo.display = (item.in_list === 1)
-             break;
+          case "proclist":
+            fieldInfo.showExp = (item.in_list === 1)
+            fieldInfo.display = (item.in_list === 1)
+            break;
           case "cond":
             break;
           default:
@@ -844,7 +851,6 @@ export default {
       }
     }
     Vue.prototype.setFieldsDefaultVal = function(field, values) {
-      console.log('1111',field,values)
       if (Vue.prototype.iArray(field) && Vue.prototype.iObject(values)) {
         for (let i = 0; i < field.length; i++) {
           for (let key in values) {
@@ -853,6 +859,7 @@ export default {
             }
           }
         }
+        console.log('1111', field, values)
         return field
       } else {
         return false

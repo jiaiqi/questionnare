@@ -124,6 +124,10 @@
             "path" : "pages/public/proc/procStepDetail/procStepDetail",
             "style" : {}
         }
+        ,{
+            "path" : "pages/public/proc/recordDetail/recordDetail",
+            "style" : {}
+        }
     ],
   "globalStyle": {
     // "navigationBarTitleText": "百想软件开发平台",

@@ -7,8 +7,14 @@
         <text v-show="!valid.valid">({{ valid.msg }})</text>
       </view>
       <view v-if="pageFormType === 'detail'">
-        <text class="text-bold text-xl" v-if="pageFormType === 'detail' && fieldData.type !== 'images' && fieldData.type !== 'snote'">{{ fieldData.value }}</text>
-        <view v-html="fieldData.value" v-if="pageFormType === 'detail' && fieldData.type === 'snote'"></view>
+        <text class="text-bold text-xl" v-if="pageFormType === 'detail' && fieldData.type !== 'images' && fieldData.type !== 'snote' && fieldData.type !== 'Note'">
+          {{ fieldData.value }}
+        </text>
+        <!-- JSON.parse(JSON.stringify(fieldData.value).replace(/\<img/gi, '<img width=100% height=100%   ')) -->
+        <view
+          v-html="JSON.parse(JSON.stringify(fieldData.value).replace(/\<img/gi, '<img width=100% height=100%   '))"
+          v-if="pageFormType === 'detail' && (fieldData.type === 'snote' || fieldData.type === 'Note')"
+        ></view>
         <view class="" v-else-if="pageFormType === 'detail' && fieldData.type === 'images'">
           <image
             v-if="fieldData.type === 'images'"
@@ -24,7 +30,6 @@
       </view>
 
       <view class="" v-if="pageFormType === 'form' || pageFormType === 'add' || pageFormType === 'update'">
-        
         <radio-group @change="radioChange" v-if="fieldData.type === 'radio'" :class="!valid.valid ? 'valid_error' : ''">
           <radio
             :key="index"
@@ -104,10 +109,15 @@
           @input="onInputChange"
           :disabled="fieldData.disabled ? fieldData.disabled : false"
           :class="!valid.valid ? 'valid_error' : ''"
-          v-else-if="(fieldData.type === 'textarea') && showTextarea"
+          v-else-if="fieldData.type === 'textarea' && showTextarea"
           :placeholder="'输入' + fieldData.label"
         ></textarea>
-        <bx-editor :field='fieldData' v-if="(fieldData.type === 'snote'||fieldData.type==='Note')&&!fieldData.disabled" ref="bxEditor" @fieldData-value-changed="editorValueChange"></bx-editor>
+        <bx-editor
+          :field="fieldData"
+          v-if="(fieldData.type === 'snote' || fieldData.type === 'Note') && !fieldData.disabled"
+          ref="bxEditor"
+          @fieldData-value-changed="editorValueChange"
+        ></bx-editor>
         <view
           class="content padding-0"
           style="padding:0;width: 100%!important;flex-direction: column;position: relative;"
@@ -193,7 +203,7 @@
           v-model="fieldData.value"
           :class="!valid.valid ? 'valid_error' : ''"
           name="input"
-          v-else-if="fieldData.type === 'digit'"
+          v-else-if="fieldData.type === 'digit'||fieldData.type==='Float'"
         />
         <view v-else-if="fieldData.type === 'treeSelector'">
           <bxTreeSelector
@@ -267,7 +277,7 @@ import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload
 import cascaderSelector from '@/components/cascader/cascaderSelector.vue';
 import uniPopup from '@/components/uni-popup/uni-popup.vue';
 import bxTreeSelector from '@/components/bx-tree-selector/bx-tree-selector.vue';
-import bxEditor from '@/components/ueditor/ueditor.vue'
+import bxEditor from '@/components/ueditor/ueditor.vue';
 let _this = null;
 export default {
   name: 'bxFormItem',
@@ -421,10 +431,10 @@ export default {
   // 	this.getDefVal()
   // },
   methods: {
-    editorValueChange(name,e){
-      this.fieldData.value = e.value
-      e.column = e.info.name
-      console.log(e)
+    editorValueChange(name, e) {
+      this.fieldData.value = e.value;
+      e.column = e.info.name;
+      console.log(e);
       this.$emit('on-value-change', e);
     },
     changeVal(newval, oldval, index) {
