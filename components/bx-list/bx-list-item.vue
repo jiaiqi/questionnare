@@ -275,7 +275,7 @@ export default {
 <style lang="scss" scoped>
 .list-item-wrap {
   width: auto;
-  margin: 2rpx 0;
+  margin: 10rpx 0;
   box-sizing: border-box;
   .list-item {
     // width: calc(100% - 40upx);

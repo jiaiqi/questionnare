@@ -154,6 +154,21 @@ export default {
       let colVs = await this.getServiceV2(this.listConfig.serviceName, 'list', 'proclist', app);
       colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1);
       console.log('colVs', colVs);
+      // colVs.rowButton = colVs.rowButton.map(item => {
+      //   // if(item.button_type === 'procdetail'){
+      //   //   return item
+      //   // }
+      // });
+      colVs.rowButton = [
+        {
+          page_type: '流程列表',
+          button_name: '流程详情',
+          button_type: 'procdetail',
+          service_name: 'srvoa_issue_info_select',
+          service_view_name: '需求问题管理查询',
+          permission: true
+        }
+      ];
       this.listConfig.listConfig = colVs;
       this.applyFormFields = colVs;
       this.publicButton = colVs.gridButton.filter(item => {
