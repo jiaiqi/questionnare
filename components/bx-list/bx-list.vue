@@ -1,8 +1,8 @@
 <template>
   <view class="list-wrap">
     <view class="list-wrap">
-      <scroll-view scroll-x class="bg-white nav" v-if="listType === 'proc'">
-        <view class="flex text-center">
+      <scroll-view scroll-x class="bg-white nav cu-bar" v-if="listType === 'proc'">
+        <view class="flex text-center ">
           <view
             class="cu-item flex-sub"
             :class="index == TabCur ? 'text-orange cur' : ''"
@@ -12,7 +12,7 @@
             :data-id="index"
           >
             {{ item.label }}
-            <text class="bg-gradual-red" style="margin-left: 10upx; padding:0 10upx;border-radius: 10upx;">{{ item.total }}</text>
+            <text class="text-red" style="margin-left: 10upx; padding:0 10upx;border-radius: 10upx;">{{ item.total }}</text>
           </view>
         </view>
       </scroll-view>
@@ -479,6 +479,7 @@ export default {
             // this.$refs.pullScroll.finish();
           }
         });
+        this.onRefresh();
       });
     }
   }

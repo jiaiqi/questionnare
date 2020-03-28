@@ -203,7 +203,7 @@
           v-model="fieldData.value"
           :class="!valid.valid ? 'valid_error' : ''"
           name="input"
-          v-else-if="fieldData.type === 'digit'||fieldData.type==='Float'"
+          v-else-if="fieldData.type === 'digit' || fieldData.type === 'Float'"
         />
         <view v-else-if="fieldData.type === 'treeSelector'">
           <bxTreeSelector
@@ -702,7 +702,11 @@ export default {
         if (val) {
           val['column'] = this.fieldData.column;
           this.$emit('get-cascader-val', val);
-          this.fieldData.value = val.path_name;
+          if (this.fieldData.srvInfo.column) {
+            this.fieldData.value = val[this.fieldData.srvInfo.column];
+          } else {
+            this.fieldData.value = val.path_name;
+          }
         } else {
           this.$emit('get-cascader-val');
         }

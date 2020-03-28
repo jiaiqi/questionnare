@@ -1,13 +1,8 @@
 <template>
   <view class="step-detail-wrap">
-    <cu-custom bgColor="bg-blue" :isBack="true">
-      <block slot="backText">返回</block>
-      <block slot="content">流程详情</block>
-    </cu-custom>
-    <!-- <block slot="right"><text class="cuIcon-add" style="font-size: 40upx;margin-right: 20upx;" @click="toApply"></text></block> -->
     <view class="form-view"><bxform ref="bxForm" :pageType="type" :BxformType="type" :fields="fields"></bxform></view>
     <view class="approval-view" v-if="stepData.state === '正在处理' && fields.length > 0">
-      <!-- <bxform ref="approvalForm" :pageType="'add'" :BxformType="'add'" :fields="approvalFormCfg"></bxform> -->
+      <bxform ref="approvalForm" :pageType="'add'" :BxformType="'add'" :fields="approvalFormCfg"></bxform>
       <view class="buttons"><button type="primary" @click="approval">提交审批</button></view>
     </view>
   </view>
@@ -19,7 +14,7 @@ export default {
   components: { bxform },
   data() {
     return {
-      id:'',
+      id: '',
       stepData: {},
       serviceName: '',
       proc_instance_no: '',
@@ -64,7 +59,7 @@ export default {
           options: []
         }
       ],
-      formFields:[]
+      formFields: []
     };
   },
   methods: {
@@ -100,8 +95,8 @@ export default {
           self.getColV2(biz_cfg['select_service'], self.type).then(fields => {
             console.log('fields', fields, this.type);
             // this.fields = fields.filter(item => {
-              this.formFields = fields
-              this.fields = fields.concat(this.approvalFormCfg)
+            this.formFields = fields;
+            this.fields = fields.concat(this.approvalFormCfg);
             //   .filter(item=>{
             //   if (this.type === 'detail') {
             //     return item.display;
@@ -125,7 +120,7 @@ export default {
       }
     },
     async getDetail(serviceName, fields) {
-      let self = this
+      let self = this;
       let col = fields.map(item => item.column);
       let req = {
         serviceName: serviceName,
@@ -137,7 +132,7 @@ export default {
       if (res.data.state === 'SUCCESS') {
         console.log('getDetail111', res.data.data);
         if (res.data.data.length > 0) {
-          self.id = res.data.data[0].id
+          self.id = res.data.data[0].id;
           Object.keys(res.data.data[0]).forEach(key => {
             self.fields.forEach((field, index) => {
               if (field.column === key) {
@@ -188,31 +183,30 @@ export default {
       // 提交审批
       let self = this;
       let itemData = self.$refs.bxForm.getFieldModel();
-      // let itemData2 
+      // let itemData2
       console.log('itemData', itemData);
       let req = {
         proc_instance_no: this.proc_instance_no,
         step_no: this.procBasicConfig.proHanleData.step_no,
         data: []
       };
-      let obj = itemData
+      let obj = itemData;
       let len = Object.keys(obj);
       req.data.push(obj);
-     if(itemData.proc_result&&itemData.proc_result==='pass'){
-       let childDataList = [];
-       let d = {
-         serviceName: this.stepData.biz_cfg_data[0].update_service,
-         condition: [
-           {
-             colName: 'id',
-             ruleType: 'in',
-             value: this.id
-           }
-         ]
-       };
-       childDataList.push(d)
-     }
-      
+      if (itemData.proc_result && itemData.proc_result === 'pass') {
+        let childDataList = [];
+        let d = {
+          serviceName: this.stepData.biz_cfg_data[0].update_service,
+          condition: [
+            {
+              colName: 'id',
+              ruleType: 'in',
+              value: this.id
+            }
+          ]
+        };
+        childDataList.push(d);
+      }
     }
   },
   onLoad(option) {

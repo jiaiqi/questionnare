@@ -14,13 +14,13 @@
 						'line-end': lineDataDefault.length - 1 === index && !showSelect
 					}"
 				>
-					<view class="content tag-item">{{ item.name }}</view>
+					<view class="content tag-item">{{ item.name?item.name:showCol?item[showCol]:"" }}</view>
 				</view>
 				<view class="bx-item bx-text-yellow line-end" v-if="showSelect || (lineData.length === 0 && areaList.length > 0)">请选择</view>
 			</view>
 			<view class="bx-tagbox" v-if="showSelect">
 				<view class="bx-item  bx-text-white bx-bg-blue radius" @click="selectArea(item)" v-for="(item, index) in areaList" :key="index">
-					<view class="content">{{ item.name }}</view>
+					<view class="content">{{ item.name?item.name:showCol?item[showCol]:"" }}</view>
 				</view>
 				<view class="bx-item  bx-text-white bx-bg-yellow radius" @click="showMore" v-if="isShowMore"><view class="content">更多</view></view>
 			</view>
@@ -92,6 +92,14 @@ export default {
 			type: String,
 			default: '中国'
 		},
+    column:{ //要提交的字段
+      type: String,
+      default: ''
+    },
+    showCol:{//要显示的字段
+      type: String,
+      default: ''
+    },
 		areaList: {
 			//区域数据
 			type: Array,
