@@ -97,16 +97,6 @@ export default {
             // this.fields = fields.filter(item => {
             this.formFields = fields;
             this.fields = fields.concat(this.approvalFormCfg);
-            //   .filter(item=>{
-            //   if (this.type === 'detail') {
-            //     return item.display;
-            //   } else if (this.type === 'update' || this.type === 'add') {
-            //     if(item._colDatas&&item._colDatas.in_update!==1){
-            //       item.disabled = true
-            //     }
-            //       return item.display;
-            //   }
-            // });
             let activityData = {};
             this.fields.forEach(item => {
               if (item.display && !item.disabled) {

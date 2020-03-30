@@ -5,7 +5,7 @@
         <view>{{ formData.title }}</view>
       </view>
       <view class="content" style="padding: 0 30upx;">
-        <view class="desc">
+        <view class="desc" style="text-align: justify;">
           <view class="text-content-text text-black"><view v-html="JSON.parse(JSON.stringify(formData.remark).replace(/\<img/gi, '<img width=100% height=100%   '))"></view></view>
           <view style="margin-top: .5rem;">
             <view class="text-blue" v-if="formData.start_time">开始时间：{{ formData.start_time.slice(0, 10) }}</view>
@@ -22,10 +22,14 @@
           <!-- <view class="text-content">{{ formData.end_remark }}</view> -->
         </view>
       </view>
-      <view class="button-box" style="margin: 30upx;" v-if="formType === 'form' && configCols && configCols.length > 0&&formData['user_state']==='未完成'">
+      <view class="button-box" style="margin: 30upx;" v-if="formType === 'form' && configCols && configCols.length > 0 && formData['user_state'] === '未完成'">
         <button class="bg-blue line-white" type="" @click="submitForm()">提交</button>
       </view>
-      <view class="button-box" style="margin: 30upx;" v-if="formType === 'detail' && configCols && configCols.length > 0 && formData.info_collect_type === '评估' &&formData.user_state==='完成'&& fill_batch_no">
+      <view
+        class="button-box"
+        style="margin: 30upx;"
+        v-if="formType === 'detail' && configCols && configCols.length > 0 && formData.info_collect_type === '评估' && formData.user_state === '完成' && fill_batch_no"
+      >
         <button class="bg-blue line-white" type="" @click="seeReport()">查看评估结果</button>
       </view>
     </view>
@@ -225,7 +229,7 @@ export default {
     submitForm() {
       let self = this;
       let itemData = self.$refs.bxform.getFieldModel();
-      if(itemData !==false){
+      if (itemData !== false) {
         uni.showModal({
           title: '提示',
           content: '确认提交问卷?',
@@ -275,7 +279,7 @@ export default {
                         icon: 'none'
                       });
                       self.formType = 'detail';
-                      self.getQuestionnaireData(self.formData)
+                      self.getQuestionnaireData(self.formData);
                       // uni.redirectTo({
                       //   url: '../home/home'
                       // });
@@ -297,7 +301,6 @@ export default {
           }
         });
       }
-     
     },
     getQuestionnaireData(questionData) {
       // 获取问卷数据

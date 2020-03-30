@@ -11,35 +11,20 @@
         </view>
       </view>
     </scroll-view>
-
+    <view class="detail-view" v-if="TabCur === 0">
+      <view class="detail-form"><bxform ref="bxDetailForm" :pageType="type" :BxformType="type" :fields="fields"></bxform></view>
+    </view>
     <view class="steps-view" v-if="TabCur === 1">
       <view class="flow-view" v-if="procBasicConfig.proCharData && procBasicConfig.proCharData.length > 0">
-        <!-- <scroll-view scroll-x class="bg-white  response cu-steps  scroll-view" :scroll-into-view="'scroll-' + scroll" scroll-with-animation> -->
-        <!-- <view
-            class="cu-item padding-lr-xl"
-            :class="{ 'text-green': index < scroll, 'text-blue': index === scroll }"
-            v-for="(item, index) in procBasicConfig.proCharData"
-            :key="index"
-            :id="'scroll-' + index"
-            @click="clickSteps({ data: item, index: index })"
-          >
-            <text class="num" :data-index="index + 1"></text>
-            <view class="" style="display: flex;flex-direction: column;">
-              <text>{{ item.step_name }}</text>
-              <text>[ {{ item.state }} ]</text>
-            </view>
-          </view> -->
-        <!-- </scroll-view> -->
         <view class="cu-timeline" v-if="procBasicConfig.proCharData && procBasicConfig.proCharData.length > 0">
-          <!-- <view class="cu-time">06-17</view> -->
           <view
             class="cu-item "
             v-for="(item, index) in procBasicConfig.proCharData"
             :key="index"
             @click="clickSteps({ data: item, index: index })"
-            :class="{ 'text-green': index < scroll, 'text-blue': index === scroll }"
+            :class="{ 'text-green': index < scroll || item.state === '已处理', 'text-blue': index === scroll && item.state !== '已处理' }"
           >
-            <view class="content" :class="{ 'bg-gradual-green': index < scroll, 'bg-blue': index === scroll }">
+            <view class="content" :class="{ 'bg-gradual-green': index < scroll || item.state === '已处理', 'bg-blue': index === scroll && item.state !== '已处理' }">
               <view class="head">
                 <view class="name">{{ item.step_name }}</view>
                 <view class="state">状态：{{ item.state }}</view>
@@ -61,9 +46,7 @@
         </view>
       </view>
     </view>
-    <view class="detail-view" v-else-if="TabCur === 0">
-      <view class="detail-form"><bxform ref="bxDetailForm" :pageType="type" :BxformType="type" :fields="fields"></bxform></view>
-    </view>
+
     <view class="step-list" v-else-if="TabCur === 2">
       <view class="step-list-item" v-for="(item, index) in procRecord" :key="index" @click="toRecordDetail(item)">
         <view class="title">
@@ -108,17 +91,37 @@
         </view>
       </view>
       <view class="" v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.authority">
-        <text class="cu-btn bg-blue margin-right" v-if="procBasicConfig.proHanleData.activeStep !== 0" @click="showApprovalForm">审批</text>
-        <text class="cu-btn bg-blue margin-right" v-if="procBasicConfig.proHanleData.activeStep === 0" @click="showApprovalForm">申请</text>
+        <text class="cu-btn bg-blue margin-right" v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.activeStep !== 0" @click="showApprovalForm(currentStepInfo)">
+          审批
+        </text>
+        <text class="cu-btn bg-blue margin-right" v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.activeStep === 0" @click="showApprovalForm(currentStepInfo)">
+          申请
+        </text>
       </view>
     </view>
     <uni-popup ref="approvalPopup" type="bottom">
-      <view class="form-view">
+      <view class="form-view" v-if="stepsCfgData.length > 0">
         <view class="" style="width: 100%;" v-for="(item, index) in stepsCfgData" :key="index">
           <bxform :ref="'bxFormStep' + index" :pageType="item.formType" :BxformType="item.formType" :fields="item.fields"></bxform>
         </view>
-        <bxform v-if="procBasicConfig.proHanleData.activeStep !== 0" ref="approvalForm" :pageType="'add'" :BxformType="'add'" :fields="approvalFormCfg"></bxform>
-        <view class="button-box"><text class="cu-btn bg-blue" @click="approvalForm">提交</text></view>
+        <bxform
+          v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.activeStep !== 0 && !isHandler"
+          ref="approvalForm"
+          :pageType="'add'"
+          :BxformType="'add'"
+          :fields="approvalFormCfg"
+        ></bxform>
+        <view class="button-box" v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.activeStep !== 0 && !isHandler">
+          <text class="cu-btn bg-blue margin-right" @click="approvalForm">提交</text>
+          <text class="cu-btn bg-green" @click="$refs.approvalPopup.close()">取消</text>
+        </view>
+        <text class="cu-btn bg-blue" @click="$refs.approvalPopup.close()" v-if="isHandler">确定</text>
+      </view>
+    </uni-popup>
+    <uni-popup ref="recordPopup" type="bottom">
+      <view class="form-view" v-if="currentRecord.fields&&currentRecord.fields.length > 0">
+          <bxform ref="bxFormRecord " pageType="detail" BxformType="detail" :fields="currentRecord.fields"></bxform>
+          <view class="cu-btn bg-blue radius" @click="$refs.recordPopup.close()">确定</view>
       </view>
     </uni-popup>
   </view>
@@ -127,7 +130,6 @@
 <script>
 import bxform from '@/components/bx-form/bx-form.vue';
 import uniPopup from '@/components/uni-popup/uni-popup.vue';
-
 export default {
   components: { bxform, uniPopup },
   data() {
@@ -145,11 +147,14 @@ export default {
           label: '流程审批记录'
         }
       ],
+      isHandler: false,
       activityData: {},
       proc_instance_no: '',
       scroll: 0,
       type: 'add',
       procRecord: [],
+      recordFields:[],
+      currentRecord:{},
       procBasicConfig: {},
       colsV2Data: {},
       srvInfo: {
@@ -231,12 +236,16 @@ export default {
       ]
     };
   },
-  computed: {
-    remarkRun: function() {
-      if (true) {
-        return '';
-      }
-    }
+  watch: {
+    // stepsCfgData: {
+    //   deep:true,
+    //   handler(newValue, oldValue){
+    //     let a = this.deepClone(newValue)
+    //     newValue = []
+    //     newValue = a
+    //     return newValue
+    //   }
+    // }
   },
   methods: {
     tabSelect(e) {
@@ -245,15 +254,37 @@ export default {
     },
     toRecordDetail(data) {
       //查看流程审批记录详情
+      console.log(data)
+      this.currentRecord = data
+      this.$refs.recordPopup.open()
     },
     hideApprovalForm() {
       // this.showProcApproval = false;
       this.$refs.approvalPopup.close();
     },
-    showApprovalForm() {
-      this.$refs.approvalPopup.open();
+    showApprovalForm(data) {
+      this.stepsCfgData = [];
+      if (data.state === '已处理') {
+        this.isHandler = true;
+      } else {
+        this.isHandler = false;
+      }
+      this.getApprovalForm(data).then(e => {
+        console.log('eeeeeeeeeeeeee', e, e.length, e[0].fields);
+        this.stepsCfgData = [];
+        if (e.length > 0 && e[0].fields) {
+          this.stepsCfgData = e;
+          this.$refs.approvalPopup.open();
+        } else if (e.length > 0 && !e[0].fields) {
+        }
+      });
     },
     clickSteps(e) {
+      if (e.index !== 0 && e.index <= this.scroll) {
+        this.showApprovalForm(e.data);
+      }else if(e.index===0){
+        this.TabCur = 0
+      }
       console.log('clickSteps', e);
     },
     async getBasicCfg(proc_instance_no) {
@@ -264,8 +295,8 @@ export default {
       if (res.data.state === 'SUCCESS') {
         this.procBasicConfig = res.data;
         this.activityData = res.data.mainData;
-        this.getCurStepConfig(res.data['proCharData'][res.data['proHanleData']['activeStep']]);
-        this.getApprovalForm(res.data['proCharData'][res.data['proHanleData']['activeStep']]); //获取当前步骤的信息
+        // this.getCurStepConfig(res.data['proCharData'][res.data['proHanleData']['activeStep']]);
+        // this.getApprovalForm(res.data['proCharData'][res.data['proHanleData']['activeStep']]); //获取当前步骤的信息
         this.getCurStepConfig(res.data['proCharData'][0], 'firstStep'); //获取第一步信息
         this.currentStepInfo = res.data['proCharData'][res.data['proHanleData']['activeStep']];
         this.firstStepInfo = res.data['proCharData'][0];
@@ -287,22 +318,37 @@ export default {
         for (let i = 0; i < cfg.length; i++) {
           const item = cfg[i];
           if (item.type === 'form') {
-            if (item._type_form) {
+            if (item._type_form && e.state !== '已处理') {
               let serviceName = item[`${item._type_form}_service`];
               let type = item._type_form;
               let fields = await this.getColV2(serviceName, item._type_form);
               cfg[i]['fields'] = fields;
               cfg[i]['formType'] = type;
               console.log('fields111111', fields);
-              // .then(fields=>{
-              //    cfgData[i][fields] = fields
-              //    console.log('fields',fields)
-              //    this.stepsCfgData = cfgData
-              //  })
+            } else if (item.select_service && e.state === '已处理' && item._type_form) {
+              let serviceName = item.select_service;
+              let fields = await this.getColV2(serviceName, 'detail');
+              // cfg[i]['fields'] = fields;
+              cfg[i]['formType'] = 'detail';
+              console.log('fields22222', fields);
+              this.getDetail(serviceName, fields).then(data => {
+                console.log('getDetail(serviceName)', data);
+                Object.keys(data).forEach(key => {
+                  fields.forEach((field, index) => {
+                    if (field.column === key) {
+                      field['value'] = data[key];
+                      field['disabled'] = true;
+                      this.$set(fields, index, field);
+                      cfg[i]['fields'] = fields;
+                    }
+                  });
+                });
+              });
             }
           }
         }
-        this.stepsCfgData = cfg;
+        // this.stepsCfgData = cfg;
+        return cfg;
       }
     },
     async getProcRecord() {
@@ -316,13 +362,30 @@ export default {
       let res = await this.onRequest('select', 'srvprocess_record_select', req, 'oa');
       if (res.data.state === 'SUCCESS') {
         this.procRecord = res.data.data;
+        this.getColV2(req.serviceName,'detail').then(cols=>{
+          console.log('recordFields',cols)
+          this.recordFields = cols
+          this.procRecord.forEach((item,i)=>{
+            let recordFields = this.deepClone(cols)
+            console.log('recordFields121',item)
+            Object.keys(item).forEach(key => {
+               recordFields.forEach((field, index) => {
+                if (field.column === key) {
+                  field['value'] = item[key];
+                  console.log('recordFields',field)
+                }
+              });
+            });
+            item['fields'] =  recordFields
+            this.$set(this.procRecord,i,item)
+          })
+        })
       }
     },
-    async getDetail(e, type) {
-      console.log('getDetail', e);
-      let col = this.fields.map(item => item.column);
+    async getDetail(serviceName, fields) {
+      let col = fields.map(item => item.column);
       let req = {
-        serviceName: type && type === 'firstStep' ? e.select_service : '',
+        serviceName: serviceName,
         condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: this.proc_instance_no }],
         colNames: col,
         hisVer: true
@@ -331,15 +394,15 @@ export default {
       if (res.data.state === 'SUCCESS') {
         console.log('getDetail111', res.data.data);
         if (res.data.data.length > 0) {
-          this.firstStepForm.push(res.data.data[0]);
-          Object.keys(res.data.data[0]).forEach(key => {
-            this.fields.forEach((field, index) => {
-              if (field.column === key) {
-                field['value'] = res.data.data[0][key];
-                this.$set(this.fields, index, field);
-              }
-            });
-          });
+          return res.data.data[0];
+          // Object.keys(res.data.data[0]).forEach(key => {
+          //   fields.forEach((field, index) => {
+          //     if (field.column === key) {
+          //       field['value'] = res.data.data[0][key];
+          //       this.$set(fields, index, field);
+          //     }
+          //   });
+          // });
         }
       }
     },
@@ -446,13 +509,6 @@ export default {
         let child_data_list = [];
         let id = this.procBasicConfig.mainData.id;
         let stepsCfgData = this.stepsCfgData;
-        // if(approval.proc_result==='turn'){
-
-        // }else if(approval.proc_result==='return_to_last'){
-
-        // }else if(approval.proc_result==='return_to_start'){
-
-        // }else
         if (approval.proc_result === 'pass') {
           for (let i = 0; i < this.stepsCfgData.length; i++) {
             let ref = 'bxFormStep' + i;
@@ -531,7 +587,7 @@ export default {
         default:
           break;
       }
-      if (this.procBasicConfig.proHanleData.activeStep === 0 && type == 'update') {
+      if (this.scroll === 0 && type == 'update') {
         fields = this.setFieldsDefaultVal(colVs._fieldInfo, this.activityData);
       }
       if (fields && Array.isArray(fields)) {
@@ -597,10 +653,10 @@ export default {
   }
   .cu-timeline {
     .cu-item {
-        padding: 5px 15px 5px 54px;
-        position: relative;
-        display: block;
-        z-index: 0;
+      padding: 5px 15px 5px 54px;
+      position: relative;
+      display: block;
+      z-index: 0;
     }
     .head {
       display: flex;
@@ -663,6 +719,7 @@ export default {
   align-items: center;
   max-height: calc(100vh - 100px);
   overflow-y: scroll;
+  padding: 30upx 0 100upx;
   .button-box {
     height: 100upx;
     width: 100%;
@@ -672,8 +729,9 @@ export default {
     margin: 20upx 0 40upx;
   }
   .cu-btn {
-    width: 60%;
-    height: 60upx;
+    max-width: 60%;
+    min-height: 60upx;
+    margin-top: 50upx;
   }
 }
 .bottom-bar {
