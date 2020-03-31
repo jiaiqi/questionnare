@@ -1,11 +1,16 @@
 <template>
   <view class="page-wrap">
-    <view v-for="(pageItem, itemIndex) in pageItemList" :key="itemIndex">
+    <view
+      v-for="(pageItem, itemIndex) in pageItemList"
+      :key="itemIndex"
+      :class="{ 'swiper-view': pageItem.div_type === 'carousel', 'menu-view': pageItem.div_type === 'buttons', 'tab-list-view': pageItem.div_type === 'tablist' }"
+    >
       <SwiperCarousel :swiperList="swiperList" v-if="pageItem.div_type === 'carousel'" @clickSwiper="clickSwiper" :imgCol="'picUrl'"></SwiperCarousel>
-      <SwiperMenu class="menu-view" v-if="pageItem.div_type === 'buttons'" :menuList="menuList" @clickMenu="clickMenu"></SwiperMenu>
+      <SwiperMenu  v-if="pageItem.div_type === 'buttons'" :menuList="menuList" @clickMenu="clickMenu"></SwiperMenu>
       <TabList
+        
         @clickListItem="clickListItem"
-        @showMore="showMore($event,pageItem)"
+        @showMore="showMore($event, pageItem)"
         v-if="pageItem.div_type === 'tablist'"
         :pageItem="pageItem"
         :srvApp="tabListConfig['srvApp']"
@@ -71,11 +76,11 @@ export default {
     }
   },
   methods: {
-    showMore(e,pageitem) {
-      console.log('点击了更多按钮', e,pageitem);
+    showMore(e, pageitem) {
+      console.log('点击了更多按钮', e, pageitem);
       uni.navigateTo({
-        url:"/pages/specific/newsList/newsList?cate_no="+e.no
-      })
+        url: '/pages/specific/newsList/newsList?cate_no=' + e.no
+      });
     },
     tabSelect(e) {
       //点击tab
@@ -292,259 +297,52 @@ export default {
 
 <style lang="scss" scoped>
 @media screen and (min-width: 750px) {
-  .screen-xl {
-    display: block;
-  }
-  .screen-sm {
-    display: none !important;
-  }
-  .page-wrap {
-    max-width: 1200px;
-    margin: 0 auto;
-    // display: flex;
-    display: grid;
-    padding: 0 20upx;
-  }
-  // &/deep/ .screen-swiper {
-  //     min-height: 300px!important;
-  // }
-  .menu-view {
-    min-height: 300px;
-    .menu-item {
-      display: flex;
-      flex-wrap: wrap;
-      .bg-imgs {
-        width: 200px;
-        height: 60px;
-        margin: 20px;
-        .menu-pic {
-          display: none;
-          // justify-content: center;
-          // align-items: center;
-        }
-        .label {
-          width: 100%;
-          display: flex;
-          padding: 20px;
-          justify-content: center;
-          align-items: center;
-          background-color: #0081ff;
-          color: #fff;
-        }
-      }
-    }
-  }
-  .news-view {
-    display: flex;
-    flex-direction: column;
-    .news-list {
-      width: calc(100% - 20px);
-      margin: 10px;
-      display: flex;
-      .news-list-item {
-        display: flex;
-        &.none-image {
-          line-height: 40px;
-          position: relative;
-          text-indent: 40px;
-          &::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            color: #333;
-            left: 20px;
-            top: calc(50% - 5px);
-            position: absolute;
-            background-color: #333;
-          }
-        }
-        &.single-image {
-          width: calc(100% - 40upx);
-          margin: 0 auto;
-          // padding-left: 40upx;
-          .image {
-            width: 150px;
-            height: 150px;
-            margin-right: 20px;
-            border-radius: 20px;
-          }
-          .content {
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            flex: 1;
-            .title {
-              font-weight: 600;
-              font-size: 30px;
-            }
-            .text {
-              width: 95%;
-              max-height: 100px;
-              font-size: 20px;
-              color: #666;
-              padding-top: 10px;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              display: -webkit-box;
-              -webkit-line-clamp: 2;
-              -webkit-box-orient: vertical;
-            }
-          }
-        }
-
-        .content {
-          flex: 1;
-          line-height: 40px;
-          padding: 10px;
-        }
-      }
-    }
-  }
-}
-@media screen and (max-width: 750px) {
-  .screen-xl {
-    display: none !important;
-  }
-  .screen-sm {
-  }
   .page-wrap {
     position: relative;
     overflow: hidden;
-    // background-color: #EEEEEE;
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1366px;
+    margin: 0 auto;
+    // justify-content: space-around;
+    .swiper-view {
+      width: 100%;
+      min-height: 500px;
+      max-width: 1350px;
+      max-height: 700px;
+      margin: 0 auto;
+      .carousel-view{
+        width: 100%;
+        height: 100%;
+        /deep/.screen-swiper{
+          height: 100%;
+        }
+      }
+    }
+    .menu-view{
+      width: 100%;
+      max-width: 350px;
+      margin: 0 auto;
+    /deep/  .screen-swiper{
+        width: 100%;
+      }
+    }
+    .tab-list-view{
+      max-width: 450px;
+      margin: 10px auto;
+      &:nth-child(2){
+        // margin-left: 20px;
+      }
+    }
   }
-  // .menu-view {
-  //   // width: 100%;
-  //   // min-height: 400upx;
-  //   // padding: 20upx 0;
-  //   // &/deep/ .screen-swiper {
-  //   //     min-height: 300px!important;
-  //   // }
-  //   .menu-item {
-  //     display: flex;
-  //     box-sizing: border-box;
-  //     flex-wrap: wrap;
-  //   }
-  //   .bg-imgs {
-  //     display: flex;
-  //     flex-direction: column;
-  //     justify-content: center;
-  //     align-items: center;
-  //     margin: 10upx;
-  //     width: 22%;
-  //     .menu-pic2 {
-  //       width: 100upx;
-  //       height: 100upx;
-  //       border-radius: 20upx;
-  //     }
-  //     .menu-pic {
-  //       width: 100upx;
-  //       height: 100upx;
-  //       border-radius: 20upx;
-  //       font-size: 30upx;
-  //       margin: 0 auto;
-  //       justify-content: center;
-  //       align-items: center;
-  //       display: flex;
-  //       font-family: '黑体';
-  //       // background-color: #409EFF;
-  //       z-index: 1;
-  //       &::before {
-  //         content: '';
-  //         position: absolute;
-  //         width: 100upx;
-  //         height: 100upx;
-  //         // opacity: 1;
-  //         background: rgba($color: #0081ff, $alpha: 0.8);
-  //         transform: translate(3px, 4px);
-  //         border-radius: 20upx;
-  //         z-index: -1;
-  //         box-shadow: 10px 10px 22px 2px rgba(0, 0, 100, 0.2);
-  //       }
-  //       &:active {
-  //         transform: translate(2px, 2px);
-  //       }
-  //     }
-  //     .label {
-  //       line-height: 50upx;
-  //       margin-top: 10upx;
-  //     }
-  //   }
-  // }
-  // .news-view {
-  //   display: flex;
-  //   flex-direction: column;
-  //   .news-list {
-  //     width: calc(100% - 20upx);
-  //     margin: 30upx 0;
-  //     display: flex;
-  //     .news-list-item {
-  //       display: flex;
-  //       justify-content: space-between;
-  //       align-items: center;
-  //       &.none-image {
-  //         line-height: 40upx;
-  //         position: relative;
-  //         text-indent: 40upx;
-  //         &::before {
-  //           content: '';
-  //           width: 10upx;
-  //           height: 10upx;
-  //           border-radius: 50%;
-  //           color: #333;
-  //           left: 20upx;
-  //           top: calc(50% - 5upx);
-  //           position: absolute;
-  //           background-color: #333;
-  //         }
-  //       }
-  //       &.single-image {
-  //         width: calc(100% - 40upx);
-  //         margin: 0 auto;
-  //         // padding-left: 40upx;
-  //         .image {
-  //           width: 150upx;
-  //           height: 150upx;
-  //           margin-right: 20upx;
-  //           border-radius: 20upx;
-  //         }
-  //         .content {
-  //           display: flex;
-  //           flex-direction: column;
-  //           justify-content: space-around;
-  //           padding: 0;
-  //           flex: 1;
-  //           height: 160upx;
-  //           max-width: 520upx;
-  //           .title {
-  //             font-weight: 600;
-  //             height: auto;
-  //             overflow: hidden;
-  //             // text-overflow: ellipsis;
-  //             // white-space: nowrap;
-  //           }
-  //           .text {
-  //             width: 95%;
-  //             max-height: 120upx;
-  //             font-size: 24upx;
-  //             color: #666;
-  //             padding-top: 10upx;
-  //             overflow: hidden;
-  //             text-overflow: ellipsis;
-  //             display: -webkit-box;
-  //             -webkit-line-clamp: 2;
-  //             -webkit-box-orient: vertical;
-  //           }
-  //         }
-  //       }
-
-  //       .content {
-  //         flex: 1;
-  //         line-height: 40upx;
-  //         padding: 10upx;
-  //       }
-  //     }
-  //   }
-  // }
 }
+
+  .page-wrap {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    
+  }
+
 </style>

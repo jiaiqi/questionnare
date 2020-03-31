@@ -45,23 +45,25 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// width: 100%;
-// min-height: 400upx;
-// padding: 20upx 0;
-// // &/deep/ .screen-swiper {
-// //     min-height: 300px!important;
-// // }
 .screen-swiper {
-  margin: 20upx 10upx;
+  margin: 20upx auto;
   background-color: #fff;
-  border-radius: 20upx;
+  // border-radius: 20upx;
   overflow: hidden;
+  width: 750upx;
+  // margin: 0 auto;
 }
+// @media screen and (min-width: 750px){
+//   .screen-swiper {
+//     max-width: 500px;
+//     max-height: 370px;
+//   }
+// }
 .menu-item {
   display: flex;
   box-sizing: border-box;
   flex-wrap: wrap;
-
+  // justify-content: space-around;
   .bg-imgs {
     display: flex;
     flex-direction: column;
@@ -69,6 +71,7 @@ export default {
     align-items: center;
     margin: 10upx;
     width: 22%;
+    max-width: 100px;
     .menu-pic2 {
       width: 100upx;
       height: 100upx;
@@ -105,6 +108,10 @@ export default {
     .label {
       line-height: 50upx;
       margin-top: 10upx;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: .16rem;
     }
   }
 }

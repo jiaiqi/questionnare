@@ -39,7 +39,24 @@ export default {
 <style lang="scss">
 .carousel-view {
   background-color: #fff;
-  border-bottom-left-radius: 20upx;
-  border-bottom-right-radius: 20upx;
+  // border-bottom-left-radius: 20upx;
+  // border-bottom-right-radius: 20upx;
+  // width: 750upx;
+  width: 100%;
+  min-width: 750upx;
+  margin: 0 auto;
+  overflow: hidden;
 }
+// @media screen and (min-width: 750px){
+//   .carousel-view {
+//     background-color: #fff;
+//     // border-bottom-left-radius: 20upx;
+//     // border-bottom-right-radius: 20upx;
+//     max-width: 1366px;
+//     min-width: 500px;
+//     max-height: 370px;
+//     margin: 0 auto;
+//     overflow: hidden;
+//   }
+// }
 </style>

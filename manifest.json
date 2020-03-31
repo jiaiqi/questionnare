@@ -72,7 +72,8 @@
         },
         "devServer" : {
             "disableHostCheck" : true
-        }
+        },
+        "template" : "template.html"
     },
     "mp-qq" : {
         "setting" : {

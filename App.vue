@@ -1,5 +1,8 @@
 <script>
 	import Vue from 'vue'
+  if(window.innerWidth>750){  
+      window.innerWidth=750;  
+  }  
 	export default {
 		onLaunch: function() {
 			this.judgeClientEnviroment()

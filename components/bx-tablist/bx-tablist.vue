@@ -10,7 +10,7 @@
         <!-- 单图布局 -->
         <view class="news-list-item single-image left-image animation-slide-left" v-if="list[contentTemplate['imgCol']]">
           <image :src="list.picUrl" mode="" class="image" v-if="list.picUrl"></image>
-          <image src="../../static/img/loading-1.gif" mode="" class="image" v-if="!list.picUrl"></image>
+          <!-- <image src="../../static/img/loading-1.gif" mode="" class="image" v-if="!list.picUrl"></image> -->
           <view class="content">
             <view class="title">{{ list[contentTemplate['titleCol']] }}</view>
             <view class="text">{{ list[contentTemplate['dateCol']] }}</view>
@@ -176,26 +176,23 @@ export default {
   },
   watch: {
     contList: {
-      deep:true,
-      handler(newValue, oldValue){
-        
-      }
+      deep: true,
+      handler(newValue, oldValue) {}
     }
   },
   mounted() {
-    if(!this.onlyList){
+    if (!this.onlyList) {
       this.getCateList().then(data => {
         if (data && data.length > 0) {
           this.getContList(data[0].no);
           this.currentTab = this.cateList[0];
         }
       });
-    }else{
-      if(this.pageItem.cate_no){
+    } else {
+      if (this.pageItem.cate_no) {
         this.getContList(this.pageItem.cate_no);
       }
     }
-    
   }
 };
 </script>
@@ -205,10 +202,10 @@ export default {
   min-height: 400upx;
   max-height: 1200upx;
   background-color: #fff;
-  border-radius: 20upx;
+  // border-radius: 20upx;
   padding-top: 20upx;
   overflow: hidden;
-  margin: 0upx 10upx 20upx;
+  margin: 0upx auto 20upx;
   .tab-view {
     align-items: center;
     display: flex;
@@ -278,7 +275,7 @@ export default {
           padding: 0;
           flex: 1;
           height: 160upx;
-          max-width: 520upx;
+          // max-width: 520upx;
           .title {
             font-weight: 600;
             height: auto;

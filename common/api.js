@@ -3,6 +3,7 @@
 let remoteAddress = {
 	ssourl: 'http://www.100xsys.cn', // 微信登陆sso 端口
 	ssoAddress: 'http://sso.100xsys.cn',
+	// serviceAddress: 'https://srvms.100xsys.cn', // http://login.100xsys.cn 接口地址srvms.100xsys.cn
 	serviceAddress: 'https://srvms.100xsys.cn', // http://login.100xsys.cn 接口地址srvms.100xsys.cn
 	frontEndAddress: 'https://wx2.100xsys.cn',
 	singleApp:true, // 是否单应用， true 时 所有请求均使用 appName 配置
