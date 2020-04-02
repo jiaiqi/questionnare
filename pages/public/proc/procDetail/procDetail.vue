@@ -11,12 +11,11 @@
         </view>
       </view>
     </scroll-view>
-    <view class="detail-view" v-if="TabCur === 0">
+    <view class="detail-view content-box" v-if="TabCur === 0">
       <view class="detail-form"><bxform ref="bxDetailForm" :pageType="type" :BxformType="type" :fields="fields"></bxform></view>
     </view>
-    <view class="steps-view" v-if="TabCur === 1">
-      <BxSteps :infoList='procBasicConfig.proCharData' :scroll='scroll' @clickSteps='clickSteps'>
-      </BxSteps>
+    <view class="steps-view content-box" v-if="TabCur === 1">
+      <BxSteps :infoList="procBasicConfig.proCharData" :scroll="scroll" @clickSteps="clickSteps"></BxSteps>
       <!-- <view class="flow-view" v-if="procBasicConfig.proCharData && procBasicConfig.proCharData.length > 0">
         <view class="cu-timeline" v-if="procBasicConfig.proCharData && procBasicConfig.proCharData.length > 0">
           <view
@@ -45,7 +44,7 @@
       </view> -->
     </view>
 
-    <view class="step-list" v-else-if="TabCur === 2">
+    <view class="step-list  content-box" v-else-if="TabCur === 2">
       <view class="step-list-item" v-for="(item, index) in procRecord" :key="index" @click="toRecordDetail(item)">
         <view class="title">
           <text class="label">步骤名称：</text>
@@ -139,7 +138,7 @@ import bxform from '@/components/bx-form/bx-form.vue';
 import uniPopup from '@/components/uni-popup/uni-popup.vue';
 import BxSteps from '@/components/bx-steps/bx-steps.vue';
 export default {
-  components: { bxform, uniPopup,BxSteps },
+  components: { bxform, uniPopup, BxSteps },
   data() {
     return {
       TabCur: 1,
@@ -322,10 +321,10 @@ export default {
     async getBasicCfg(proc_instance_no) {
       // srvprocess_basic_cfg_select 流程初始化数据查询
       let serviceName = this.srvInfo.serviceName;
-      uni.showLoading({})
+      uni.showLoading({});
       let req = { serviceName: 'srvprocess_basic_cfg_select', colNames: ['*'], condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: proc_instance_no }] };
       let res = await this.onRequest('select', 'srvprocess_basic_cfg_select', req, 'oa');
-      uni.hideLoading()
+      uni.hideLoading();
       if (res.data.state === 'SUCCESS') {
         this.procBasicConfig = res.data;
         this.activityData = res.data.mainData;
@@ -392,7 +391,7 @@ export default {
     },
     async getProcRecord() {
       //查找流程审批记录
-      uni.showLoading({})
+      uni.showLoading({});
       let req = {
         serviceName: 'srvprocess_record_select',
         colNames: ['*'],
@@ -400,7 +399,7 @@ export default {
         order: [{ colName: 'id', orderType: 'desc' }]
       };
       let res = await this.onRequest('select', 'srvprocess_record_select', req, 'oa');
-      uni.hideLoading()
+      uni.hideLoading();
       if (res.data.state === 'SUCCESS') {
         this.procRecord = res.data.data;
         this.getColV2(req.serviceName, 'detail').then(cols => {
@@ -424,7 +423,7 @@ export default {
       }
     },
     async getDetail(serviceName, fields) {
-      uni.showLoading({})
+      uni.showLoading({});
       let col = fields.map(item => item.column);
       let req = {
         serviceName: serviceName,
@@ -433,7 +432,7 @@ export default {
         hisVer: true
       };
       let res = await this.onRequest('select', req.serviceName, req, 'oa');
-      uni.hideLoading()
+      uni.hideLoading();
       if (res.data.state === 'SUCCESS') {
         console.log('getDetail111', res.data.data);
         if (res.data.data.length > 0) {
@@ -497,7 +496,7 @@ export default {
       let self = this;
       if (this.procBasicConfig.proHanleData.activeStep === 0) {
         //重新申请
-        uni.showLoading({})
+        uni.showLoading({});
         for (let i = 0; i < this.stepsCfgData.length; i++) {
           let ref = 'bxFormStep' + i;
           let item = this.stepsCfgData[i];
@@ -516,7 +515,7 @@ export default {
               }
             ];
             this.onRequest('apply', serviceName, req, 'oa').then(res => {
-              uni.hideLoading()
+              uni.hideLoading();
               if (res.data.state === 'SUCCESS') {
                 console.log(res.data, 'res.data');
                 uni.showToast({
@@ -586,10 +585,10 @@ export default {
             step_no: self.currentStepInfo.step_no
           }
         ];
-        uni.showLoading({})
+        uni.showLoading({});
         let url = this.getServiceUrl('oa', 'approval', 'process');
         self.onRequest('process', 'approval', reqData, 'oa').then(res => {
-          uni.hideLoading()
+          uni.hideLoading();
           if (res.data.state === 'SUCCESS') {
             console.log(res.data);
             uni.showToast({
@@ -670,6 +669,9 @@ export default {
   }
   .uni-popup {
     z-index: 999;
+  }
+  /deep/ .uni-scroll-view {
+    height: auto;
   }
 }
 .steps-view {
@@ -785,5 +787,8 @@ export default {
     font-weight: bold;
     font-size: 32upx;
   }
+}
+.content-box{
+  margin-bottom: 100upx;
 }
 </style>

@@ -111,7 +111,7 @@ export default {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-size: .16rem;
+      // font-size: .16rem;
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <view class="tab-list" v-if="cateList.length > 0">
+  <view class="tab-list" v-if="cateList.length > 0&&contList.length>0">
     <view class="tab-view" v-if="!onlyList">
       <view class="tab-item  " :class="index === TabCur ? 'current-tab' : ''" :data-id="index" v-for="(cate, index) in cateList" :key="index" @tap="tabSelect($event, cate)">
         <view v-if="cate && cate.tablist_name">{{ cate.tablist_name }}</view>
@@ -199,6 +199,7 @@ export default {
 
 <style lang="scss">
 .tab-list {
+  width: 100%;
   min-height: 400upx;
   max-height: 1200upx;
   background-color: #fff;

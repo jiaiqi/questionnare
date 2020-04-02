@@ -27,7 +27,6 @@ Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
 
-
 Vue.prototype.$dev = true // 是否本地开发
 Vue.use(common) // 老板公共方法,最终要抛弃
 Vue.use(bxUtil)  // 新版公共方法

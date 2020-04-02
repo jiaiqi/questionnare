@@ -1,12 +1,12 @@
 <template>
-  <view class="cu-card article bg-blue" style="min-height: 100vh;">
+  <view class="cu-card article bg-blue" style="min-height: 100vh;height: auto;">
     <view class="cu-item shadow" style="padding: 10upx;">
       <view class="question-title">
         <view>{{ formData.title }}</view>
       </view>
       <view class="content" style="padding: 0 30upx;">
         <view class="desc" style="text-align: justify;">
-          <view class="text-content-text text-black"><view v-html="JSON.parse(JSON.stringify(formData.remark).replace(/\<img/gi, '<img width=100% height=100%   '))"></view></view>
+          <view class="text-content-text text-black"><view v-html="JSON.parse(JSON.stringify(formData.remark).replace(/\<img/gi, '<img width=100%  '))"></view></view>
           <view style="margin-top: .5rem;">
             <view class="text-blue" v-if="formData.start_time">开始时间：{{ formData.start_time.slice(0, 10) }}</view>
             <view class="text-blue" v-if="formData.end_time">结束时间：{{ formData.end_time.slice(0, 10) }}</view>
@@ -18,7 +18,7 @@
       </view>
       <view class="content" style="padding: 0 30upx;">
         <view class="desc">
-          <view class="text-content-text"><view v-html="JSON.parse(JSON.stringify(formData.end_remark).replace(/\<img/gi, '<img width=100% height=100% '))"></view></view>
+          <view class="text-content-text"><view v-html="JSON.parse(JSON.stringify(formData.end_remark).replace(/\<img/gi, '<img width=100%'))"></view></view>
           <!-- <view class="text-content">{{ formData.end_remark }}</view> -->
         </view>
       </view>

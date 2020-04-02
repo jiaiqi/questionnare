@@ -119,13 +119,29 @@
     }, {
       "path": "pages/public/proc/apply/apply",
       "style": {}
+    }, {
+      "path": "pages/public/proc/procStepDetail/procStepDetail",
+      "style": {}
+    }, {
+      "path": "pages/public/proc/recordDetail/recordDetail",
+      "style": {}
+    }, {
+      "path": "pages/specific/guide/guide",
+      "style": {
+        "navigationBarTitleText": "导航",
+        "navigationBarBackgroundColor": "#0bc99d"
+      }
     }
       ,{
-            "path" : "pages/public/proc/procStepDetail/procStepDetail",
+            "path" : "pages/specific/mapMarks/mapMarks",
             "style" : {}
         }
         ,{
-            "path" : "pages/public/proc/recordDetail/recordDetail",
+            "path" : "pages/specific/mapMarks/mapDetail/mapDetail",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/specific/mapMarks/mapList/mapList",
             "style" : {}
         }
     ],

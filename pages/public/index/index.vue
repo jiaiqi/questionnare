@@ -339,7 +339,7 @@ export default {
 
   .page-wrap {
     position: relative;
-    overflow: hidden;
+    // overflow: hidden;
     display: flex;
     flex-wrap: wrap;
     
