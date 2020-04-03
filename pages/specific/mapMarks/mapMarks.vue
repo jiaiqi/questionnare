@@ -257,6 +257,9 @@ export default {
         // content.push(`地址:${item.addr}`);
         // content.push(`地区:${item.region}`);
         marker.content = createInfoWindow(title, content.join('<br/>'), item);
+       //  var markerContent = document.createElement('div');
+       
+       //  marker.setContent(markerContent); //更新点标记内容
         marker.setLabel({
           offset: new AMap.Pixel(0, 0), //设置文本标注偏移量
           content: `<div class='info'>${item.name}</div>`, //设置文本标注内容
@@ -270,7 +273,7 @@ export default {
       this.markList = markers;
       function clickMarker(e) {
         //标记点击事件
-        console.log(e)
+        console.log(e);
         const infoWindow = new AMap.InfoWindow({
           //实例化信息窗体
           isCustom: true, //使用自定义窗体
@@ -314,7 +317,7 @@ export default {
         bottom.onclick = () => {
           console.log(item);
           uni.navigateTo({
-            url: 'mapDetail/mapDetail?mapData='+item.jws_no
+            url: 'mapDetail/mapDetail?mapData=' + item.jws_no
             // url: 'mapDetail/mapDetail?mapData=' + decodeURIComponent(JSON.stringify(item))+'&jws_no='+item.jws_no
           });
         };
