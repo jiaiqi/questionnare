@@ -1,7 +1,7 @@
 import '@/static/js/pc'
 import Vue from 'vue'
 import App from './App'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+// import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import store from './store/index.js'
 import api from '@/common/api.js' // 导入api清单
 // import flyio from '@/common/wx.js' // 引入flyio
@@ -23,9 +23,9 @@ Vue.component('cu-custom',cuCustom)
 Vue.config.productionTip = false
 
 // Install BootstrapVue
-Vue.use(BootstrapVue)
+// Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin)
+// Vue.use(IconsPlugin)
 
 Vue.prototype.$dev = true // 是否本地开发
 Vue.use(common) // 老板公共方法,最终要抛弃

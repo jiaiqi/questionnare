@@ -1,18 +1,222 @@
 <template>
-  <view class="amap-wrap"><div id="container"></div></view>
+  <view class="amap-wrap">
+    <view class="menu-box">
+      <view class="area-picker">
+        <view class="picker" @click="$refs.picker.show()">{{ areaName }}</view>
+      </view>
+      <view class="button" v-if="isFilter"><text class="lg text-black cuIcon-delete" @click="cancelChange"></text></view>
+    </view>
+    <div id="container"></div>
+    <lb-picker @confirm="MultiChange" @cancel="cancelChange" ref="picker" :props="myProps" :list="areaList" v-model="pickerVal" mode="multiSelector" :level="2"></lb-picker>
+  </view>
 </template>
 <script>
+import LbPicker from '@/components/lb-picker';
 export default {
+  components: { LbPicker },
   data() {
     return {
-      mapConfig: {}
+      pickerVal: [],
+      mapConfig: {},
+      myProps: {
+        label: 'label',
+        value: 'label',
+        children: 'children'
+      },
+      markList: [],
+      mapInstance: null,
+      showRightModal: false,
+      areaValue: '',
+      multiIndex: [0, 0],
+      isFilter: false, //是否根据条件过滤
+      multiArray: [[], []],
+      areaList: [
+        {
+          label: '凤翔县',
+          children: [
+            {
+              label: '田家庄派出所',
+              value: '田家庄派出所'
+            },
+            {
+              label: '横水派出所',
+              value: '横水派出所'
+            },
+            {
+              label: '石家营派出所',
+              value: '石家营派出所'
+            }
+          ]
+        },
+        {
+          label: '太白县',
+          children: [
+            {
+              label: '桃川派出所',
+              value: '桃川派出所'
+            },
+            {
+              label: '王家堎派出所',
+              value: '王家堎派出所'
+            },
+            {
+              label: '鹦鸽派出所',
+              value: '鹦鸽派出所'
+            }
+          ]
+        },
+        {
+          label: '眉县',
+          children: [
+            {
+              label: '常青派出所',
+              value: '常青派出所'
+            },
+            {
+              label: '汤峪派出所',
+              value: '汤峪派出所'
+            },
+            {
+              label: '营头派出所',
+              value: '营头派出所'
+            }
+          ]
+        },
+        {
+          label: '金台区',
+          children: [
+            {
+              label: '中山西路派出所',
+              value: '中山西路派出所'
+            },
+            {
+              label: '中山东路派出所',
+              value: '中山东路派出所'
+            },
+            {
+              label: '长寿派出所',
+              value: '长寿派出所'
+            }
+          ]
+        },
+        {
+          label: '陈仓区',
+          children: [
+            {
+              label: '贾村派出所',
+              value: '贾村派出所'
+            },
+            {
+              label: '杨家沟派出所',
+              value: '杨家沟派出所'
+            },
+            {
+              label: '阳平派出所',
+              value: '阳平派出所'
+            }
+          ]
+        }
+      ]
     };
   },
+  computed: {
+    areaName() {
+      let val = this.pickerVal[1];
+      val = this.isFilter ? val : '宝鸡市';
+      return val;
+    }
+  },
   methods: {
-    async getMarks() {
+    cancelChange() {
+      this.isFilter = false;
+      this.getMarks().then(marks => {
+        if (marks && Array.isArray(marks)) {
+          if (marks.length === 0) {
+            console.log(this.markList);
+            this.mapInstance.remove(this.markList);
+          } else {
+            this.initMap(marks);
+          }
+        }
+      });
+    },
+    MultiChange(e) {
+      this.isFilter = true;
+      let cond = [{ colName: 'pchs', ruleType: 'like', value: e.value[1] }];
+      this.getMarks(cond).then(marks => {
+        if (marks && Array.isArray(marks)) {
+          if (marks.length === 0) {
+            console.log(this.markList);
+            this.mapInstance.remove(this.markList);
+          } else {
+            this.initMap(marks);
+          }
+        }
+      });
+    },
+    changeArea() {
+      // 切换区域
+      let area = this.areaValue;
+      let condition = [{ colName: 'lat', ruleType: 'like', value: '107' }];
+      this.getMarks(condition).then(marks => {
+        if (marks && Array.isArray(marks)) {
+          if (marks.length === 0) {
+            console.log(this.markList);
+            this.mapInstance.remove(this.markList);
+          } else {
+            this.initMap(marks);
+          }
+          this.showRightModal = false;
+          this.areaValue = null;
+        }
+      });
+    },
+    async getAreaGroup() {
+      let self = this;
+      let url = this.getServiceUrl('daq', 'srvdaq_jws_info_select', 'select');
+      let req = {
+        serviceName: 'srvdaq_jws_info_select',
+        colNames: ['*'],
+        group: [
+          {
+            colName: 'region',
+            type: 'by'
+          },
+          {
+            colName: 'pchs',
+            type: 'by'
+          }
+        ],
+        order: []
+      };
+      // let res = await this.$http.post(url, req);
+    },
+    radioChange(e) {
+      console.log(e);
+      if (e.detail.value) {
+        this.areaValue = e.detail.value;
+      }
+    },
+    showModal(e) {
+      this.showRightModal = !this.showRightModal;
+      this.getAreaGroup();
+    },
+    hideModal() {
+      this.getMarks().then(marks => {
+        if (marks && Array.isArray(marks) && marks.length > 0) {
+          this.initMap(marks);
+        }
+      });
+      this.showRightModal = false;
+      this.areaValue = null;
+    },
+    async getMarks(cond) {
       let self = this;
       let url = this.getServiceUrl('daq', 'srvdaq_jws_info_select', 'select');
       let req = { serviceName: 'srvdaq_jws_info_select', colNames: ['*'], condition: [], page: { pageNo: 1, rownumber: 10 }, order: [] };
+      if (cond && Array.isArray(cond) && cond.length > 0) {
+        req.condition = cond;
+      }
       let res = await this.$http.post(url, req);
       if (res.data.state == 'SUCCESS') {
         let marks = res.data.data;
@@ -22,78 +226,59 @@ export default {
           item['content'] = `<div class="info-card" style="font-weight:600;">${item.name} </div>`;
           return item;
         });
-        this.markList = marks;
+        if (marks.length > 0) {
+          this.markList = marks;
+        }
         return marks;
       }
     },
-    clickMarker(e) {
-      //标记点击事件
-      const infoWindow = new AMap.InfoWindow({
-        //实例化信息窗体
-        isCustom: true, //使用自定义窗体
-        content: 'aaa',
-        offset: new AMap.Pixel(16, -45)
-      });
-      infoWindow.setContent(e.target.content);
-      infoWindow.open(map, e.target.getPosition());
-    },
     initMap(markers) {
       const self = this;
-      var map = new AMap.Map('container', {
+      this.mapInstance = new AMap.Map('container', {
         resizeEnable: true,
         center: markers[0].position,
         zoom: 16
       });
-      map.clearMap(markers); // 清除地图覆盖物
-      //实例化信息窗体
-      var infoWindow = new AMap.InfoWindow({
-        isCustom: true, //使用自定义窗体
-        content: 'aaa',
-        offset: new AMap.Pixel(16, -45)
-      });
-      var layer = new AMap.LabelsLayer({
-        zooms: [3, 20],
-        zIndex: 1000,
-        // 开启标注避让，默认为开启，v1.4.15 新增属性
-        collision: true,
-        // 开启标注淡入动画，默认为开启，v1.4.15 新增属性
-        animation: true
-      });
+      this.mapInstance.clearMap(markers); // 清除地图覆盖物
+
       // 添加标记
-      markers.forEach((item, index) => {
+      markers = markers.map((item, index) => {
         var marker = new AMap.Marker({
-          map: map,
-          anchor:"a",
+          map: self.mapInstance,
+          anchor: 'a',
           icon: item.icon,
           position: [item.position[0], item.position[1]],
           offset: new AMap.Pixel(-13, -30)
         });
         let title = item.name;
         let content = [];
-        console.log('item', item);
+        // console.log('item', item);
         // content.push(`派出所:${item.pchs}`);
         // content.push(`地址:${item.addr}`);
         // content.push(`地区:${item.region}`);
-
         marker.content = createInfoWindow(title, content.join('<br/>'), item);
-  marker.setLabel({
-        offset: new AMap.Pixel(0, 0),  //设置文本标注偏移量
-        content: `<div class='info'>${item.name}</div>`, //设置文本标注内容
-        direction: 'right' //设置文本标注方位
-    });
+        marker.setLabel({
+          offset: new AMap.Pixel(0, 0), //设置文本标注偏移量
+          content: `<div class='info'>${item.name}</div>`, //设置文本标注内容
+          direction: 'top' //设置文本标注方位
+        });
         marker.on('click', clickMarker);
         marker.emit('click', { target: marker });
+        return marker;
+        // marker.emit('click', { target: marker });
       });
+      this.markList = markers;
       function clickMarker(e) {
         //标记点击事件
+        console.log(e)
         const infoWindow = new AMap.InfoWindow({
           //实例化信息窗体
           isCustom: true, //使用自定义窗体
           content: 'aaa',
-          offset: new AMap.Pixel(16, -45)
+          offset: new AMap.Pixel(16, -25)
         });
         infoWindow.setContent(e.target.content);
-        infoWindow.open(map, e.target.getPosition());
+        infoWindow.open(self.mapInstance, e.target.getPosition());
       }
       //构建自定义信息窗体
       function createInfoWindow(title, content, item) {
@@ -129,37 +314,110 @@ export default {
         bottom.onclick = () => {
           console.log(item);
           uni.navigateTo({
-            url: 'mapDetail/mapDetail?mapData=' + decodeURIComponent(JSON.stringify(item))
+            url: 'mapDetail/mapDetail?mapData='+item.jws_no
+            // url: 'mapDetail/mapDetail?mapData=' + decodeURIComponent(JSON.stringify(item))+'&jws_no='+item.jws_no
           });
         };
         info.appendChild(bottom);
         return info;
       }
-      var center = map.getCenter();
-      map.setFitView();
+      var center = self.mapInstance.getCenter();
+      self.mapInstance.setFitView();
     }
   },
   mounted() {
     if (this.$route.query.mapConfig) {
     }
+    if (this.areaList.length > 0) {
+      let multiArray = [this.areaList.map(item => item.region), this.areaList[0].children.map(item => item.label)];
+      this.multiArray = multiArray;
+    }
+
+    // this.;
+    this.getAreaGroup();
     this.getMarks().then(marks => {
-      this.initMap(marks);
+      if (marks && Array.isArray(marks) && marks.length > 0) {
+        this.initMap(marks);
+      }
     });
   }
 };
 </script>
 
 <style lang="scss" scoped>
-@import '/static/css/amap.css';
+// @import '/static/css/amap.css';
 
 .amap-wrap {
   min-height: 100vh;
 }
 html,
-body,
-#container {
+body {
   height: 100%;
   width: 100%;
+}
+#container {
+  height: 100%;
+  // height: calc(100% - 100upx);
+  width: 100%;
+  /deep/ .amap-marker-label {
+    border: none;
+    background: cadetblue;
+  }
+}
+.menu-box {
+  height: 100upx;
+  width: 100%;
+  font-size: 60upx;
+  color: #333;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: absolute;
+  top: 0px;
+  right: 0;
+  z-index: 100;
+  .area-name {
+    font-size: 40upx;
+    padding: 10px;
+  }
+  .area-picker {
+    font-size: 40upx;
+    background-color: #fff;
+    display: flex;
+  }
+  .text {
+    font-size: 30upx;
+  }
+  .button {
+    font-size: 30upx;
+    line-height: 40upx;
+    margin: 0 10px;
+    background-color: #fff;
+  }
+}
+.cu-modal.drawer-modal .cu-dialog {
+  min-width: 300px;
+}
+.cu-modal.bottom-modal.show {
+  .cu-dialog {
+    height: 300px;
+  }
+}
+.filter-box {
+  padding: 20upx;
+  .title {
+    width: 100%;
+    height: 100upx;
+    line-height: 100upx;
+    color: #333;
+    text-indent: 40upx;
+  }
+  .uni-label-pointer {
+    margin-right: 20upx;
+  }
+  /deep/ uni-radio::before {
+    right: 10px;
+  }
 }
 .info-card {
   position: relative;
@@ -168,6 +426,13 @@ body,
   height: 200upx;
 }
 
+/deep/.amap-icon img {
+  width: 25px;
+  height: 34px;
+}
+/deep/ .info {
+  color: white;
+}
 .content-window-card {
   position: relative;
   box-shadow: none;
