@@ -412,7 +412,6 @@ export default {
               recordFields.forEach((field, index) => {
                 if (field.column === key) {
                   field['value'] = item[key];
-                  console.log('recordFields', field);
                 }
               });
             });
@@ -491,7 +490,7 @@ export default {
         }
       }
     },
-    approvalForm() {
+    async approvalForm() {
       // 提交审批
       let self = this;
       if (this.procBasicConfig.proHanleData.activeStep === 0) {
@@ -506,6 +505,12 @@ export default {
             if (!itemData) {
               itemData = this.activityData;
             }
+            if (!itemData.file_no) {
+              itemData.file_no = '';
+            }
+            if (!itemData.remark) {
+              itemData.remark = '';
+            }
             let req = [
               {
                 serviceName: 'srvoa_issue_info_update',
@@ -514,29 +519,34 @@ export default {
                 data: [itemData]
               }
             ];
-            this.onRequest('apply', serviceName, req, 'oa').then(res => {
-              uni.hideLoading();
-              if (res.data.state === 'SUCCESS') {
-                console.log(res.data, 'res.data');
-                uni.showToast({
-                  title: res.data.resultMessage,
-                  icon: 'none'
-                });
-
-                uni.showModal({
-                  title: '提示',
-                  content: res.data.resultMessage,
-                  showCancel: false,
-                  success(res) {
-                    if (res.confirm) {
-                      self.hideApprovalForm();
-                      self.getBasicCfg(self.proc_instance_no);
-                      self.getProcRecord(self.proc_instance_no);
-                    }
+            let res = await this.onRequest('apply', serviceName, req, 'oa');
+            // this.onRequest('apply', serviceName, req, 'oa').then(res => {
+            uni.hideLoading();
+            if (res.data.state === 'SUCCESS') {
+              console.log(res.data, 'res.data');
+              uni.showToast({
+                title: res.data.resultMessage,
+                icon: 'none'
+              });
+              uni.showModal({
+                title: '提示',
+                content: res.data.resultMessage,
+                showCancel: false,
+                success(res) {
+                  if (res.confirm) {
+                    self.hideApprovalForm();
+                    self.getBasicCfg(self.proc_instance_no);
+                    self.getProcRecord(self.proc_instance_no);
                   }
-                });
-              }
-            });
+                }
+              });
+            } else {
+              uni.showToast({
+                title: res.data.resultMessage,
+                icon: 'none'
+              });
+            }
+            // });
           }
         }
       } else {
@@ -788,7 +798,7 @@ export default {
     font-size: 32upx;
   }
 }
-.content-box{
+.content-box {
   margin-bottom: 100upx;
 }
 </style>

@@ -59,7 +59,7 @@ export default {
         addService: 'srvoa_issue_info_add',
         detailList: false,
         condition: [],
-        order: [],
+        order: [{colName: "create_time", orderType: "desc"}],
         rowButtons: [],
         listType: 'proc',
         viewTemp: {
@@ -194,6 +194,7 @@ export default {
     }
   },
   mounted() {
+    uni.setStorageSync('activeApp','oa')
     this.getListV2();
   }
 };

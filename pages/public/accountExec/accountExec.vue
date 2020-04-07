@@ -572,7 +572,12 @@ export default {
 									url:that.$api.homePath
 								})
 							}
-						}
+						}else{
+              uni.showToast({
+                  title: response.data.resultMessage,
+                  duration: 2000
+              });
+            }
 				}else{
 					this.user.pwd = ''
 					uni.showToast({

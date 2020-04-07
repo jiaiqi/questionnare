@@ -145,7 +145,7 @@ export default {
           break;
         case "update":
           cols = cols.filter((item, index) => {
-            if (item.in_update !== 0) {
+            if (item.in_update === 1) {
               return item
             }
           })
@@ -196,17 +196,17 @@ export default {
           fieldInfo.type = "digit"
         } else if (item.col_type === "Integer" || item.col_type === "int") {
           fieldInfo.type = "number"
-        } else if (item.bx_col_type === "fk"&&item.col_type!=="User") {
+        } else if (item.bx_col_type === "fk" && item.col_type !== "User") {
           fieldInfo.type = "treeSelector"
-        }else if (item.col_type==="User") {
+        } else if (item.col_type === "User") {
           fieldInfo.type = "cascader"
           fieldInfo.srvInfo = {
             serviceName: 'srvsso_user_select',
             appNo: 'sso',
             isTree: false,
             column: 'user_no',
-            showCol: 'real_name' ,//要展示的字段
-            }
+            showCol: 'real_name', //要展示的字段
+          }
         } else {
           fieldInfo.type = item.col_type
         }
@@ -239,9 +239,10 @@ export default {
           default:
             break;
         }
+        debugger
         // 处理字段统一属性
-        fieldInfo.disabled = item.updatable === 0 ? true : false //字段是否冻结
-        fieldInfo._validators = Vue.prototype.getValidators(item.validators, item.validators_message)
+        fieldInfo.disabled = item.updatable === 0 ? true : false, //字段是否冻结
+          fieldInfo._validators = Vue.prototype.getValidators(item.validators, item.validators_message)
         fieldInfo.isRequire = fieldInfo._validators.required
         fieldInfo.value = null //初始化ｖａｌｕｅ
         fieldInfo._colDatas = item //保存原始ｄａｔａ
@@ -253,7 +254,7 @@ export default {
      * @param {String} buttons  按钮数据
      * 
      */
-    Vue.prototype.getButtonInfo = function(buttons,pageType) {
+    Vue.prototype.getButtonInfo = function(buttons, pageType) {
 
       let cols = buttons
       let buttonInfo = {}
@@ -332,13 +333,13 @@ export default {
       // console.log("_childNode",e,to1Data)
       return to1Data
     }
-  /**
-   * 普通请求方法封装
-   * @param {String} optionType -操作类型(select||operate||add...)
-   * @param {String} srv -服务名 serviceName
-   * @param {Object} req -请求参数
-   * @param {String} app 
-   */
+    /**
+     * 普通请求方法封装
+     * @param {String} optionType -操作类型(select||operate||add...)
+     * @param {String} srv -服务名 serviceName
+     * @param {Object} req -请求参数
+     * @param {String} app 
+     */
     Vue.prototype.onRequest = async function(optionType, srv, req, app) {
       let self = this
       let reqType = optionType
@@ -389,6 +390,7 @@ export default {
       Vue.prototype.getValidators = function(vds, msg) { // 获取校验信息返回组件data
         if (vds !== null && msg !== null) {
           let str = vds
+          console.log('vds', vds)
           let getStr = function(val, state, end) {
             if (val.length > state.length + end.length) {
               let s = val.indexOf(state)
@@ -435,6 +437,11 @@ export default {
             }
           }
           return Validators
+        } else if (vds && !msg) {
+          let reg = /required/gi
+          let Validators = {}
+          Validators['required'] = reg.test(vds)
+         return Validators
         } else {
           return false
         }

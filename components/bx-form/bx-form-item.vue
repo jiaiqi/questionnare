@@ -205,15 +205,28 @@
           name="input"
           v-else-if="fieldData.type === 'digit' || fieldData.type === 'Float'"
         />
-        <view v-else-if="fieldData.type === 'treeSelector'">
-          <bxTreeSelector
+        <!-- <view v-else-if="fieldData.type === 'treeSelector'"> -->
+        <!-- <bxTreeSelector
             ref="bxTreeSelector"
             :isMultiple="false"
             :defaultValue="fieldData.value"
             :options="fieldData.option_list_v2"
             :fieldsModel="fieldsModel"
             @on-tree-change="onTreeSelector"
-          ></bxTreeSelector>
+          ></bxTreeSelector> -->
+        <!-- <bxTreeSelector
+            :srvInfo="fieldData.option_list_v2"
+            :treeData="treeSelectorData"
+            :childNodeCol="'_childNode'"
+            :disColName="fieldData.option_list_v2['key_disp_col']"
+            :nodeKey="'no'"
+            @clickParentNode="onTreeGridChange"
+            @clickLastNode="onMenu"
+          ></bxTreeSelector> -->
+        <!-- </view> -->
+        <view v-else-if="fieldData.type === 'treeSelector'" @click="openTreeSelector">
+          <input :placeholder="'点击选择' + fieldData.label" v-model="fieldData.value" disabled :class="!valid.valid ? 'valid_error' : ''" name="input" v-if="!fieldData.value" />
+          <text class="text-blue" v-if="fieldData.colData" >{{ fieldData.colData[fieldData.option_list_v2.key_disp_col]+'/'+fieldData.value }}</text>
         </view>
         <view v-else-if="fieldData.type === 'cascader'" @click="openCascader">
           <input :placeholder="'点击选择' + fieldData.label" v-model="fieldData.value" disabled :class="!valid.valid ? 'valid_error' : ''" name="input" />
@@ -264,7 +277,17 @@
 				</view> -->
       </view>
     </view>
-
+    <uni-popup ref="treePopup" type="bottom" @change="changePopup">
+      <bxTreeSelector
+        :srvInfo="fieldData.option_list_v2"
+        :treeData="treeSelectorData"
+        :childNodeCol="'_childNode'"
+        :disColName="fieldData.option_list_v2?fieldData.option_list_v2['key_disp_col']:{}"
+        :nodeKey="'no'"
+        @clickParentNode="onTreeGridChange"
+        @clickLastNode="onMenu"
+      ></bxTreeSelector>
+    </uni-popup>
     <uni-popup ref="popup" type="bottom" @change="changePopup">
       <cascader-selector @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo" :defaultLineVal="defaultLineVal"></cascader-selector>
     </uni-popup>
@@ -276,7 +299,8 @@ import wPicker from '@/components/w-picker/w-picker.vue';
 import robbyImageUpload from '@/components/robby-image-upload/robby-image-upload.vue';
 import cascaderSelector from '@/components/cascader/cascaderSelector.vue';
 import uniPopup from '@/components/uni-popup/uni-popup.vue';
-import bxTreeSelector from '@/components/bx-tree-selector/bx-tree-selector.vue';
+// import bxTreeSelector from '@/components/bx-tree-selector/bx-tree-selector.vue';
+import bxTreeSelector from '@/components/tree-selector/tree-selector.vue';
 import bxEditor from '@/components/ueditor/ueditor.vue';
 let _this = null;
 export default {
@@ -340,7 +364,8 @@ export default {
       optionsDatas: [],
       listModel: {},
       listRedundance: [],
-      showOptionsList: false
+      showOptionsList: false,
+      treeSelectorData: []
     };
   },
   updated() {},
@@ -411,6 +436,9 @@ export default {
     if (this.fieldData.type === 'cascader') {
       this.formData['serviceName'] = this.fieldData.srvInfo.serviceName;
       this.formData['app_no'] = this.fieldData.srvInfo.appNo;
+    }
+    if (this.fieldData.type === 'treeSelector') {
+      this.getTreeSelectorData();
     }
     if (this.fieldData.type === 'list') {
       if (this.fieldData.options && this.fieldData.options.length > 0) {
@@ -695,6 +723,9 @@ export default {
       this.defaultLineVal = this.fieldData.value;
       this.$refs.popup.open();
     },
+    openTreeSelector() {
+      this.$refs.treePopup.open();
+    },
     getCascaderValue(val, btnType) {
       console.log(val);
       if (btnType === 'sure') {
@@ -711,6 +742,54 @@ export default {
           this.$emit('get-cascader-val');
         }
       }
+    },
+    onMenu(e) {
+      console.log('clickLastNode', e);
+      const data = e.item ? e.item : {};
+      this.fieldData.value = data.no;
+      this.fieldData['colData'] = data;
+      this.$refs.treePopup.close();
+      this.onInputBlur();
+      this.$emit('on-value-change', this.fieldData);
+      this.getValid();
+    },
+    onTreeGridChange(e) {
+      console.log('onTreeGridChange', e);
+    },
+    getTreeSelectorData() {
+      let self = this;
+      let req = {
+        serviceName: this.fieldData.option_list_v2 ? this.fieldData.option_list_v2.serviceName : '',
+        colNames: ['*']
+      };
+      let appName = uni.getStorageSync('activeApp');
+      self.onRequest('select', req.serviceName, req, appName).then(res => {
+        console.log('appmenu1', res);
+        if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+          // self.appMenu = self.arraySort(res.data.data, 'app_seq');
+          self.treeSelectorData = res.data.data;
+          self.treeSelectorData = self.treeReform(res.data.data, 'parent_no', 'no', this.fieldData.option_list_v2);
+          console.log('aaaaa', self.treeSelectorData);
+          self.treeSelectorData = self.treeSelectorData.map((item, index) => {
+            let a = {
+              title: '',
+              name: '',
+              icon: '',
+              seq: '',
+              link: '',
+              type: 'button',
+              _childNode: []
+            };
+            a = Object.assign(a, item);
+            a.title = item.pr_name;
+            a.name = item.pr_name;
+            a._childNode = item._childNode;
+            a.no = item.no;
+            a.parent_no = item.parent_no;
+            return a;
+          });
+        }
+      });
     }
   },
   watch: {

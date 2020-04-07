@@ -3,7 +3,9 @@
     <view class="parent-node cu-item text-green animation-slide-top">
       <view class="parent-list  ">
         <view class="list-item" v-for="(item, index) in treeData" :key="index" @click="clickParentNode(item, index)">
-          <view class="label" :class="item[nodeKey] === activeNode[nodeKey] ? 'active' : 'normal'">{{ item[disColName] }}</view>
+          <view class="label" :class="item[nodeKey] === activeNode[nodeKey] ? 'active' : 'normal'">
+            {{ item[disColName] ? item[disColName] : srvInfo.key_disp_col ? item[srvInfo.key_disp_col] : '' }}
+          </view>
         </view>
       </view>
     </view>
@@ -31,6 +33,10 @@ export default {
     };
   },
   props: {
+    srvInfo: {
+      type: Object,
+      default: () => {}
+    },
     treeData: {
       type: Array,
       default: () => {}
@@ -62,7 +68,6 @@ export default {
         if (this.activeNode[this.nodeKey] === item[this.nodeKey]) {
           this.activeNode = {};
           this.childNode = [];
-          debugger;
         } else {
           this.activeNode = item;
           this.childNode = item[this.childNodeCol];
@@ -90,7 +95,7 @@ export default {
 
 <style scoped lang="scss">
 .cu-timeline > .cu-item::before {
-  background-color: #efefef;
+  // background-color: #efefef;
 }
 .cu-timeline > .cu-item::after {
   background-color: #39b54a;
@@ -100,7 +105,7 @@ export default {
   padding: 5px 15px 5px 60px;
 }
 .cu-timeline {
-  background-color: #efefef;
+  // background-color: #efefef;
 }
 .left-timeline {
   &::before {
@@ -135,6 +140,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  padding: 20px 0;
   width: 100%;
   .parent-node {
     display: flex;
@@ -192,8 +198,8 @@ export default {
     opacity: 0;
     transform: translateY(-100%);
   }
-  50%{
-    opacity: .1;
+  50% {
+    opacity: 0.1;
     transform: translateY(-50%);
   }
   100% {

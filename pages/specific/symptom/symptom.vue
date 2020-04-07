@@ -62,12 +62,6 @@ export default {
             a._childNode = item._childNode;
             a.no = item.no;
             a.parent_no = item.parent_no;
-            // a.icon = item.app_icon;
-            // a.seq = item.app_seq;
-            // a.class_no = item.class_no;
-            // a.class_name = item.class_name;
-            // a.link = item.class_name
-            // a.type = item.class_name
             return a;
           });
         }
@@ -115,6 +109,6 @@ export default {
 .symptom {
   padding-top: 50upx;
   height: 100vh;
-  // background-color: #fff;
+  background-color: #fff;
 }
 </style>
