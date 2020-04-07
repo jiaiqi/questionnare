@@ -14,35 +14,7 @@
     <view class="detail-view content-box" v-if="TabCur === 0">
       <view class="detail-form"><bxform ref="bxDetailForm" :pageType="type" :BxformType="type" :fields="fields"></bxform></view>
     </view>
-    <view class="steps-view content-box" v-if="TabCur === 1">
-      <BxSteps :infoList="procBasicConfig.proCharData" :scroll="scroll" @clickSteps="clickSteps"></BxSteps>
-      <!-- <view class="flow-view" v-if="procBasicConfig.proCharData && procBasicConfig.proCharData.length > 0">
-        <view class="cu-timeline" v-if="procBasicConfig.proCharData && procBasicConfig.proCharData.length > 0">
-          <view
-            class="cu-item "
-            v-for="(item, index) in procBasicConfig.proCharData"
-            :key="index"
-            @click="clickSteps({ data: item, index: index })"
-            :class="{ 'text-green': index < scroll || item.state === '已处理', 'text-blue': index === scroll && item.state !== '已处理' }"
-          >
-            <view class="content" :class="{ 'bg-gradual-green': index < scroll || item.state === '已处理', 'bg-blue': index === scroll && item.state !== '已处理' }">
-              <view class="head">
-                <view class="name">{{ item.step_name }}</view>
-                <view class="state">状态：{{ item.state }}</view>
-              </view>
-              <view class="state" v-if="item._approval_user">
-                责任人：
-                <text>{{ item._approval_user }}</text>
-              </view>
-              <view class="" v-if="item._record_data">
-                <text class="margin-right-xs">处理时间：</text>
-                {{ item._record_data.create_time }}
-              </view>
-            </view>
-          </view>
-        </view>
-      </view> -->
-    </view>
+    <view class="steps-view content-box" v-if="TabCur === 1"><BxSteps :infoList="procBasicConfig.proCharData" :scroll="scroll" @clickSteps="clickSteps"></BxSteps></view>
 
     <view class="step-list  content-box" v-else-if="TabCur === 2">
       <view class="step-list-item" v-for="(item, index) in procRecord" :key="index" @click="toRecordDetail(item)">
@@ -407,17 +379,17 @@ export default {
           this.recordFields = cols;
           this.procRecord.forEach((item, i) => {
             let recordFields = this.deepClone(cols);
-            console.log('recordFields121', item);
-            Object.keys(item).forEach(key => {
-              recordFields.forEach((field, index) => {
-                if (field.column === key) {
-                  field['value'] = item[key];
-                  console.log('recordFields', field);
-                }
+            if (cols && Array.isArray(cols)) {
+              Object.keys(item).forEach(key => {
+                recordFields.forEach((field, index) => {
+                  if (field.column === key) {
+                    field['value'] = item[key];
+                  }
+                });
               });
-            });
-            item['fields'] = recordFields;
-            this.$set(this.procRecord, i, item);
+              item['fields'] = recordFields;
+              this.$set(this.procRecord, i, item);
+            }
           });
         });
       }
@@ -788,7 +760,7 @@ export default {
     font-size: 32upx;
   }
 }
-.content-box{
+.content-box {
   margin-bottom: 100upx;
 }
 </style>

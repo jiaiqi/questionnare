@@ -6,91 +6,11 @@
         "navigationBarTitleText": "微信登录",
         "navigationBarBackgroundColor": "#0055ff"
       }
-    },
-    {
-      "path": "pages/public/home/home",
-      "style": {}
-    },
-    {
-      "path": "pages/specific/home/home",
-      "style": {
-        "navigationBarTitleText": "问卷调查"
-      }
-    },
-    {
-      "path": "pages/specific/questionnaire/questionnaire",
-      "style": {
-        "navigationBarTitleText": "问卷",
-        "navigationBarBackgroundColor": "#0055ff"
-      }
-    },
-    {
-      "path": "pages/public/login/login",
-      "style": {
-        "navigationBarTitleText": "登录",
-        "navigationBarBackgroundColor": "#0bc99d"
-      }
-    },
-    {
-      "path": "pages/public/login/forget",
-      "style": {
-        "navigationBarTitleText": "忘记密码",
-        "navigationBarBackgroundColor": "#0bc99d"
-      }
-    },
-    {
-      "path": "pages/public/login/register",
-      "style": {
-        "navigationBarTitleText": "注册",
-        "navigationBarBackgroundColor": "#0bc99d"
-      }
     }, {
       "path": "pages/public/list/list",
       "style": {}
     }, {
       "path": "pages/public/formPage/formPage",
-      "style": {}
-    }, {
-      "path": "pages/public/add/add",
-      "style": {}
-    }, {
-      "path": "pages/specific/shophome/shophome",
-      "style": {}
-    }, {
-      "path": "pages/specific/mycentre/mycentre",
-      "style": {}
-    }, {
-      "path": "pages/specific/address/address",
-      "style": {}
-    },
-    {
-      "path": "pages/specific/activityUpdate/activityUpdate",
-      "style": {
-        "navigationBarTitleText": "问卷编辑",
-        "navigationBarBackgroundColor": "#0bc99d"
-      }
-    },
-    {
-      "path": "pages/specific/added/added",
-      "style": {}
-    },
-    {
-      "path": "pages/specific/balancedDiet/balancedDiet",
-      "style": {
-        "navigationBarTitleText": "均衡饮食",
-        "navigationBarBackgroundColor": "#0bc99d"
-      }
-    }, {
-      "path": "pages/specific/viewRecord/viewRecord",
-      "style": {}
-    }, {
-      "path": "pages/specific/assessmentResult/assessmentResult",
-      "style": {
-        "navigationBarTitleText": "评估",
-        "navigationBarBackgroundColor": "#0bc99d"
-      }
-    }, {
-      "path": "pages/specific/article/article",
       "style": {}
     }, {
       "path": "pages/public/index/index",
@@ -99,52 +19,32 @@
         "navigationBarBackgroundColor": "#0bc99d"
       }
     }, {
-      "path": "pages/specific/symptom/symptom",
-      "style": {}
-    }, {
-      "path": "pages/specific/illnessContrast/illnessContrast",
-      "style": {}
-    }, {
-      "path": "pages/specific/courseGrid/courseGrid",
-      "style": {}
-    }, {
-      "path": "pages/specific/newsList/newsList",
-      "style": {}
-    }, {
       "path": "pages/public/proc/procList/procList",
-      "style": {}
+      "style": {
+        "navigationBarTitleText": "流程列表"
+      }
     }, {
       "path": "pages/public/proc/procDetail/procDetail",
-      "style": {}
+      "style": {
+        "navigationBarTitleText": "流程详情"
+      }
     }, {
       "path": "pages/public/proc/apply/apply",
-      "style": {}
+      "style": {
+        "navigationBarTitleText": "申请"
+      }
     }, {
       "path": "pages/public/proc/procStepDetail/procStepDetail",
-      "style": {}
+      "style": {
+        "navigationBarTitleText": "流程步骤详情"
+      }
     }, {
       "path": "pages/public/proc/recordDetail/recordDetail",
-      "style": {}
-    }, {
-      "path": "pages/specific/guide/guide",
       "style": {
-        "navigationBarTitleText": "导航",
-        "navigationBarBackgroundColor": "#0bc99d"
+        "navigationBarTitleText": "流程记录详情"
       }
     }
-      ,{
-            "path" : "pages/specific/mapMarks/mapMarks",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/specific/mapMarks/mapDetail/mapDetail",
-            "style" : {}
-        }
-        ,{
-            "path" : "pages/specific/mapMarks/mapList/mapList",
-            "style" : {}
-        }
-    ],
+  ],
   "globalStyle": {
     // "navigationBarTitleText": "百想软件开发平台",
     // "navigationBarBackgroundColor": "#0bc99d",

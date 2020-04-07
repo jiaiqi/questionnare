@@ -65,11 +65,13 @@ export default {
   },
   created() {
     this.oldField = this.deepClone(this.fields);
-    this.oldField.forEach((item, index) => {
-      this.oldFieldModel[item.column] = item.value;
-    });
-    console.log( this.oldField,this.oldFieldModel)
-    this.getAllField();
+    if (this.oldField && Array.isArray(this.oldField)) {
+      this.oldField.forEach((item, index) => {
+        this.oldFieldModel[item.column] = item.value;
+      });
+      console.log(this.oldField, this.oldFieldModel);
+      this.getAllField();
+    }
   },
   methods: {
     onItemButtons(e) {
@@ -98,12 +100,12 @@ export default {
       }
     },
     onValChange(e) {
-	  if (e.type === 'number') {
-	    this.fieldModel[e.column] =Number(e.value);
-	  }else{
-      this.fieldModel[e.column] = e.value;  
-	  }
-      console.log('valueChange',e, this.fieldModel[e.column],this.fieldModel);
+      if (e.type === 'number') {
+        this.fieldModel[e.column] = Number(e.value);
+      } else {
+        this.fieldModel[e.column] = e.value;
+      }
+      console.log('valueChange', e, this.fieldModel[e.column], this.fieldModel);
       this.allField = this.allField.map((item, index) => {
         if (item.column === e.column) {
           item.value = e.value;
@@ -176,7 +178,7 @@ export default {
         console.log('表单校验失败', showsNum, valid, this.fieldModel);
         uni.showToast({
           title: '请填写完信息后，再尝试提交',
-          icon:'none'
+          icon: 'none'
         });
         return false;
       }

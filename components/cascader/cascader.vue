@@ -18,12 +18,14 @@
 				</view>
 				<view class="bx-item bx-text-yellow line-end" v-if="showSelect || (lineData.length === 0 && areaList.length > 0)">请选择</view>
 			</view>
-			<view class="bx-tagbox" v-if="showSelect">
-				<view class="bx-item  bx-text-white bx-bg-blue radius" @click="selectArea(item)" v-for="(item, index) in areaList" :key="index">
-					<view class="content">{{ item.name?item.name:showCol?item[showCol]:"" }}</view>
-				</view>
-				<view class="bx-item  bx-text-white bx-bg-yellow radius" @click="showMore" v-if="isShowMore"><view class="content">更多</view></view>
-			</view>
+			  <view class="bx-tagbox" v-if="showSelect">
+          <scroll-view scroll-y="true" >
+			  	<view class="bx-item  bx-text-white bx-bg-blue radius" @click="selectArea(item)" v-for="(item, index) in areaList" :key="index">
+			  		<view class="content">{{ item.name?item.name:showCol?item[showCol]:"" }}</view>
+			  	</view>
+			  	<view class="bx-item  bx-text-white bx-bg-yellow radius" @click="showMore" v-if="isShowMore"><view class="content">更多</view></view>
+          </scroll-view>
+			  </view>
 		</view>
 	</view>
 </template>
@@ -204,6 +206,8 @@ export default {
 		align-items: flex-start;
 		min-height: 200upx;
 		width: 90%;
+    max-height: 80vh;
+    overflow-y: scroll;
 		margin: 0 auto;
 		.bx-item {
 			min-width: 100upx;

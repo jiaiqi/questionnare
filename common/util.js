@@ -196,17 +196,17 @@ export default {
           fieldInfo.type = "digit"
         } else if (item.col_type === "Integer" || item.col_type === "int") {
           fieldInfo.type = "number"
-        } else if (item.bx_col_type === "fk"&&item.col_type!=="User") {
+        } else if (item.bx_col_type === "fk" && item.col_type !== "User") {
           fieldInfo.type = "treeSelector"
-        }else if (item.col_type==="User") {
+        } else if (item.col_type === "User") {
           fieldInfo.type = "cascader"
           fieldInfo.srvInfo = {
             serviceName: 'srvsso_user_select',
             appNo: 'sso',
             isTree: false,
             column: 'user_no',
-            showCol: 'real_name' ,//要展示的字段
-            }
+            showCol: 'real_name', //要展示的字段
+          }
         } else {
           fieldInfo.type = item.col_type
         }
@@ -253,7 +253,7 @@ export default {
      * @param {String} buttons  按钮数据
      * 
      */
-    Vue.prototype.getButtonInfo = function(buttons,pageType) {
+    Vue.prototype.getButtonInfo = function(buttons, pageType) {
 
       let cols = buttons
       let buttonInfo = {}
@@ -296,7 +296,6 @@ export default {
      * 树形数据封装
      */
     Vue.prototype.treeReform = function(e, pidcol, idcol) {
-      // 
       let data = Vue.prototype.deepClone(e)
       let to1Data = e.filter((item, index) => {
         // console.log(item.menu_name,item[pidcol])
@@ -332,13 +331,13 @@ export default {
       // console.log("_childNode",e,to1Data)
       return to1Data
     }
-  /**
-   * 普通请求方法封装
-   * @param {String} optionType -操作类型(select||operate||add...)
-   * @param {String} srv -服务名 serviceName
-   * @param {Object} req -请求参数
-   * @param {String} app 
-   */
+    /**
+     * 普通请求方法封装
+     * @param {String} optionType -操作类型(select||operate||add...)
+     * @param {String} srv -服务名 serviceName
+     * @param {Object} req -请求参数
+     * @param {String} app 
+     */
     Vue.prototype.onRequest = async function(optionType, srv, req, app) {
       let self = this
       let reqType = optionType
@@ -439,21 +438,60 @@ export default {
           return false
         }
       }
+
+    function typeOf(obj) {
+      const toString = Object.prototype.toString;
+      const map = {
+        '[object Boolean]': 'boolean',
+        '[object Number]': 'number',
+        '[object String]': 'string',
+        '[object Function]': 'function',
+        '[object Array]': 'array',
+        '[object Date]': 'date',
+        '[object RegExp]': 'regExp',
+        '[object Undefined]': 'undefined',
+        '[object Null]': 'null',
+        '[object Object]': 'object'
+      };
+      return map[toString.call(obj)];
+    }
     Vue.prototype.deepClone = function(obj) {
       // 深拷贝
-      function isObject(o) {
-        return (typeof o === 'object' || typeof o === 'function') && o !== null
+      const t = typeOf(obj);
+      let newObj;
+      if (t === 'array') {
+        newObj = [];
+      } else if (t === 'object') {
+        newObj = {};
+      } else {
+        return obj;
       }
-      if (!isObject(obj)) {
+
+      if (t === 'array') {
+        for (let i = 0; i < obj.length; i++) {
+          newObj.push(Vue.prototype.deepClone(obj[i]));
+        }
+      } else if (t === 'object') {
+        for (let i in obj) {
+          newObj[i] = Vue.prototype.deepClone(obj[i]);
+        }
+      } else {
         throw new Error('非对象')
       }
-      let isArray = Array.isArray(obj)
-      let newObj = isArray ? [...obj] : { ...obj
-      }
-      Reflect.ownKeys(newObj).forEach(key => {
-        newObj[key] = isObject(obj[key]) ? Vue.prototype.deepClone(obj[key]) : obj[key]
-      })
-      return newObj
+      return newObj;
+      // function isObject(o) {
+      //   return (typeof o === 'object' || typeof o === 'function') && o !== null
+      // }
+      // if (!isObject(obj)) {
+      //   throw new Error('非对象')
+      // }
+      // let isArray = Array.isArray(obj)
+      // let newObj = isArray ? [...obj] : { ...obj
+      // }
+      // Reflect.ownKeys(newObj).forEach(key => {
+      //   newObj[key] = isObject(obj[key]) ? Vue.prototype.deepClone(obj[key]) : obj[key]
+      // })
+      // return newObj
     }
 
     Vue.prototype.toPreviousPage = function() {
