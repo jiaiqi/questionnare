@@ -1,4 +1,4 @@
-import '@/static/js/pc'
+// import '@/static/js/pc'
 import Vue from 'vue'
 import App from './App'
 // import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
