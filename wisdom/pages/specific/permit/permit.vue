@@ -51,7 +51,8 @@
 			      uQRCode.make({
 			        canvasId: 'qrcode',
 			        componentInstance: this,
-			        text: "VjAwMSu8cWuljgtCcn/ybfRTRBK8mBwm/ds8QINYB57LJniavQsBZXc2Im0Vd/Ql8R3sXXA=",
+			        // text: "VjAwMSu8cWuljgtCcn/ybfRTRBK8mBwm/ds8QINYB57LJniavQsBZXc2Im0Vd/Ql8R3sXXA=",
+					text:code,
 			        size: 215,
 			        margin: 10,
 			        backgroundColor: '#ffffff',

@@ -34,6 +34,22 @@ export default {
     };
   },
   methods: {
+	  async getFKcode(fkcode){
+		  let req = {
+			  serviceName:"srvzhxq_guest_mgmt_select",
+			   colNames: ['*'],
+			  condition:[{
+				  colName:"id",
+				  ruleType:"eq",
+				  value:fkcode
+			  }]
+		  }
+		  let res = await this.onRequest('select', req.serviceName, req, uni.getStorageSync('activeApp'))
+		  console.log("------------====",res.data.data)
+		  if(res.data.data.length>0){
+			  return res.data.data[0].qr_code
+		  }
+	  },
     async submitData() {
       let self = this;
       let serviceName = this.serviceName;
@@ -93,55 +109,50 @@ export default {
           console.log(res.data, 'res.data');
           uni.hideLoading();
           let resData = res.data.response[0].response;
-          // uni.showToast({
-          //   title: res.response[0].response.ids[0],
-          //   icon: 'none'
-          // });
-		  console.log("--=======>>>>>>>>",resData)
-          uni.showModal({
-            title: '提示',
-            content: '申请成功',
-            showCancel: false,
-            success(res) {
-              if (res.confirm) {
-                if (serviceName.indexOf('_add')) {
-                  serviceName = serviceName.replace('_add', '_select');
-                }
-                let queryObj = {};
-                if (self.serviceName != 'srvzhxq_member_fuwu_add') {
-                  queryObj = {
-                    serviceName: 'srvzhxq_guest_mgmt_fangke_update',
-                    id: resData.ids[0],
-                    type: 'share',
-                    pageType: 'update'
-                  };
-                  if (isOk) {
-                    uni.redirectTo({
-                      url: '/pages/specific/permit/permit?type=share'
-                    });
-                  } else {
-                    uni.redirectTo({
-                      url: '/pages/public/shareApply/shareDetail?query=' + JSON.stringify(queryObj)
-                    });
-                    console.log('=================');
-                  }
-                } else {
-                  queryObj = {
-                    serviceName: 'srvzhxq_member_fuwu_select',
-                    id: resData.ids[0],
-                    pageType: 'detail'
-                  };
-                  uni.redirectTo({
-                    url: '/pages/public/shareApply/shareDetail?query=' + JSON.stringify(queryObj)
-                  });
-                }
-
-                // uni.redirectTo({
-                //   url:'../procDetail/procDetail?query=' + JSON.stringify(queryObj)
-                // })
-              }
-            }
-          });
+		  this.getFKcode(resData.ids[0]).then(codes=>{
+			  if(codes){				  
+			  uni.showModal({
+			    title: '提示',
+			    content: '申请成功',
+			    showCancel: false,
+			    success(res) {
+			      if (res.confirm) {
+			        if (serviceName.indexOf('_add')) {
+			          serviceName = serviceName.replace('_add', '_select');
+			        }
+			        let queryObj = {};
+			        if (self.serviceName != 'srvzhxq_member_fuwu_add') {
+			          queryObj = {
+			            serviceName: 'srvzhxq_guest_mgmt_fangke_update',
+			            id: resData.ids[0],
+			            type: 'share',
+			            pageType: 'update'
+			          };
+			          if (isOk) {
+			            uni.redirectTo({
+			              url: '/pages/specific/permit/permit?type=share&code=' + codes
+			            });
+			          } else {
+			            uni.redirectTo({
+			              url: '/pages/public/shareApply/shareDetail?query=' + JSON.stringify(queryObj)
+			            });
+			            console.log('=================');
+			          }
+			        } else {
+			          queryObj = {
+			            serviceName: 'srvzhxq_member_fuwu_select',
+			            id: resData.ids[0],
+			            pageType: 'detail'
+			          };
+			          uni.redirectTo({
+			            url: '/pages/public/shareApply/shareDetail?query=' + JSON.stringify(queryObj)
+			          });
+			        }
+			      }
+			    }
+			  });
+			  }
+		  })	            
         }
       }
     },

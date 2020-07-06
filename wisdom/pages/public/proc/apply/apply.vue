@@ -447,12 +447,9 @@ export default {
 			this.getBasicCfg().then(_=>{
 				this.getColV2().then(_=>{
 					if(!uni.getStorageSync('activeApp') || uni.getStorageSync('activeApp') == 'zhxq'){
-							if(!!result){
-								
-							}
-							
-						}
-						
+							if(!!result){								
+							}							
+						}						
 					})
 				});
 			})
