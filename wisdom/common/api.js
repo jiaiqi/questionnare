@@ -10,7 +10,8 @@ let remoteAddress = {
 	appName:"zhxq", //singleApp 为 true 时 必须配置
 	bx_auth_ticket: "e2cc16a3-6a87-42da-ae5f-99a6af84c5f8",
 	onTicket: false, // 是否使用配置的静态 bx_auth_ticket
-	homePath:"/pages/public/index/index", // 首页路径，配置完整路径
+	homePath:"/pages/public/sitePage/sitePage", // 首页路径，配置完整路径
+	// homePath:"/pages/public/index/index", // 首页路径，配置完整路径
 	isThirdParty:true,  // 是否必须第三方认证登录
 	thirdPartyType:['WeChat'],// 第三方类型
 	reqUrlParams:[{ 
@@ -25,11 +26,14 @@ let ENV = {
 	backEndAddress:"https://login.100xsys.cn",//后台管理系统地址
 	frontEndAddress: remoteAddress.frontEndAddress, //前端线上地址
 	appNo: {
-		wxmp: 'APPNO20200214122021', //微信小程序
-		wxh5: 'APPNO20200107181133', //微信公众号
+		wxmp: 'APPNO20200706143751', //海纳小区小程序
+		// wxmp: 'APPNO20200214122021', //百想助理小程序
+		wxh5: 'APPNO20200107181133', //百想助理公众号
 	},
 	appID: {
-		wxmp: 'wx8e6f993081f6e979',
+		wxmp: 'wxce3602949765245f', //派诚小程序AppID
+		secret:'f8576848439ead39690542a8fb0d6f7d',//派诚小程序的AppSecret
+		// wxmp: 'wx8e6f993081f6e979',百想助理小程序
 		wxh5: ''
 	},
 	isThirdParty:remoteAddress.isThirdParty,

@@ -4,9 +4,11 @@
 			<text>通行码</text>
 		</view>
 		<view class="permit_cen">
-			<view class="permit_cen_t">
+			<!-- <view class="permit_cen_t">
 				<image src="../../../static/img/permit.png" mode=""></image>
-			</view>
+			</view> -->
+			<canvas canvas-id="qrcode" style="width: 215px;height: 215px;" />
+			
 			<view class="permit_cen_b">
 				<text>进入小区时，请主动出示，配合小区检查人员</text>
 			</view>
@@ -18,6 +20,7 @@
 </template>
 
 <script>
+	import uQRCode from '@/common/uqrcode.js'
 	export default {
 		name:"permit",
 		data(){
@@ -26,9 +29,11 @@
 			}
 		},
 		onLoad(option) {
+			console.log("option---------",option)
 			if(option && option.type){
 				this.type = option.type
 			}
+			this.make(option.code)
 		},
 		onShareAppMessage(res) {
 			console.log("res=====>>>>>",res)
@@ -41,6 +46,24 @@
 				}
 			//  }
 		},
+		methods:{
+			 make(code) {
+			      uQRCode.make({
+			        canvasId: 'qrcode',
+			        componentInstance: this,
+			        text: "VjAwMSu8cWuljgtCcn/ybfRTRBK8mBwm/ds8QINYB57LJniavQsBZXc2Im0Vd/Ql8R3sXXA=",
+			        size: 215,
+			        margin: 10,
+			        backgroundColor: '#ffffff',
+			        foregroundColor: '#000000',
+			        fileType: 'png',
+			        correctLevel: uQRCode.defaults.correctLevel,
+			        success: res => {
+			          console.log(res)
+			        }
+			      })
+			    }
+		}
 	}
 </script>
 

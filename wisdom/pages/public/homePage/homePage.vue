@@ -135,8 +135,11 @@ export default {
 				this.webNo2 = stri[1]
 				uni.setStorageSync('website_no',stri[1])
 				uni.navigateTo({
-				  url: '/pages/public/index/index?website_no=WS2020060611100007&destApp=zhxq'
+				  url: this.$api.homePath + '?website_no=WS2020060611100007&destApp=zhxq'
 				})
+				// uni.navigateTo({
+				//   url: '/pages/public/index/index?website_no=WS2020060611100007&destApp=zhxq'
+				// })
 				}
 				let isOwner = uni.getStorageSync('is_owner');
 

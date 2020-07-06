@@ -66,17 +66,17 @@
 			</view>
 		</view>
 		<uni-popup ref="popup" type="bottom">
-			<scroll-view scroll-y="true">
-				<view class="house-people-list">
-					<view class="cu-list menu">
-						<view class="cu-bar justify-start bg-white">
-							<view class="action border-title">
-								<text class="text-xl text-bold text-green">房屋人员</text>
-								<text class="bg-gradual-blue" style="width:3rem"></text>
-							</view>
-						</view>
+			<view class="cu-list menu">
+				<view class="cu-bar justify-start bg-white">
+					<view class="action border-title">
+						<text class="text-xl text-bold text-green">房屋人员</text>
+						<text class="bg-gradual-blue" style="width:3rem"></text>
 					</view>
-					<view class="cu-list menu" v-for="(item, index) in peopleList" :key="index" :style="{'margin-top':'10rpx'}">
+				</view>
+			</view>
+				<view class="house-people-list" >
+				
+					<view class="cu-list menu house-people" v-for="(item, index) in peopleList" :key="index" :style="{'margin-top':'10rpx'}">
 						<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
 							<view class="content content_info">
 								<text class="text-grey">姓名:</text>
@@ -115,7 +115,6 @@
 						</view>
 					</view>
 				</view>
-			</scroll-view>
 		</uni-popup>
 	</view>
 </template>
@@ -148,6 +147,10 @@ export default {
 		}
 	},
 	methods: {
+		clear(e) {
+			// TODO nvue 取消冒泡
+			e.stopPropagation()
+		},
 		startScroll(e) {},
 		showHouseDetail(e) {
 			this.getHousePeopleList(e.fwbm).then(_ => {
@@ -309,7 +312,14 @@ export default {
 }
 .house-people-list {
 	background-color: #f1f1f1 ;
-	height: 80vh;
+	min-height: 30vh;
+	max-height: 80vh;
 	overflow: scroll;
+	// overflow: hidden;
+	.house-people{
+		// height: 100%;
+
+		// overflow: scroll;
+	}
 }
 </style>

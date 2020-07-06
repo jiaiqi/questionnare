@@ -5,7 +5,7 @@
       <block slot="content" v-if="colsV2Data.service_view_name">{{ colsV2Data.service_view_name }}</block>
     </cu-custom> -->
 		<view class="form-wrap" v-if="fields.length > 0">
-			<bxform ref="bxForm" :service="serviceName" :pageType="type" :BxformType="type" :fields="fields"></bxform>
+			<bxform ref="bxForm" :service="serviceName" :defaultCondition='defaultCondition' :pageType="type" :BxformType="type" @radio-benren-change='radioBenRen' :fields="fields"></bxform>
 			<view class="apply_button_bot">
 				<!-- <button class="bg-green cu-btn lg" @click="submitData">提交</button> -->
 				<button class="bg-green cu-btn lg" @click="submitData" v-if="!showShareButton&&hasSubmit===false">提交</button>
@@ -37,6 +37,8 @@
 
 <script>
 import bxform from '@/components/bx-form/bx-form.vue';
+// import {Function,evaluate} from '@/common/eval5.js';
+import evaluatorTo from '@/common/evaluator.js'
 export default {
 	components: { bxform },
 	data() {
@@ -50,7 +52,8 @@ export default {
 			defaultCondition: [],
 			showShareButton: false,
 			proc_instance_no: '',
-			hasSubmit:false
+			hasSubmit:false,
+			optionQuery:''
 		};
 	},
 	methods: {
@@ -61,6 +64,27 @@ export default {
 				title: '绑定住户邀请',
 				path: '/pages/specific/shareBind/shareBind?proc_instance_no=' + this.proc_instance_no
 			};
+		},
+		radioBenRen(e){
+			console.log("本人信息-------",e,this.fields)
+			// if(e.value === '他人信息'){
+			// 	debugger
+			// 	let fields = this.fields
+			// 	fields.forEach(item=>{
+			// 		if(item.column == 'xm' || item.column == 'lxfs' || item.column == 'gmsfhm'){
+			// 			// item.value = ""
+			// 		}
+			// 	})
+			// 	console.log("他人信息========",fields)
+			// }else if(e.value === '本人信息'){
+			// 	this.defaultCondition.forEach(def=>{
+			// 		this.fields.forEach(fd=>{
+			// 			if(def.colName === fd.column){
+			// 				fd.value = def.value
+			// 			}
+			// 		})
+			// 	})
+			// }
 		},
 		toList() {
 			let isOwner = uni.getStorageSync('is_owner');
@@ -142,12 +166,12 @@ export default {
 		async submitData() {
 			let serviceName = this.serviceName;
 			let itemData = this.$refs.bxForm.getFieldModel();
+			console.log("itemData",itemData)
 			if (!itemData) {
 				return;
-			} else {
-				
+			} else {				
 				Object.keys(itemData).forEach(item => {
-					if (item === 'openid' && !itemData[item]) {
+					if(item == "openid" && itemData['is_benren'] == '本人信息'){
 						itemData[item] = uni.getStorageSync('login_user_info').user_no;
 					}
 				});
@@ -253,9 +277,39 @@ export default {
 					fields = this.setFieldsDefaultVal(colVs._fieldInfo, this.activityData);
 					break;
 				case 'add':
+				let bas = await this.getBasicsInfo()
+				
+					if(!uni.getStorageSync('activeApp') || uni.getStorageSync('activeApp') == 'zhxq'){
+						let date = this.getDayDate(new Date());
+					if(this.optionQuery.serviceName == 'srvzhxq_guest_mgmt_add'){	
+						// let basicInfo = uni.getStorageSync('basics_info');
+						console.log("bas",bas)
+						let shareConds = [{
+							colName:"fwrq",
+							ruleType:'eq',
+							value:date
+						},{
+							colName:"xm",
+							ruleType:"eq",
+							value:bas.real_name
+						},{
+							colName:"lxdh",
+							ruleType:"eq",
+							value:bas.tel
+						},{
+							colName:"zjhm",
+							ruleType:"eq",
+							value:bas.picp
+						}]
+						
+						console.log("shareConds",shareConds)
+						this.defaultCondition = shareConds;
+					}
+					}
 					if (this.defaultCondition && Array.isArray(this.defaultCondition) && colVs._fieldInfo && Array.isArray(colVs._fieldInfo)) {
 						console.log('this.defaultCondition', this.defaultCondition, colVs._fieldInfo);
 						let arr = [];
+						let row = {}
 						this.defaultCondition.forEach(cond => {
 							colVs._fieldInfo.forEach(field => {
 								if (cond.colName === field.column) {
@@ -264,10 +318,33 @@ export default {
 										field['disabled'] = false;
 									}
 								}
+								row[field.column] = field.value
 							});
 						});
+						colVs._fieldInfo.forEach(fileIf=>{
+							
+							  if(fileIf.formulaShow){
+								 let isIfShow = evaluatorTo(row,fileIf.formulaShow)
+								  fileIf.display = isIfShow		
+							  }
+						})
+						// colVs._fieldInfo.forEach(fild=>{
+							// row[fild.column] = fild.value
+							// if(fild._colDatas.x_if){
+							// 	let startIndex = fild._colDatas.x_if.indexOf('{')
+							// 	let endIndex = fild._colDatas.x_if.indexOf('}')
+							// 	let funBody = fild._colDatas.x_if.substring(startIndex+1,endIndex)
+								
+							// 	const str_eva = new Function('row', funBody)
+							// 	let isIfShow = str_eva(row)
+							// 	console.log("isIfShow---------------isIfShow",isIfShow)
+							// 	fild.display = isIfShow
+							// }
+						// })
+						
 					}
 					fields = colVs._fieldInfo;
+					
 					break;
 				case 'detail':
 					fields = this.setFieldsDefaultVal(colVs._fieldInfo, this.activityData);
@@ -295,9 +372,7 @@ export default {
 	},
 	onLoad(option) {
 		if(uni.getStorageSync('activeApp') == 'zhxq'){
-			this.selectInfoFromMember().then(result => {
-				console.log('---selectInfoFromMember------', result);
-			});
+			
 			this.getWyUserInfo().then(wy=>{
 				if(wy){
 					uni.setStorageSync('isWy',true)
@@ -306,7 +381,7 @@ export default {
 				}
 			})
 		}
-		
+		this.optionQuery = option
 		// this.isTouchs = true
 		console.log('---onLoad--------', option);
 		let date = this.getDayDate(new Date());
@@ -355,27 +430,7 @@ export default {
 		}
 		if(!option.query){
 			query = option
-			if(option.serviceName == 'srvzhxq_guest_mgmt_add'){
-				
-				let shareConds = [{
-					colName:"fwrq",
-					ruleType:'eq',
-					value:date
-				},{
-					colName:"xm",
-					ruleType:"eq",
-					value:basicInfo.real_name
-				},{
-					colName:"lxdh",
-					ruleType:"eq",
-					value:basicInfo.tel
-				},{
-					colName:"zjhm",
-					ruleType:"eq",
-					value:basicInfo.picp
-				}]
-				this.defaultCondition = shareConds;
-			}
+			
 		}
 		if (query.serviceName) {
 			// uni.setStorageSync('activeApp', 'zhxq');
@@ -388,8 +443,18 @@ export default {
 	onShow() {
 		// this.serviceName = query.serviceName;
 		if(this.serviceName){
+			this.selectInfoFromMember().then(result => {
 			this.getBasicCfg().then(_=>{
-				this.getColV2();
+				this.getColV2().then(_=>{
+					if(!uni.getStorageSync('activeApp') || uni.getStorageSync('activeApp') == 'zhxq'){
+							if(!!result){
+								
+							}
+							
+						}
+						
+					})
+				});
 			})
 		}
 		

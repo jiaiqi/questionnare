@@ -1,9 +1,5 @@
 <template>
 	<view>
-		<!-- <cu-custom bgColor="bg-gradual-blue" :isBack="true"> -->
-		<!-- <block slot="backText">返回</block> -->
-		<!-- <block slot="content" v-if="colsV2Data && colsV2Data.service_view_name">{{ colsV2Data.service_view_name }}</block> -->
-		<!-- </cu-custom> -->
 		<bxform
 			:service="serviceName"
 			ref="bxForm"
@@ -13,7 +9,6 @@
 			:moreConfig="colsV2Data && colsV2Data.more_config ? colsV2Data.more_config : null"
 		></bxform>
 		<bxButtons :buttons="buttons" @on-button-change="onButton($event)"></bxButtons>
-		<!-- <button class="bg-green cu-btn lg">查看列表</button> -->
 	</view>
 </template>
 
@@ -22,26 +17,6 @@ import bxform from '@/components/bx-form/bx-form.vue';
 import bxButtons from '@/components/bx-buttons/bx-buttons.vue';
 export default {
 	components: { bxform, bxButtons },
-	props: {
-		// serviceName:{
-		// 	type:String,
-		// 	default() {
-		// 		return '';
-		// 	}
-		// },
-		// type:{
-		// 	type:String,
-		// 	default(){
-		// 		return ''; // add || update || detail
-		// 	}
-		// },
-		// loadedType:{
-		// 	type:String,
-		// 	default(){
-		// 		return "srvV2"; // srvV2 : 加载 serviceName v2 配置数据。
-		// 	}
-		// }
-	},
 	data() {
 		return {
 			fields: [],
@@ -59,10 +34,8 @@ export default {
 			let buttons = [];
 			if (this.colsV2Data && this.colsV2Data._buttonInfo) {
 				buttons = this.colsV2Data._buttonInfo;
-				// return this.colsV2Data._buttonInfo;
 			} else if (this.colsV2Data && this.colsV2Data._formButtons) {
 				buttons = this.colsV2Data._formButtons;
-				// return this.colsV2Data._formButtons;
 			}
 			let data = {};
 			this.fields.forEach(item => {
@@ -119,6 +92,8 @@ export default {
 			cond = JSON.parse(option.cond);
 		}
 		this.defaultCondition = cond;
+		// this.
+		debugger;
 		if (query.cond || query.condition) {
 			let cond = '';
 			if (typeof query.cond === 'string' && query.cond) {
@@ -163,6 +138,51 @@ export default {
 	},
 
 	methods: {
+		getWxUserInfo() {
+			// 检测是否有userInfo授权
+			let userInfo = uni.getStorageSync('login_user_info');
+			let self = this
+			uni.authorize({
+				scope: 'scope.userInfo',
+				success() {
+					// 有userInfo授权
+					uni.getUserInfo({
+						provider: 'weixin',
+						success: function(infoRes) {
+							let resData = [{
+								"colName": "openid",
+								value: userInfo.user_no
+							}, {
+								"colName": "nick_name",
+								value: infoRes.userInfo.nickName
+							}, {
+								"colName": "avatar",
+								value: infoRes.userInfo.avatarUrl
+							}, {
+								"colName": "gender",
+								value: infoRes.userInfo.gender
+							}, {
+								"colName": "country",
+								value: infoRes.userInfo.country
+							}, {
+								"colName": "province",
+								value: infoRes.userInfo.province
+							}, {
+								"colName": "city",
+								value: infoRes.userInfo.city,
+							}]
+							self.defaultCondition = resData
+							uni.setStorageSync('wxuserinfo',infoRes)
+							console.log('resData：' + resData);
+						}
+					});
+				},
+				fail() {
+					self.checkAuthorization()
+					// 没有userInfo授权
+				}
+			});
+		},
 		async addInfoIntoMember() {
 			let userInfo = uni.getStorageSync('login_user_info');
 			let wxUserInfo = uni.getStorageSync('wxuserinfo');
@@ -190,7 +210,6 @@ export default {
 				}
 			];
 			let res = await this.$http.post(url, req);
-			console.log('addres=:', res.data);
 		},
 		getFieldsV2: async function() {
 			let app = uni.getStorageSync('activeApp');
@@ -255,8 +274,8 @@ export default {
 				uni.showModal({
 					title: '提示',
 					content: '绑定成功',
-					showCancel:false,
-					confirmColor:'#0BC99D',
+					showCancel: false,
+					confirmColor: '#0BC99D',
 					success(res) {
 						if (res.confirm) {
 							uni.navigateBack();
@@ -286,8 +305,6 @@ export default {
 			switch (e.button_type) {
 				case 'edit':
 					if (e.page_type === '详情') {
-						// this.
-						// this.type = 'update'
 					} else {
 						if (req) {
 							req = [{ serviceName: e.service_name, data: [req], condition: this.condition }];
@@ -302,7 +319,7 @@ export default {
 									uni.showModal({
 										title: '提示',
 										content: '修改成功',
-										confirmText:"返回",
+										confirmText: '返回',
 										showCancel: false,
 										success(res) {
 											if (res.confirm) {
@@ -340,21 +357,23 @@ export default {
 													if (res.confirm) {
 														self.checkHouseInfo(name, id).then(result => {
 															if (result) {
-
 																uni.showModal({
 																	title: '提示',
 																	content: '检测到系统中已存在您的住房信息，是否将住房信息绑定到当前帐号',
-																	cancelText:'不绑定',
-																	confirmText:'绑定',
-																	confirmColor:'#0BC99D',
+																	cancelText: '不绑定',
+																	confirmText: '绑定',
+																	confirmColor: '#0BC99D',
 																	success(res) {
 																		if (res.confirm) {
-																			self.updateHouseInfo(name, id, openid).then(_ => {
-																			});
+																			self.updateHouseInfo(name, id, openid).then(_ => {});
 																		} else {
 																			uni.navigateBack();
 																		}
 																	}
+																});
+															} else {
+																uni.navigateBack({
+																	delta: 1
 																});
 															}
 														});

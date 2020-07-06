@@ -29,7 +29,8 @@ export default {
       procBasicConfig: {},
       colsV2Data: {},
       isTouchs: false,
-      defaultCondition: []
+      defaultCondition: [],
+	  stratDateTime:""
     };
   },
   methods: {
@@ -44,6 +45,18 @@ export default {
         if (serviceName !== 'srvzhxq_member_fuwu_add') {
           itemData['proc_status'] = '完成';
         }
+		// for(let key in itemData){
+		// 	if(key == 'fwrq'){
+		// 		itemData[key] = this.stratDateTime
+		// 	}
+		// 	if(key == 'lkrq'){
+		// 		let a = new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1)
+		// 		let hours = a.getHours()
+		// 		let mins = a.getMinutes()
+		// 		let scends = a.getSeconds()
+		// 		itemData[key] = itemData[key] + ' '  + hours + ':' + mins + ':' + scends
+		// 	}
+		// }
         let req = [
           {
             data: [itemData],
@@ -75,6 +88,7 @@ export default {
           title: '加载中'
         });
         let res = await this.onRequest('add', this.serviceName, req, uni.getStorageSync('activeApp'));
+		console.log("req-==========----------==========",req,itemData)
         if (res.data.state === 'SUCCESS') {
           console.log(res.data, 'res.data');
           uni.hideLoading();
@@ -83,6 +97,7 @@ export default {
           //   title: res.response[0].response.ids[0],
           //   icon: 'none'
           // });
+		  console.log("--=======>>>>>>>>",resData)
           uni.showModal({
             title: '提示',
             content: '申请成功',
@@ -204,12 +219,14 @@ export default {
         query = JSON.parse(decodeURIComponent(option.query));
       }
       //  // let cond = JSON.parse(option.cond)
+	  debugger
       if (query.cond) {
         let conds = JSON.parse(query.cond);
         conds.forEach(item => {
           if (item.colName === 'fwrq' && item.value === 'date') {
             let date = this.getDayDate(new Date());
             item.value = date;
+			this.stratDateTime = this.getDayDate(new Date(),'all')
           }
           if (uni.getStorageSync('activeApp') == 'zhxq') {
             let basicInfo = uni.getStorageSync('basics_info');
@@ -226,6 +243,7 @@ export default {
         });
 
         this.defaultCondition = conds;
+		console.log("this.defaultCondition",this.defaultCondition)
       }
     }
     if (query.title) {

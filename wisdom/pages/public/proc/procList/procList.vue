@@ -190,7 +190,7 @@ export default {
 			} else if (e.button.button_type === 'customize' && JSON.parse(e.button.more_config).type === 'qrcode') {
 				console.log('======');
 				uni.navigateTo({
-					url: '/pages/specific/permit/permit'
+					url: '/pages/specific/permit/permit?code=' + e.row.qr_code
 				});
 				// this.procNo = e.row.proc_instance_no
 			} else if (e.button.button_type === 'applyProc' && e.application === 'zhsq' && e.service_name === 'srvzhxq_syrk_select') {

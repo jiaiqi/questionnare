@@ -110,15 +110,16 @@
     <uni-popup ref="approvalPopup" type="bottom">
       <view class="form-view" v-if="stepsCfgData.length > 0">
         <view class="" style="width: 100%;" v-for="(item, index) in stepsCfgData" :key="index">
-          <bxform :ref="'bxFormStep' + index" :pageType="item.formType" :BxformType="item.formType" :fields="item.fields"></bxform>
+          <bxform :procData='activityData' :ref="'bxFormStep' + index" :pageType="item.formType" :BxformType="item.formType" :fields="item.fields"></bxform>
         </view>
-        <bxform v-if="isHandler" ref="approvalForm" class="approvalForm" :pageType="'detail'" :BxformType="'detail'" :fields="approvalFormCfg"></bxform>
+        <bxform :procData='activityData' v-if="isHandler && activityData" ref="approvalForm" class="approvalForm" :pageType="'detail'" :BxformType="'detail'" :fields="approvalFormCfg"></bxform>
         <bxform
-          v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.activeStep !== 0 && !isHandler"
+          v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.activeStep !== 0 && !isHandler && activityData"
           ref="approvalForm"
           :pageType="'add'"
 		  class="approvalForm"
           :BxformType="'add'"
+		  :procData='activityData'
           :fields="approvalFormCfg"
         ></bxform>
         <view class="button-box" v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.activeStep !== 0 && !isHandler">

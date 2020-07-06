@@ -80,16 +80,23 @@ export default {
 			let fieldsArr = this.setFieldsDefaultVal(colVs._fieldInfo, defaultData);
 			fieldsArr.forEach(item => {
 				item.disabled = true;
+				if(item.column == 'is_benren'){
+					item.value = "本人信息"
+				}
 			});
+			console.log("fieldsArr--------------",fieldsArr)
+			
 			this.fields = this.deepClone(fieldsArr);
 		},
 		confirmInfo() {
 			let self = this;
 			let data = this.$refs.bxForm.getFieldModel();
 			;
-			if (!data.openid) {
+			data.is_benren = '本人信息'
+			if (data.is_benren == '本人信息') {
 				data.openid = uni.getStorageSync('login_user_info').user_no;
 			}
+			
 			console.log(data.openid, 'data.openid');
 			console.log(data, 'data');
 			Object.keys(data).forEach(item => {

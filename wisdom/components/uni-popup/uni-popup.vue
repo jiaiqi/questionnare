@@ -1,5 +1,5 @@
 <template>
-	<view v-if="showPopup" class="uni-popup" @touchmove.stop="clear">
+	<view v-if="showPopup" class="uni-popup">
 		<uni-transition :mode-class="['fade']" :styles="maskClass" :duration="duration" :show="showTrans" @click="onTap" />
 		<uni-transition :mode-class="ani" :styles="transClass" :duration="duration" :show="showTrans" @click="onTap">
 			<view class="uni-popup__wrapper-box" @click.stop="clear">
@@ -121,7 +121,7 @@
 		methods: {
 			clear(e) {
 				// TODO nvue 取消冒泡
-				e.stopPropagation()
+				// e.stopPropagation()
 			},
 			open() {
 				this.showPopup = true

@@ -163,6 +163,9 @@ export default {
 				});
 			} else if (item && item.page_no !== this.currentPage.page_no && item.page_no == 'BX202006171012480019') {
 				console.log('点击我的');
+				// this.getUserInfoLimits().then(result=>{
+					
+				// })
 				this.selectInfoFromMember().then(result => {
 					if (!!result) {
 						this.currentPage = item;
@@ -177,29 +180,7 @@ export default {
 				// });
 			}
 		},
-		async getBasicsInfo() {
-			let userInfo = uni.getStorageSync('login_user_info');
-			let url = this.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
-			let req = {
-				serviceName: 'srvzhxq_member_select',
-				colNames: ['*'],
-				condition: [
-					{
-						colName: 'openid',
-						value: userInfo.user_no,
-						ruleType: 'eq'
-					}
-				],
-				page: {
-					pageNo: 1,
-					rownumber: 10
-				}
-			};
-			let res = await this.$http.post(url, req);
-			if (res.data.data.length > 0) {
-				uni.setStorageSync('basics_info', res.data.data[0]);
-			}
-		},
+		
 		async getWebsiteList() {
 			const url = this.getServiceUrl('daq', 'srvdaq_website_page_select', 'select');
 
@@ -273,11 +254,11 @@ export default {
 			};
 			let ress = await this.$http.post(urls, reqs);
 			if (ress.data.state === 'SUCCESS') {
-				this.getBasicsInfo();
 				if (ress.data.data.length > 0) {
 					this.isOwner = true;
 					uni.setStorageSync('is_owner', true);
 					uni.setStorageSync('infoObj', ress.data.data[0]);
+					uni.setStorageSync('infoObjArr', ress.data.data);
 					return this.isOwner
 				}
 			}
@@ -300,7 +281,11 @@ export default {
 		this.website_no = option.website_no;
 		uni.setStorageSync('is_owner', false);
 		if (option.destApp) {
-			uni.setStorageSync('activeApp', option.destApp);
+			uni.setStorageSync('activeApp', option.destApp);			
+		}
+		if(uni.getStorageSync('activeApp') == 'zhxq'){
+			this.getUserInfoLimits()
+			// this.getBasicsInfo();
 		}
 		console.log('--------------', uni.getStorageSync('activeApp'));
 

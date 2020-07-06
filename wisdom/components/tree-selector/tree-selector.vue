@@ -60,6 +60,9 @@ export default {
       default: 'no'
     }
   },
+	mounted() {
+		console.log("srvInfo",this.srvInfo)
+	},
   computed: {
     singleNode() {
       //是否没有子节点

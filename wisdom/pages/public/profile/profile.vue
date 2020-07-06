@@ -98,10 +98,16 @@
 		methods:{
 			toApply(){
 				if(this.infoObj.id){
-				let date = this.getDayDate(new Date())
+				let date = this.getDayDate(new Date(),'all')
 				let userIf = uni.getStorageSync('infoObj')
-				let cond = [{"colName":"fwrq","ruleType":"eq","value":date},{
+				let cond = [
+					{"colName":"fwrq","ruleType":"eq","value":date},
+				{
 					colName:'bfr',
+					ruleType:"eq",
+					value:userIf.xm
+				},{
+					colName:'bfrxm',
 					ruleType:"eq",
 					value:userIf.xm
 				},{
@@ -111,7 +117,7 @@
 				},{
 					colName:'fwbm',
 					ruleType:"eq",
-					value:userIf._fwbm_disp
+					value:userIf.fwbm
 				},{
 					colName:'dybm',
 					ruleType:"eq",
@@ -120,6 +126,10 @@
 					colName:'confirm_user',
 					ruleType:"eq",
 					value:'被访人'
+				},{
+					colName:'bfrbm',
+					ruleType:"eq",
+					value:userIf.syrkbm
 				}]
 				uni.navigateTo({
 					url:'/pages/public/shareApply/shareApply?serviceName=srvzhxq_guest_mgmt_yezhu_add&cond=' + JSON.stringify(cond)
@@ -279,7 +289,7 @@
 			}
 			const res = await this.$http.post(url, req)
 			console.log("res-----点击----",res)
-			if(res.data.data.length > 0){
+			if(res.data&&res.data.data&&res.data.data.length > 0){
 				this.infoObj = res.data.data[0]
 				console.log("*****",this.infoObj)
 			}

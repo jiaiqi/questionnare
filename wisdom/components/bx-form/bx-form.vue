@@ -1,8 +1,8 @@
 <template>
   <view class="bg-white" style="width:100%;" v-if="allField.length > 0">
-    <!-- <scroll-view scroll-x="false" scroll-y="true"> -->
     <view v-for="(item, index) in allField" :key="index">
       <formItem
+		:procData='procData'
         :field="item"
         :pageFormType="BxformType"
         :showTextarea="showTextarea"
@@ -16,12 +16,12 @@
         @picker-change="pickerchange"
       ></formItem>
     </view>
-    <!-- </scroll-view> -->
   </view>
 </template>
 
 <script>
 import formItem from '@/components/bx-form/bx-form-item.vue';
+import evaluatorTo from '@/common/evaluator.js'
 export default {
   name: 'bx-form',
   components: { formItem },
@@ -32,6 +32,18 @@ export default {
         return [];
       }
     },
+	procData:{
+		type: Object,
+		default() {
+		  return {};
+		}
+	},
+	defaultCondition:{
+		type:Array,
+		default(){
+			return []
+		}
+	},
     pageType: {
       type: String,
       default() {
@@ -163,14 +175,6 @@ export default {
         this.oldFieldModel[item.column] = item.value;
       });
     }
-    // const specialCol = this.$route.query.specialCol;
-    // if (specialCol) {
-    //   try {
-    //     this.specialCol = JSON.parse(decodeURIComponent(specialCol));
-    //   } catch (e) {
-    //     //TODO handle the exception
-    //   }
-    // }
   },
   methods: {
     pickerchange(oriData) {
@@ -183,8 +187,6 @@ export default {
         } else if (item.column === 'fwbm') {
           this.$set(item, 'louValue', oriData.lybm);
           this.$set(item, 'dyValue', oriData.dybm);
-          // item.louValue = oriData.lybm
-          // item.dyValue = oriData.dybm
         }
       });
       console.log(this.allField);
@@ -255,6 +257,9 @@ export default {
         }
       });
     },
+		setShowExp(){
+			
+		},
     async setCallbackColumnValue(serviceCall, condition) {
       let url = this.getServiceUrl(serviceCall.app, serviceCall.service, 'select');
       let req = {
@@ -334,13 +339,14 @@ export default {
         }
       });
     },
-    onItemButtons(e) {
+    onItemButtons(e) {		
       this.$emit('on-form-item', e);
       return e;
     },
     getAllField() {
       let self = this;
       console.log('getAllField', this.fields);
+	  console.log("111111111111111111111111",this.allField)
       if (this.fields.length > 0) {
         let fields = this.deepClone(this.fields)
         this.oldField = this.deepClone(this.fields);
@@ -351,7 +357,7 @@ export default {
           this.fieldModel[itemData.column] = itemData.value;
           let item = this.fieldModel;
           if (itemData.hasOwnProperty('isShowExp') && item.hasOwnProperty(itemData.column)) {
-            itemData['showExp'] = this.evalInTo(itemData, item);
+            itemData['showExp'] = this.evalInTo(itemData, item);   
             // itemData['showExp'] = this.colItemShowExps(itemData, item) ;
             itemData['display'] = itemData.isShowExp && itemData.isShowExp.length > 0 ? this.colItemShowExps(itemData, item) : itemData.display === false ? false : true;
           } else {
@@ -381,6 +387,7 @@ export default {
 		  }
           return itemData;
         });
+		console.log("0000000000000000",this.allField)
        
       }
     },
@@ -391,41 +398,54 @@ export default {
       } else {
         this.fieldModel[e.column] = e.value;
       }
-      // if(e.type==='treeSelector'){
-      //   this.$refs.fitem.forEach((item,index)=>{
-      //    if(item.fieldData.type==='treeSelector'&&item.fieldData.option_list_v2.conditions && Array.isArray(item.fieldData.option_list_v2.conditions) && item.fieldData.option_list_v2.conditions.length > 0){
-      //      let condition = item.fieldData.option_list_v2.conditions;
-      //      let fieldModelsData = this.fieldModel
-      //      condition = condition.map(item=>{
-      //        if(item.value.indexOf('data.')!==-1){
-      //          let colName = item.value.slice(item.value.indexOf('data.')+5)
-      //          if(fieldModelsData[colName]){
-      //            item.value = fieldModelsData[colName]
-      //            return item
-      //          }
-      //        }else{
-      //          return item
-      //        }
-      //      })
-      //      this.$refs.fitem[index].getTreeSelectorData(condition)
-      //    }
-      //   })
-      // }
+	  
+	  if(e.column === 'fwbm' && this.service == 'srvzhxq_guest_mgmt_yezhu_add'){
+		  this.allField.forEach(fileIf=>{	  
+			  if(fileIf.column === 'bfr' || fileIf.column === 'bfrbm' || fileIf.column === 'dybm' || fileIf.column === 'lybm'){
+				  let infoArr = uni.getStorageSync('infoObjArr')
+				  infoArr.forEach(infos=>{
+					  if(e.value == infos.fwbm){
+						  if(fileIf.column === 'bfr'){
+							  fileIf.value = infos.xm
+						  }else if(fileIf.column === 'dybm') {
+							  fileIf.value = infos.dybm
+						  }else if(fileIf.column === 'lybm') {
+							  fileIf.value = infos.lybm
+						  }else if(fileIf.column === 'bfrbm') {
+							  fileIf.value = infos.syrkbm
+						  }
+						  this.fieldModel[fileIf.column] =  fileIf.value
+					  }
+				  })
+			  }
+			  
+		  })
+	  }
       console.log('valueChange', e, this.fieldModel[e.column], this.fieldModel);
       e.value = this.fieldModel[e.column];
       const fieldModel = JSON.parse(JSON.stringify(this.fieldModel));
       this.allField = this.allField.map((item, index) => {
         item.display = item.isShowExp && item.isShowExp.length > 0 ? this.colItemShowExps(item, this.fieldModel) : item.display === false ? false : true;
         if (item.column === e.column) {
-          item.value = e.value;
-		  
-        }
-		if(e.column == 'is_benren'&& item.column == 'openid'){
-			 item.value = uni.getStorageSync('login_user_info').user_no
-		}
-		
+          item.value = e.value;		  
+        }				
         return item;
       });
+	   this.allField.forEach(fileIf=>{
+		  if(fileIf.formulaShow){
+			 let isIfShow = evaluatorTo(fieldModel,fileIf.formulaShow)
+			  fileIf.display = isIfShow			  
+			  if(fileIf.display && (e.column == 'is_huzhu' || e.column=='fwyt') && fileIf.column === 'yfzgx'){
+				  fileIf.value = ''
+				  this.fieldModel[fileIf.column] = ''
+			  }else if(!fileIf.display && (e.column == 'is_huzhu' || e.column=='fwyt') && fileIf.column === 'yfzgx'){
+				  fileIf.value = fileIf.defaultValue
+				  this.fieldModel[fileIf.column] = fileIf.defaultValue
+			  }
+		  }
+	  })
+		
+		 
       this.more_config.col_relation.forEach(col_relation => {
         // if (col_relation.watch_col.includes(e.column)) {
         //当前字段是监控字段
@@ -459,8 +479,35 @@ export default {
           }
         }
       });
+	  if(e.column == 'is_benren'){
+		  let fields = this.allField
+		  if(e.value === '他人信息'){
+		  	fields.forEach(item=>{
+		  		if(item.column == 'xm' || item.column == 'lxfs' || item.column == 'gmsfhm'){
+		  			item.value = ""
+		  		}
+		  	})
+		  }
+		  else if(e.value === '本人信息' && this.defaultCondition.length>0){
+		  	this.defaultCondition.forEach(def=>{
+		  		fields.forEach(fd=>{
+		  			if(def.colName === fd.column){
+		  				fd.value = def.value
+		  			}
+		  		})
+		  	})
+		  }
+		  this.allField = fields.map((itemData, index) => {
+		    this.fieldModel[itemData.column] = itemData.value;
+			return itemData
+			})
+		  console.log("本人信息----------",this.fieldModel,this.allField)
+		  // this.$emit('radio-benren-change',e)
+	  }
     },
     onValBlur(e) {
+		console.log("e",e,this.fieldModel,this.fieldModel[e.column])
+		this.fieldModel[e.column] = e.value
       const self = this;
       this.$emit('value-blur', e);
     },
@@ -480,11 +527,6 @@ export default {
           if (valids.valid) {
             valid++;
           }
-          // if (item.isRequire && item.valid.valid && item.value !== '') {
-          // 	valid++;
-          // } else if (!item.isRequire) {
-          // 	valid++;
-          // }
         }
       });
       console.log(valid, showsNum);
@@ -501,7 +543,7 @@ export default {
             break;
           case 'add':
             for (let key in this.fieldModel) {
-              if (this.fieldModel[key] === ''&&key!=='openid') {
+              if (this.fieldModel[key] === '' && key !== 'openid') {
                 delete this.fieldModel[key];
               }
             }
@@ -557,7 +599,6 @@ export default {
     },
     moreConfig: {
       handler: function(newval, old) {
-        // this.getAllField();
         if (newval) {
           this.more_config = this.deepClone(newval);
         }
