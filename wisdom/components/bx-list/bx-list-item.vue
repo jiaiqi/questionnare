@@ -1,12 +1,7 @@
 <template>
 	<view class="list-item-wrap  bg-white">
 		<view class="list-item flex" v-if="viewType === 'normal'">
-			<image
-				class="main-image"
-				v-if="itemData[viewTemp['img']]"
-				:src="'https://srvms.100xsys.cn/file/download?fileNo=' + itemData[viewTemp['img']]"
-				:imgColName="'img'"
-			></image>
+			<image class="main-image" v-if="itemData[viewTemp['img']]" :src="'https://srvms.100xsys.cn/file/download?fileNo=' + itemData[viewTemp['img']]" :imgColName="'img'"></image>
 			<view class="content-box flex-twice" v-if="listType === 'proc'">
 				<view class="content-header">
 					<view class="title" @click="listItemClick">{{ itemData[viewTemp.title] }}</view>
@@ -56,13 +51,21 @@
 							<button
 								class="cu-btn round sm text-blue line-blue"
 								:class="'cuIcon-' + item.button_type"
-								v-if="deRowButDisplay(itemData, item) && !detailList && item.button_type != 'customize'&&item.button_type !=='applyProc' "
+								v-if="deRowButDisplay(itemData, item) && !detailList && item.button_type !== 'applyProc'&&item.disp_show!==false"
 								@click="footBtnClick(item)"
 								:key="item.id"
 							>
 								{{ item.button_name }}
 							</button>
-							<button class="cu-btn round sm text-blue line-blue" :data-info="item" :data-procNo="itemData.proc_instance_no" open-type="share" v-if="item.button_type==='applyProc' ">{{ item.button_name }}</button>
+							<button
+								class="cu-btn round sm text-blue line-blue"
+								:data-info="item"
+								:data-procNo="itemData.proc_instance_no"
+								open-type="share"
+								v-if="item.button_type === 'applyProc'"
+							>
+								{{ item.button_name }}
+							</button>
 							<button
 								:data-procNo="itemData.proc_instance_no"
 								@click="footBtnClick(item)"
@@ -320,7 +323,7 @@ export default {
 							create_user_disp: 'admin',
 							service_view_name: '实有人口查询',
 							always_show: false,
-							more_config:null,
+							more_config: null,
 							permission: true,
 							biz_path: '/syscore/',
 							application: 'zhxq',
@@ -330,6 +333,24 @@ export default {
 						rowButton.unshift(shareBtn);
 					}
 				}
+				rowButton.forEach(btn => {
+					if (btn.disp_exps) {
+						let data = item;
+						if (btn.disp_exps === "data.proc_status=='完成'&&data.is_sync=='是'&&data.faceid!=null") {
+							if (data.proc_status == '完成' && data.is_sync == '是' && data.faceid != null) {
+								btn['disp_show'] = true;
+							}else{
+								btn['disp_show'] = false;
+							}
+						} else if (btn.disp_exps === "data.proc_status=='完成'&&data.is_sync=='是'&&data.faceid==null") {
+							if (data.proc_status == '完成' && data.is_sync == '是' && data.faceid == null) {
+								btn['disp_show'] = true;
+							}else{
+								btn['disp_show'] = false;
+							}
+						}
+					}
+				});
 				this.rowButtons = rowButton;
 			}
 		},

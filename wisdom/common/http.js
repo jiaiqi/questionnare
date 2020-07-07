@@ -47,7 +47,6 @@ fly.interceptors.response.use(
 		if (res.status !== 500) {
 			if (res.data.resultCode === "0011") { //未登录 || !uni.getStorageSync("isLogin")
 				console.log("登录状态", uni.getStorageSync("isLogin"))
-				uni.setStorageSync('isToLogin', false)
 				uni.setStorageSync('isLogin', false)
 				if (res.request.headers.requrl) {
 					console.log('请求失败:1:', res.request.headers.requrl)
@@ -80,7 +79,6 @@ fly.interceptors.response.use(
 				} else {
 					if (res.data.resultCode === "0011" || (res.data.resultCode === 'FAILURE' && !uni.getStorageSync('bx_auth_ticket'))) {
 						uni.setStorageSync('isLogin', false)
-						uni.setStorageSync('isToLogin', false)
 						Vue.prototype.toLoginPage()
 					} else {
 						uni.showToast({

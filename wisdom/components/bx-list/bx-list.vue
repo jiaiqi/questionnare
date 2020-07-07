@@ -125,9 +125,8 @@ export default {
 								item.button_type === 'edit' ||
 								item.button_type === 'delete' ||
 								item.button_type === 'procdetail' ||
-								(item.button_type === 'customize' &&
-									item.more_config &&
-									(JSON.parse(item.more_config).type === 'share' || JSON.parse(item.more_config).type === 'qrcode'))
+								((item.button_type === 'customize' && item.more_config && (JSON.parse(item.more_config).type === 'share' || JSON.parse(item.more_config).type === 'qrcode')) ||
+									JSON.parse(item.more_config).type === 'primary')
 						);
 						rowButton.forEach(btn => {
 							if (btn.button_type == 'procdetail' && uni.getStorageSync('activeApp') === 'zhxq') {
@@ -257,7 +256,7 @@ export default {
 			type: String,
 			default: ''
 		},
-		isWy:{
+		isWy: {
 			type: Boolean,
 			default: false
 		},
@@ -322,7 +321,7 @@ export default {
 			uni.showLoading({
 				mask: true
 			});
-			let self = this
+			let self = this;
 			let serviceName = this.serviceName;
 			let app = uni.getStorageSync('activeApp');
 			let url = this.getServiceUrl(this.srvApp ? this.srvApp : app, serviceName, 'select');
@@ -371,7 +370,7 @@ export default {
 					}
 					this.listData = [];
 					this.listData = this.tabList[this.TabCur]['data'];
-					
+
 					let callBackData = {
 						data: this.listData,
 						page: res.data.page,
@@ -469,12 +468,11 @@ export default {
 		console.log('监听');
 	},
 	mounted() {
-		
 		console.log('---bxlist-----mounted---', uni.getStorageSync('isWy'));
 		let serviceName = this.serviceName;
 		let isOwner = uni.getStorageSync('is_owner');
-		let isWy = uni.getStorageSync('isWy')
-		if(isWy == true && (serviceName == 'srvzhxq_member_fuwu_select' || serviceName == 'srvzhxq_clgl_select')){
+		let isWy = uni.getStorageSync('isWy');
+		if (isWy == true && (serviceName == 'srvzhxq_member_fuwu_select' || serviceName == 'srvzhxq_clgl_select')) {
 			this.tabList = [
 				{
 					label: '待我处理',
@@ -521,7 +519,7 @@ export default {
 					}
 				}
 			];
-		}else if (!isOwner && serviceName == 'srvzhxq_guest_mgmt_select') {
+		} else if (!isOwner && serviceName == 'srvzhxq_guest_mgmt_select') {
 			this.tabList = [
 				{
 					label: '我的全部',
@@ -593,7 +591,12 @@ export default {
 					}
 				}
 			];
-		} else if (serviceName == 'srvzhxq_repairs_select' || serviceName == 'srvzhxq_syrk_select' || serviceName == 'srvzhxq_member_fuwu_select' || serviceName == 'srvzhxq_clgl_select') {
+		} else if (
+			serviceName == 'srvzhxq_repairs_select' ||
+			serviceName == 'srvzhxq_syrk_select' ||
+			serviceName == 'srvzhxq_member_fuwu_select' ||
+			serviceName == 'srvzhxq_clgl_select'
+		) {
 			this.tabList = [
 				{
 					label: '我的全部',

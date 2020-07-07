@@ -74,6 +74,7 @@ export default {
 			uni.setStorageSync('activeApp', destApp);
 		}
 		// #endif
+		this.getWxUserInfo();
 	},
 	onLoad(option) {
 		let query = JSON.parse(decodeURIComponent(option.query ? option.query : option.params ? option.params : option));
@@ -93,7 +94,6 @@ export default {
 		}
 		this.defaultCondition = cond;
 		// this.
-		debugger;
 		if (query.cond || query.condition) {
 			let cond = '';
 			if (typeof query.cond === 'string' && query.cond) {
@@ -141,7 +141,7 @@ export default {
 		getWxUserInfo() {
 			// 检测是否有userInfo授权
 			let userInfo = uni.getStorageSync('login_user_info');
-			let self = this
+			let self = this;
 			uni.authorize({
 				scope: 'scope.userInfo',
 				success() {
@@ -149,40 +149,130 @@ export default {
 					uni.getUserInfo({
 						provider: 'weixin',
 						success: function(infoRes) {
-							let resData = [{
-								"colName": "openid",
-								value: userInfo.user_no
-							}, {
-								"colName": "nick_name",
-								value: infoRes.userInfo.nickName
-							}, {
-								"colName": "avatar",
-								value: infoRes.userInfo.avatarUrl
-							}, {
-								"colName": "gender",
-								value: infoRes.userInfo.gender
-							}, {
-								"colName": "country",
-								value: infoRes.userInfo.country
-							}, {
-								"colName": "province",
-								value: infoRes.userInfo.province
-							}, {
-								"colName": "city",
-								value: infoRes.userInfo.city,
-							}]
-							self.defaultCondition = resData
-							uni.setStorageSync('wxuserinfo',infoRes)
+							let resData = [
+								{
+									colName: 'openid',
+									value: userInfo.user_no
+								},
+								{
+									colName: 'nick_name',
+									value: infoRes.userInfo.nickName
+								},
+								{
+									colName: 'avatar',
+									value: infoRes.userInfo.avatarUrl
+								},
+								{
+									colName: 'gender',
+									value: infoRes.userInfo.gender
+								},
+								{
+									colName: 'country',
+									value: infoRes.userInfo.country
+								},
+								{
+									colName: 'province',
+									value: infoRes.userInfo.province
+								},
+								{
+									colName: 'city',
+									value: infoRes.userInfo.city
+								}
+							];
+							self.defaultCondition = resData;
+							uni.setStorageSync('wxuserinfo', infoRes.userInfo);
 							console.log('resData：' + resData);
 						}
 					});
 				},
+				complete(res) {
+					debugger
+					uni.authorize({
+						scope: 'scope.userInfo',
+						success(res) {
+							uni.setStorageSync('isAuth', true);
+							// 获取用户信息
+							uni.getUserInfo({
+								provider: 'weixin',
+								success: function(infoRes) {
+									uni.setStorageSync('wxuserinfo', infoRes.userInfo);
+								},
+								fail: errMsg => {
+									uni.setStorageSync('isAuth', false);
+									console.log('获取用户信息失败失败', errMsg);
+									if (uni.$on('isToLogin') !== true) {
+										uni.$emit('isToLogin', true);
+										uni.navigateTo({
+											url: '/pages/public/accountExec/accountExec.vue'
+										});
+									}
+								}
+							});
+						},
+						fail(errMsg) {
+							console.log('获取用户信息失败失败', errMsg);
+							uni.setStorageSync('isAuth', false);
+							if (uni.$on('isToLogin') !== true) {
+								uni.$emit('isToLogin', true);
+								uni.navigateTo({
+									url: '/pages/public/accountExec/accountExec.vue'
+								});
+							}
+						}
+					});
+				},
 				fail() {
-					self.checkAuthorization()
-					// 没有userInfo授权
+					self.toLoginPage()
+					// self.checkAuthorization();
+					// 	// 没有userInfo授权
+					// 	uni.setStorageSync('isAuth', false);
+					// 	uni.showToast({
+					// 		title: '请点击授权按钮进行授权',
+					// 		icon: 'none'
+					// 	});
+					// 	//3.授权友好提示
+					// 	wx.showModal({
+					// 	  title: '提示',
+					// 	  content: '您还未授权登录,部分功能将不能使用,是否重新授权?',
+					// 	  showCancel: true,
+					// 	  cancelText: '不用了',
+					// 	  confirmText: '是',
+					// 	  success: function(res) {
+					// 	    //4.确认授权调用wx.openSetting
+					// 	    if (res.confirm) {
+					// 	      if (wx.openSetting) {
+					// 	        //当前微信的版本 ,是否支持openSetting
+					// 	        wx.openSetting({
+					// 	          success: res => {
+					// 	            if (res.authSetting['scope.userInfo']) {
+					// 	              //如果用户重新同意了授权登录
+					// 	              wx.getUserInfo({
+					// 	                success: function(res) {
+					// 	                  uni.setStorageSync('wxuserinfo', res.userInfo);
+					// 	                  console.log(res);
+					// 	                }
+					// 	              });
+					// 	            } else {
+					// 	              //用户还是拒绝
+					// 	              console.log(res);
+					// 	            }
+					// 	          },
+					// 	          fail: function() {
+					// 	            //调用失败，授权登录不成功
+					// 	          }
+					// 	        });
+					// 	      } else {
+					// 	        console.log(res);
+					// 	      }
+					// 	    } else {
+					// 	      console.log(res);
+					// 	    }
+					// 	  }
+					// 	});
 				}
 			});
 		},
+
 		async addInfoIntoMember() {
 			let userInfo = uni.getStorageSync('login_user_info');
 			let wxUserInfo = uni.getStorageSync('wxuserinfo');
@@ -310,7 +400,6 @@ export default {
 							req = [{ serviceName: e.service_name, data: [req], condition: this.condition }];
 							let app = uni.getStorageSync('activeApp');
 							let url = self.getServiceUrl(app, e.service_name, 'add');
-							debugger;
 							self.onRequest('update', e.service_name, req).then(res => {
 								console.log('res:' + e.service_name, res);
 								if (res.data.state === 'SUCCESS') {

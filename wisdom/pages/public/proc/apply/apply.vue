@@ -68,7 +68,7 @@ export default {
 		radioBenRen(e){
 			console.log("本人信息-------",e,this.fields)
 			// if(e.value === '他人信息'){
-			// 	debugger
+			// 	
 			// 	let fields = this.fields
 			// 	fields.forEach(item=>{
 			// 		if(item.column == 'xm' || item.column == 'lxfs' || item.column == 'gmsfhm'){
@@ -260,7 +260,6 @@ export default {
 						value: '物业管理人员'
 					}
 				]
-				// order: [{ colName: 'seq', orderType: 'asc' }] ,
 			};
 			let ress = await this.$http.post(urls, reqs);
 			

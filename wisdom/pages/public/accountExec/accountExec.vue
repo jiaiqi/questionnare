@@ -49,7 +49,7 @@
 				</button>
 				<!-- #endif -->
 				<!-- #ifdef MP-WEIXIN -->
-				<!-- <button class="confirm-btn bg-blue text-black" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">获取手机号</button> -->
+				<button class="confirm-btn bg-blue text-black" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">获取手机号</button>
 				<button
 					class="confirm-btn bg-gray text-green"
 					lang="zh_CN"
@@ -61,7 +61,7 @@
 				>
 					授权登录
 				</button>
-				<button class="confirm-btn bg-grey text-black" type="default" @tap="navBack" :disabled="false">暂不登录</button>
+				<button class="confirm-btn bg-grey text-black" type="default" @tap="navBack" :disabled="false">暂不授权</button>
 				<!-- #endif -->
 			</view>
 		</view>
@@ -115,9 +115,15 @@ export default {
 			self.initLogin();
 		}
 	},
+	beforeDestroy() {
+		uni.$emit('isToLogin', false);
+	},
 	methods: {
 		getPhoneNumber(e) {
-			console.log(e, '........................');
+			console.log(e, '手机号：');
+			console.log(e.detail.errMsg)
+			    console.log(e.detail.iv)
+			    console.log(e.detail.encryptedData)
 		},
 		toBack() {
 			if (uni.getStorageSync('isLogin')) {
@@ -270,6 +276,7 @@ export default {
 				const url = this.getServiceUrl('wx', 'srvwx_app_login_verify', 'operate');
 				// #ifdef MP-WEIXIN
 				// that.getUserInfo();
+				return
 				wx.login({
 					// 获取小程序code
 					success(res) {
@@ -457,8 +464,8 @@ export default {
 		getUserInfo: function(loginType, cb) {
 			let self = this;
 			uni.hideLoading();
-			wx.login({
-				success: function() {
+			// wx.login({
+				// success: function() {
 					wx.getUserInfo({
 						success: function(res) {
 							self.setWxUserInfo(res.userInfo);
@@ -520,8 +527,8 @@ export default {
 							// });
 						}
 					});
-				}
-			});
+				// }
+			// });
 		},
 		async userLogined(e) {
 			console.log('srvuser_login', e);

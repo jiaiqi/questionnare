@@ -3,14 +3,14 @@
 		{
 			"path": "pages/public/sitePage/sitePage",
 			"style": {
-				"navigationBarTitleText": "首页",
+				"navigationBarTitleText": "海纳智慧小区",
 				"navigationBarBackgroundColor": "#0bc99d"
 			}
 		},
 		// {
 		//     "path": "pages/public/index/index",
 		//     "style": {
-		//       "navigationBarTitleText": "百想科技导航",
+		//       "navigationBarTitleText": "海纳智慧小区导航",
 		//       "navigationBarBackgroundColor": "#0bc99d"
 		//     }
 		//   },
@@ -29,7 +29,7 @@
 		}, {
 			"path": "pages/public/homePage/homePage",
 			"style": {
-				"navigationBarTitleText": "百想科技",
+				"navigationBarTitleText": "海纳智慧小区",
 				"navigationBarBackgroundColor": "#0bc99d"
 			}
 		}, {
@@ -122,13 +122,13 @@
 		"pages": [{
 				"path": "pages/specific/epidemic/search/search",
 				"style": {
-					"navigationBarTitleText": "百想科技",
+					"navigationBarTitleText": "海纳智慧小区",
 					"navigationBarBackgroundColor": "#0bc99d"
 				}
 			}, {
 				"path": "pages/specific/epidemic/takePhotos/takePhotos",
 				"style": {
-					"navigationBarTitleText": "百想科技",
+					"navigationBarTitleText": "海纳智慧小区",
 					"navigationBarBackgroundColor": "#0bc99d"
 				}
 			}, {
@@ -170,26 +170,26 @@
 			}, {
 				"path": "pages/specific/epidemic/checkInCarInfo/checkInCarInfo",
 				"style": {
-					"navigationBarTitleText": "百想科技",
+					"navigationBarTitleText": "海纳智慧小区",
 					"navigationBarBackgroundColor": "#0bc99d"
 				}
 			}, {
 				"path": "pages/specific/epidemic/checkInPersonInfo/checkInPersonInfo",
 				"style": {
-					"navigationBarTitleText": "百想科技",
+					"navigationBarTitleText": "海纳智慧小区",
 					"navigationBarBackgroundColor": "#0bc99d"
 				}
 			}, {
 				"path": "pages/specific/epidemic/home/home",
 				"style": {
-					"navigationBarTitleText": "百想科技",
+					"navigationBarTitleText": "海纳智慧小区",
 					"navigationBarBackgroundColor": "#0bc99d"
 				}
 			}
 		]
 	}],
 	"globalStyle": {
-		"navigationBarTitleText": "百想软件开发平台",
+		"navigationBarTitleText": "海纳智慧小区",
 		"navigationBarBackgroundColor": "#0bc99d",
 		"backgroundColor": "#F8F8F8"
 	}

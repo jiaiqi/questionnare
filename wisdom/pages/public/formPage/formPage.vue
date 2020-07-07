@@ -65,12 +65,14 @@ export default {
         // return this.colsV2Data._formButtons;
       }
       let data = {};
-      this.fields.forEach(item => {
-        data[item['column']] = item['value'];
-      });
-      let fieldModel = data;
-      console.log(data, 'getDetailfieldModel');
-
+			if(Array.isArray(this.fields)){
+				this.fields.forEach(item => {
+				  data[item['column']] = item['value'];
+				});
+				let fieldModel = data;
+				console.log(data, 'getDetailfieldModel');
+			}
+     
       buttons.forEach(btn => {
         if (btn.disp_exps) {
           btn['display'] = eval(btn.disp_exps);
@@ -164,8 +166,9 @@ export default {
       this.colsV2Data = colVs;
       switch (this.type) {
         case 'update':
-          this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, this.params.defaultVal);
-          break;
+				// debugger
+    //       this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, this.params.defaultVal);
+    //       break;
         case 'add':
           if (this.defaultCondition && Array.isArray(this.defaultCondition) && colVs._fieldInfo && Array.isArray(colVs._fieldInfo)) {
             console.log('this.defaultCondition', this.defaultCondition, colVs._fieldInfo);

@@ -5,6 +5,7 @@
 				<text class="text-red text-shadow" v-show="fieldData.isRequire">*</text>
 				{{ fieldData.label }}:
 				<text v-show="!valid.valid">({{ valid.msg }})</text>
+				<!-- <button class="tel-btn text-black" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber" v-if="fieldData.type === 'input' && fieldData.column === 'tel'">填入</button> -->
 			</view>
 			<view v-if="pageFormType === 'detail'" class="detail-text">
 				<text class=" text-xl" v-if="pageFormType === 'detail' && fieldData.type !== 'images' && fieldData.type !== 'snote' && fieldData.type !== 'Note'">
@@ -297,7 +298,6 @@ export default {
 		robbyImageUpload,
 		cascaderSelector,
 		uniPopup,
-		// bxEditor,
 		bxTreeSelector,
 		attachment
 	},
@@ -388,7 +388,7 @@ export default {
 		},
 		typeArray() {
 			let type = '';
-			if (this.fieldData&&(this.fieldData.value||this.fieldData.value===0)&&Array.isArray(this.fieldData.value)) {
+			if (this.fieldData && (this.fieldData.value || this.fieldData.value === 0) && Array.isArray(this.fieldData.value)) {
 				return true;
 			} else {
 				return false;
@@ -550,6 +550,12 @@ export default {
 	// 	this.getDefVal()
 	// },
 	methods: {
+		getPhoneNumber(e) {
+			console.log(e, '手机号：');
+			console.log(e.detail.errMsg);
+			console.log(e.detail.iv);
+			console.log(e.detail.encryptedData);
+		},
 		async getpoupInfo(info) {
 			let serviceName = info.serviceName;
 			let req = { serviceName: serviceName, colNames: ['*'], condition: [] };
@@ -966,7 +972,6 @@ export default {
 			}
 		},
 		onMenu(e) {
-			debugger;
 			const data = e.item ? e.item : {};
 			this.fieldData.value = this.fieldData.option_list_v2 && this.fieldData.option_list_v2['refed_col'] ? data[this.fieldData.option_list_v2['refed_col']] : data.no;
 			this.fieldData['colData'] = data;
@@ -1220,6 +1225,15 @@ uni-text.input-icon {
 }
 .item_type_attr {
 	width: 100%;
+}
+.tel-btn {
+	height: 40rpx;
+	line-height: 40rpx;
+	font-size: 30rpx;
+	margin: 0;
+	position: absolute;
+	right: 0;
+	bottom: 10rpx;
 }
 .cu-list.card-menu {
 	padding: 0;

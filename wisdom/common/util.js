@@ -351,13 +351,13 @@ export default {
 				fieldInfo.isRequire = fieldInfo._validators.required
 				fieldInfo.value = null //初始化value
 				fieldInfo._colDatas = item //保存原始data
-				if(item.more_config && typeof item.more_config == "string"){
-					try{
+				if (item.more_config && typeof item.more_config == "string") {
+					try {
 						let moreConfig = JSON.parse(item.more_config)
-						if(moreConfig.formulaShow){
+						if (moreConfig.formulaShow) {
 							fieldInfo.formulaShow = moreConfig.formulaShow
 						}
-					}catch(e){
+					} catch (e) {
 						console.error(e)
 					}
 				}
@@ -883,37 +883,37 @@ export default {
 			}
 			// http://srvms.100xsys.cn/file/select/srvfile_attachment_select?srvfile_attachment_select
 		}
-		Vue.prototype.getDayDate = function(e,type) {
+		Vue.prototype.getDayDate = function(e, type) {
 			if (e) {
 				var date = new Date(e);
-				let year =  date.getFullYear()
-				let mon =  date.getMonth() + 1
-				let day =  date.getDate()
-				let hour =  date.getHours()
-				let mint =  date.getMinutes()
-				let scends =  date.getSeconds()
-				if(date.getFullYear() < 10){
+				let year = date.getFullYear()
+				let mon = date.getMonth() + 1
+				let day = date.getDate()
+				let hour = date.getHours()
+				let mint = date.getMinutes()
+				let scends = date.getSeconds()
+				if (date.getFullYear() < 10) {
 					year = '0' + date.getFullYear()
 				}
-				if(date.getMonth() < 10){
+				if (date.getMonth() < 10) {
 					mon = '0' + (date.getMonth() + 1)
 				}
-				if(date.getDate() < 10){
+				if (date.getDate() < 10) {
 					day = '0' + date.getDate()
 				}
-				if(hour < 10){
+				if (hour < 10) {
 					hour = '0' + hour
 				}
-				if(mint < 10){
+				if (mint < 10) {
 					mint = '0' + mint
 				}
-				if(scends < 10){
+				if (scends < 10) {
 					scends = '0' + scends
 				}
 				let str = year + '-' + mon + '-' + day
-				
-				if(type && type == 'all'){
-					str = year + '-' + mon + '-' + day + ' ' + hour + ':' + mint + ':' +scends
+
+				if (type && type == 'all') {
+					str = year + '-' + mon + '-' + day + ' ' + hour + ':' + mint + ':' + scends
 				}
 				return str
 			} else {
@@ -1352,63 +1352,70 @@ export default {
 									uni.setStorageSync('wxuserinfo', infoRes.userInfo);
 								},
 								fail: errMsg => {
+									uni.setStorageSync('isAuth', false)
 									console.log('获取用户信息失败失败', errMsg);
-									uni.navigateTo({
-										url: '/pages/public/accountExec/accountExec.vue'
-									});
+									Vue.prototype.toLoginPage()
 								}
 							});
 						},
 						fail(errMsg) {
+							console.log('获取用户信息失败失败', errMsg);
 							uni.setStorageSync('isAuth', false)
+							uni.setStorageSync('isToLogin', false)
+							// Vue.prototype.toLoginPage()
+							uni.navigateTo({
+								url: '/pages/public/accountExec/accountExec.vue'
+							});
 						}
 					});
 					// #endif
 				},
 				Vue.prototype.toLoginPage = function(backUrl) {
-					if (!uni.getStorageSync('isToLogin')) {
+					// if (!uni.getStorageSync('isToLogin')) {
 						// #ifdef MP-WEIXIN
 						wx.login({
 							success(res) {
 								if (res.code) {
 									//发起网络请求
 									Vue.prototype.verifyLogin(res.code)
+									wx.getSetting({
+										success(res) {
+											let isAuthUserInfo = res.authSetting['scope.userInfo']
+											let isAuth = uni.getStorageSync('isAuth')
+											if (!isAuthUserInfo&&!isAuth) {
+												uni.showModal({
+													title: '提示',
+													content: "您还未授权获取用户信息,点击确定按钮跳转到授权页面",
+													success(res) {
+														uni.setStorageSync('isToLogin', true)
+														if (res.confirm) {
+															Vue.prototype.judgeClientEnviroment()
+															if (backUrl) {
+																uni.navigateTo({
+																	url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
+																})
+															} else {
+																uni.navigateTo({
+																	url: '/pages/public/accountExec/accountExec'
+																})
+															}
+														} else {
+															uni.setStorageSync('isToLogin', false)
+														}
+													}
+												})
+											}
+										}
+									})
 								} else {
 									uni.showToast({
-										title: '登录失败！' + res.errMsg,
+										title: '授权失败！' + res.errMsg,
 										icon: 'none'
 									})
 								}
 							}
 						})
-						wx.getSetting({
-							success(res) {
-								let isAuthUserInfo = res.authSetting['scope.userInfo']
-								if (!isAuthUserInfo) {
-									uni.showModal({
-										title: '提示',
-										content: "您还未登录,请先登录在进行相关操作,点击确定按钮跳转到登录页面",
-										success(res) {
-											uni.setStorageSync('isToLogin', true)
-											if (res.confirm) {
-												Vue.prototype.judgeClientEnviroment()
-												if (backUrl) {
-													uni.navigateTo({
-														url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
-													})
-												} else {
-													uni.navigateTo({
-														url: '/pages/public/accountExec/accountExec'
-													})
-												}
-											} else {
-												uni.setStorageSync('isToLogin', false)
-											}
-										}
-									})
-								}
-							}
-						})
+
 						// #endif
 						// #ifdef H5
 						uni.showModal({
@@ -1433,7 +1440,7 @@ export default {
 							}
 						})
 						// #endif
-					}
+					// }
 
 				},
 				Vue.prototype.selectInfoFromMember = async function() {

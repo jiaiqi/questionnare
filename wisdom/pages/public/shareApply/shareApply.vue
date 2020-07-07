@@ -230,7 +230,7 @@ export default {
         query = JSON.parse(decodeURIComponent(option.query));
       }
       //  // let cond = JSON.parse(option.cond)
-	  debugger
+	  
       if (query.cond) {
         let conds = JSON.parse(query.cond);
         conds.forEach(item => {

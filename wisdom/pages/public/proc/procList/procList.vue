@@ -193,10 +193,71 @@ export default {
 					url: '/pages/specific/permit/permit?code=' + e.row.qr_code
 				});
 				// this.procNo = e.row.proc_instance_no
-			} else if (e.button.button_type === 'applyProc' && e.application === 'zhsq' && e.service_name === 'srvzhxq_syrk_select') {
-				;
+			} else if (e.button.button_type === 'customize' && JSON.parse(e.button.more_config).type === 'primary') {
+				let params = {
+					type:'update',
+					serviceName:e.button.service_name,
+					condition:[
+						{
+							colName: "id", ruleType: "eq", value: e.row.id
+						}
+					]
+				}
+				if(e.button.servcie_type==='delete'){
+					if(e.button.operate_params&&e.button.operate_service){
+						let condition = []
+						try{
+						condition = 	JSON.parse(e.button.operate_params).condition
+						if(Array.isArray(condition)){
+							condition.forEach(item=>{
+								if(typeof item.value ==='object'){
+									if(item.value.value_type==='rowData'&&item.value.value_key){
+										item.value = e.row[item.value.value_key]
+									}
+								}
+							})
+						}
+						}catch(e){
+							console.log(e)
+							//TODO handle the exception
+						}
+						let url = this.getServiceUrl(uni.getStorageSync('activeApp'), e.button.operate_service, 'operate');
+						let req = [{ serviceName: e.button.operate_service, condition: condition,data: [{}],srvApp:uni.getStorageSync('activeApp') }];
+						this.$http
+							.post(url, req)
+							.then(res => {
+								if (res.data.state === 'SUCCESS') {
+									uni.showToast({
+										title: '删除成功',
+										icon:'none'
+									});
+									this.$refs.bxList.onRefresh();
+								} else {
+									uni.showToast({
+										title: res.data.resultMessage,
+										icon:'none'
+									});
+								}
+							})
+							.catch(error => {
+								console.error(error);
+								uni.showToast({
+									title: '删除失败',
+									icon: 'none'
+								});
+							});
+					}
+				}else if(e.button.servcie_type==='update'){
+					uni.navigateTo({
+						url: '/pages/public/formPage/formPage?params=' + decodeURIComponent(JSON.stringify(params))
+					})
+				}
+				
+			}
+			else if (e.button.button_type === 'applyProc' && e.application === 'zhxq' && e.service_name === 'srvzhxq_syrk_select') {
 			}
 		},
+		
 		deleteItem(e) {
 			let proc_instance_no = e.row.proc_instance_no;
 			let serviceName = e.button.service_name;
