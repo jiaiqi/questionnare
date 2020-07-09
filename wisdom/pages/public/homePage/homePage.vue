@@ -121,7 +121,6 @@ export default {
 			console.log('点击了轮播图,', e);
 		},
 		clickMenu(e) {
-			
 			// 菜单按钮点击事件
 			if(uni.getStorageSync('activeApp') === 'zhxq'){
 				this.$emit('clickButton', e);
@@ -142,7 +141,6 @@ export default {
 				// })
 				}
 				let isOwner = uni.getStorageSync('is_owner');
-
 				if (!isOwner && (e.dest_menu_no === '物业报修'|| e.dest_menu_no === '车辆登记')) {
 				  uni.showToast({
 					title: '暂未入住小区,请进行信息登记',
@@ -190,7 +188,6 @@ export default {
 				content_no: e.content_no,
 				destApp: 'daq'
 			};
-
 			uni.navigateTo({
 				// url: `/pages/specific/article/article?serviceName=srvdaq_cms_content_select&content_no=${e.content_no}&cate_name=${e.cate_name}`
 				url: '/pages/specific/article/article?query=' + encodeURIComponent(JSON.stringify(query))

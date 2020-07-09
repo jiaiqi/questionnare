@@ -31,6 +31,12 @@
 						<text class="text-grey">个人信息</text>
 					</view>
 				</view>
+				<view @tap="toHouse" class="cu-item" :class="menuArrow ? 'arrow' : ''">
+					<view class="content">
+						<image src="../../../static/house.png" class="png" mode="aspectFit"></image>
+						<text class="text-grey">房屋信息</text>
+					</view>
+				</view>
 				<view @tap="toVisitor" class="cu-item" :class="menuArrow ? 'arrow' : ''">
 					<view class="content">
 						<image src="../../../static/fk.png" class="png" mode="aspectFit"></image>
@@ -86,6 +92,8 @@ export default {
 			userInfo: uni.getStorageSync('wxuserinfo'),
 			loginUserInfo: uni.getStorageSync('login_user_info'),
 			menuArrow: true,
+			menuBorder:true,
+			menuCard:false,
 			infoObj: ''
 		};
 	},
@@ -145,7 +153,12 @@ export default {
 		},
 		toPerson() {
 			uni.navigateTo({
-				url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add'
+				url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=person'
+			});
+		},
+		toHouse(){
+			uni.navigateTo({
+				url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=house'
 			});
 		},
 		toRepair() {

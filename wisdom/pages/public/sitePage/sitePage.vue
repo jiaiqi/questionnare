@@ -12,12 +12,12 @@
 		<proFile ref="profile" v-if="index == 1"></proFile>
 		<view class="cu-bar tabbar bg-white shadow foot" v-if="websiteList.length > 1">
 			<view class="action" v-for="(item, siteIndex) in websiteList" :key="siteIndex" @click="changePage(item)">
-				<view class="cuIcon-cu-image" v-if="item.page_name == '首页' && !item.checked"><image src="/static/img/home.png"></image></view>
-				<view class="cuIcon-cu-image" v-if="item.page_name == '首页' && item.checked">
+				<view class="cuIcon-cu-image" v-if="item.page_name == '首页' && item.page_no !== currentPage.page_no"><image src="/static/img/home.png"></image></view>
+				<view class="cuIcon-cu-image" v-if="item.page_name == '首页' && item.page_no === currentPage.page_no">
 					<image style="width: 25px;height: 25px;margin-bottom: 2px;" src="/static/img/check_home.png"></image>
 				</view>
-				<view class="cuIcon-cu-image" v-if="item.page_name == '我的' && !item.checked"><image src="/static/img/my.png"></image></view>
-				<view class="cuIcon-cu-image" v-if="item.page_name == '我的' && item.checked"><image src="/static/img/check_my.png"></image></view>
+				<view class="cuIcon-cu-image" v-if="item.page_name == '我的' && item.page_no !== currentPage.page_no"><image src="/static/img/my.png"></image></view>
+				<view class="cuIcon-cu-image" v-if="item.page_name == '我的' && item.page_no === currentPage.page_no"><image src="/static/img/check_my.png"></image></view>
 				<view :class="{ 'text-green': item.page_no === currentPage.page_no, 'text-gray': item.page_no !== currentPage.page_no }">{{ item.page_name }}</view>
 			</view>
 		</view>
@@ -45,37 +45,36 @@ export default {
 	methods: {
 		clickButton(e) {
 			if (uni.getStorageSync('activeApp') == 'zhxq') {
-				this.getUserInfoLimits().then(result=>{
-					console.log("--------",result)
+				this.getUserInfoLimits().then(result => {
+					console.log('--------', result);
 					let isOwner = uni.getStorageSync('is_owner');
 					if (
 						(e.dest_menu_no === '访客登记' ||
+							e.dest_menu_no === '物业录入' ||
 							e.dest_menu_no === '物业报修' ||
+							e.dest_menu_no === '信息登记' ||
 							e.dest_menu_no === '住户登记' ||
 							e.dest_menu_no === '车辆登记' ||
 							e.dest_menu_no === '工作人员登记' ||
 							e.dest_menu_no === '服务人员登记') &&
 						e.dest_app === 'zhxq'
 					) {
-						if(uni.getStorageSync('isLogin')){
-							
-						this.selectInfoFromMember().then(result1 => {
-							console.log('11111111111',result1)
-							if (!!result1) {
-								if (!isOwner && (e.dest_menu_no === '物业报修' || e.dest_menu_no === '车辆登记')) {
-									uni.showToast({
-										title: '暂未入住小区,请进行信息登记',
-										duration: 1000,
-										icon: 'none'
-									});
-									return
-								}
-								let urlArgumentIndex = e.dest_page.indexOf('?');
-								let urlAllArgument = e.dest_page.split('?');
-								let queryObj = {};
-								if (urlArgumentIndex >= 0) {
-									/** 确保在登录状态下进行跳转*/
-									// if(uni.getStorageSync('isLogin')){																		
+						if (uni.getStorageSync('isLogin')) {
+							this.selectInfoFromMember().then(result1 => {
+								if (!!result1) {
+									if (!isOwner && (e.dest_menu_no === '物业报修' || e.dest_menu_no === '车辆登记')) {
+										uni.showToast({
+											title: '暂未入住小区,请进行信息登记',
+											duration: 1000,
+											icon: 'none'
+										});
+										return;
+									}
+									let urlArgumentIndex = e.dest_page.indexOf('?');
+									let urlAllArgument = e.dest_page.split('?');
+									let queryObj = {};
+									if (urlArgumentIndex >= 0) {
+										/** 确保在登录状态下进行跳转*/
 										if (urlAllArgument[1].indexOf('&') < 0) {
 											for (let i = 1; i < urlAllArgument.length; i++) {
 												let urlAloneArgument = urlAllArgument[i].split('=');
@@ -88,7 +87,6 @@ export default {
 												queryObj[urlAlo[0]] = decodeURIComponent(urlAlo[1]);
 											}
 										}
-										console.log('queryObj=======', queryObj);
 										if (queryObj.no || queryObj.website_no || queryObj.serviceName) {
 											uni.navigateTo({
 												url: urlAllArgument[0] + '?query=' + encodeURIComponent(JSON.stringify(queryObj))
@@ -98,56 +96,19 @@ export default {
 												url: urlAllArgument[0]
 											});
 										}
-									// }
+									}
+								} else {
 								}
-							} else {
-								// let urlArgumentIndex = e.dest_page.indexOf('?');
-								// let urlAllArgument = e.dest_page.split('?');
-								// let queryObj = {};
-								// if (urlArgumentIndex >= 0) {
-								// 	if (urlAllArgument[1].indexOf('&') < 0) {
-								// 		for (let i = 1; i < urlAllArgument.length; i++) {
-								// 			let urlAloneArgument = urlAllArgument[i].split('=');
-								// 			queryObj[urlAloneArgument[0]] = urlAloneArgument[1];
-								// 		}
-								// 	} else {
-								// 		let urlArg = urlAllArgument[1].split('&');
-								// 		for (let j = 0; j < urlArg.length; j++) {
-								// 			let urlAlo = urlArg[j].split('=');
-								// 			queryObj[urlAlo[0]] = decodeURIComponent(urlAlo[1]);
-								// 		}
-								// 	}
-								// 	console.log('queryObj=======', queryObj);
-								// 	if (queryObj.no || queryObj.website_no || queryObj.serviceName) {
-								// 		uni.navigateTo({
-								// 			url: urlAllArgument[0] + '?query=' + encodeURIComponent(JSON.stringify(queryObj))
-								// 		});
-								// 	} else {
-								// 		uni.navigateTo({
-								// 			url: urlAllArgument[0]
-								// 		});
-								// 	}
-								// } 
-							}
-						});
+							});
 						}
 					} else if (e.dest_menu_no == '紧急求助') {
-									uni.navigateTo({
-										url: e.dest_page
-									});
-								}
-					// if (!isOwner && (e.dest_menu_no === '物业报修'|| e.dest_menu_no === '车辆登记')) {
-					//   uni.showToast({
-					//     title: '暂未入住小区,请进行信息登记',
-					//     duration: 1000,
-					//     icon: 'none'
-					//   });
-					// }
+						uni.navigateTo({
+							url: e.dest_page
+						});
+					}
 				});
-			}else{
-				
+			} else {
 			}
-			console.log(e);
 		},
 		changePage(item) {
 			let websiteList = this.websiteList;
@@ -163,9 +124,6 @@ export default {
 				});
 			} else if (item && item.page_no !== this.currentPage.page_no && item.page_no == 'BX202006171012480019') {
 				console.log('点击我的');
-				// this.getUserInfoLimits().then(result=>{
-					
-				// })
 				this.selectInfoFromMember().then(result => {
 					if (!!result) {
 						this.currentPage = item;
@@ -175,12 +133,9 @@ export default {
 						});
 					}
 				});
-				// uni.redirectTo({
-				//     url: '/pages/public/profile/profile'
-				// });
 			}
 		},
-		
+
 		async getWebsiteList() {
 			const url = this.getServiceUrl('daq', 'srvdaq_website_page_select', 'select');
 
@@ -259,7 +214,7 @@ export default {
 					uni.setStorageSync('is_owner', true);
 					uni.setStorageSync('infoObj', ress.data.data[0]);
 					uni.setStorageSync('infoObjArr', ress.data.data);
-					return this.isOwner
+					return this.isOwner;
 				}
 			}
 		}
@@ -281,18 +236,13 @@ export default {
 		this.website_no = option.website_no;
 		uni.setStorageSync('is_owner', false);
 		if (option.destApp) {
-			uni.setStorageSync('activeApp', option.destApp);			
+			uni.setStorageSync('activeApp', option.destApp);
 		}
-		if(uni.getStorageSync('activeApp') == 'zhxq'){
-			this.getUserInfoLimits()
-			// this.getBasicsInfo();
+		if (uni.getStorageSync('activeApp') == 'zhxq') {
+			this.getUserInfoLimits();
 		}
-		console.log('--------------', uni.getStorageSync('activeApp'));
-
-		// console.log("option",option)
 	},
 	onShareAppMessage(res) {
-		console.log('res=====>>>>>', res);
 		return {
 			title: '邀请来访',
 			path: '/pages/public/proc/apply/apply?serviceName=srvzhxq_guest_mgmt_add',

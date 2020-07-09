@@ -40,25 +40,13 @@
 				>
 					{{ isBindUser ? '提交绑定' : '登录' }}
 				</button>
-				<button
-					v-if="(client_env === 'web' || client_env === 'app' || client_env === 'wxh5') && isShowUserLogin"
-					class="confirm-btn bg-gradual-orange text-green"
-					@click="toBack"
-				>
+				<button v-if="(client_env === 'web' || client_env === 'app' || client_env === 'wxh5') && isShowUserLogin" class="confirm-btn bg-gradual-orange text-green" @click="toBack">
 					暂不，继续使用
 				</button>
 				<!-- #endif -->
 				<!-- #ifdef MP-WEIXIN -->
-				<button class="confirm-btn bg-blue text-black" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">获取手机号</button>
-				<button
-					class="confirm-btn bg-gray text-green"
-					lang="zh_CN"
-					type="primary"
-					open-type="getUserInfo"
-					@getuserinfo="saveWxUser"
-					:withCredentials="false"
-					:disabled="disabled"
-				>
+				<!-- <button class="confirm-btn bg-blue text-black" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">获取手机号</button> -->
+				<button class="confirm-btn bg-gray text-green" lang="zh_CN" type="primary" open-type="getUserInfo" @getuserinfo="saveWxUser" :withCredentials="false" :disabled="disabled">
 					授权登录
 				</button>
 				<button class="confirm-btn bg-grey text-black" type="default" @tap="navBack" :disabled="false">暂不授权</button>
@@ -100,11 +88,10 @@ export default {
 		if (uni.getStorageSync('isLogin') && uni.getStorageSync('login_user_info')) {
 			console.log('不进行初始化授权', uni.getStorageSync('isLogin'));
 			// #ifdef MP-WEIXIN
-			if (!uni.getStorageSync('isAuth')) {
-				this.getUserInfo();
-			} else {
-				self.loginNavUrl(); // 已经登录并授权访问用户信息
-			}
+			// if (!uni.getStorageSync('isAuth')) {
+			this.getUserInfo();
+			// }
+
 			// #endif
 			// #ifdef H5
 			self.loginNavUrl();
@@ -121,9 +108,9 @@ export default {
 	methods: {
 		getPhoneNumber(e) {
 			console.log(e, '手机号：');
-			console.log(e.detail.errMsg)
-			    console.log(e.detail.iv)
-			    console.log(e.detail.encryptedData)
+			console.log(e.detail.errMsg);
+			console.log(e.detail.iv);
+			console.log(e.detail.encryptedData);
 		},
 		toBack() {
 			if (uni.getStorageSync('isLogin')) {
@@ -141,16 +128,18 @@ export default {
 			}
 		},
 		navBack() {
-			let self = this
-			let pageInfo = getCurrentPages()
-			uni.setStorageSync('isToLogin',false)
-			uni.navigateBack({
-				animationDuration: 200
-			}).then()
+			let self = this;
+			let pageInfo = getCurrentPages();
+			uni.setStorageSync('isToLogin', false);
+			uni
+				.navigateBack({
+					animationDuration: 200
+				})
+				.then()
 				.catch(e => {
-				   uni.navigateTo({
-				   	url:self.$api.homePath
-				   })
+					uni.navigateTo({
+						url: self.$api.homePath
+					});
 				});
 		},
 		inputChange(e) {
@@ -182,7 +171,7 @@ export default {
 					}
 					// #endif
 					// #ifdef MP-WEIXIN
-					// this.saveWxUser(); //调登录接口 
+					// this.saveWxUser(); //调登录接口
 					// #endif
 				} else if (!isWeixinClient) {
 					// 非微信环境(H5或APP)
@@ -271,78 +260,75 @@ export default {
 		saveWxUser() {
 			// 静默登录(验证登录)
 			let that = this;
+			// #ifdef MP-WEIXIN
+ 			wx.getUserInfo({
+				success: function(res) {
+					uni.setStorageSync('wxuserinfo', res.userInfo);
+					uni.setStorageSync('isAuth', true);
+					if (uni.getStorageSync('isAuth') === true) {
+						uni.setStorageSync('wxuserinfo', res.userInfo);
+						uni.showModal({
+							title: '提示',
+							content: '授权成功，即将返回上一页面',
+							showCancel: false,
+							success(res) {
+								if (res.confirm) {
+									that.loginNavUrl(); // 登录成功回调
+								}
+							}
+						});
+					} else {
+						uni.showToast({
+							title: '请点击授权按钮进行授权'
+						});
+					}
+				},
+				fail: function() {
+					uni.setStorageSync('isAuth', false);
+					uni.showToast({
+						title: '请点击授权按钮进行授权',
+						icon: 'none'
+					});
+				}
+			});
+			// #endif
 			const isWeixinClient = that.isWeixinClient();
 			if (isWeixinClient) {
 				const url = this.getServiceUrl('wx', 'srvwx_app_login_verify', 'operate');
 				// #ifdef MP-WEIXIN
-				// that.getUserInfo();
-				return
-				wx.login({
-					// 获取小程序code
+				return;
+				uni.authorize({
+					scope: 'scope.userInfo',
 					success(res) {
-						if (res.code) {
-							//验证登录
-							let url = that.$api.verifyLogin.url;
-							let req = [
-								{
-									data: [
-										{
-											code: res.code,
-											app_no: that.$api.appNo.wxmp
-										}
-									],
-									serviceName: 'srvwx_app_login_verify'
-								}
-							];
-							that.$http.post(url, req).then(response => {
-								if (response.data.resultCode === 'SUCCESS') {
-									uni.hideLoading();
-									uni.setStorageSync('isLogin', true);
-									let resData = response.data.response[0].response;
-									let loginMsg = {
-										bx_auth_ticket: resData.bx_auth_ticket,
-										expire_time: resData.expire_time
-									};
-									let expire_timestamp = parseInt(new Date().getTime() / 1000) + loginMsg.expire_time; //过期时间的时间戳(秒)
-									uni.setStorageSync('bx_auth_ticket', resData.bx_auth_ticket);
-									uni.setStorageSync('expire_time', resData.expire_time); // 有效时间
-									uni.setStorageSync('expire_timestamp', expire_timestamp); // 过期时间
-									if (resData.login_user_info.user_no) {
-										uni.setStorageSync('login_user_info', resData.login_user_info);
-										if (resData.login_user_info.roles) {
-											uni.setStorageSync('roles', resData.login_user_info.roles);
+						// 获取用户信息
+						uni.setStorageSync('isAuth', true);
+						uni.getUserInfo({
+							provider: 'weixin',
+							success: function(infoRes) {
+								uni.setStorageSync('wxuserinfo', infoRes.userInfo);
+								uni.showModal({
+									title: '提示',
+									content: '授权成功，即将返回上一页面',
+									showCancel: false,
+									success(res) {
+										if (res.confirm) {
+											uni.navigateBack();
 										}
 									}
-									if (resData.login_user_info.data) {
-										uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
-										this.$store.commit('setVisitorInfo', resData.login_user_info.data[0]);
-									}
-									uni.setStorageSync('isLogin', true);
-									// 获取用户微信信息 // 登录成功，小程序 关闭当前页，返回上一级路由
-									that.getUserInfo();
-									// that.loginNavUrl()
-									// #ifdef H5
-									uni.redirectTo({
-										url: that.$api.homePath
-									});
-									// #endif
-									// #ifdef MP-WEIXIN
-									uni.navigateBack({
-										delta: 1
-									});
-									// #endif
-								} else if (response.data.resultCode === 'FAILURE') {
-									// alert("授权成功")
-									uni.setStorageSync('isLogin', false);
-									uni.showToast({
-										title: response.data.resultMessage
-									});
-								}
-							});
-						} else {
-							uni.setStorageSync('isLogin', false); // 登录状态
-							console.log('登录失败！' + res.errMsg);
-						}
+								});
+							},
+							fail: errMsg => {
+								uni.setStorageSync('isAuth', false);
+								console.log('获取用户信息失败失败', errMsg);
+								that.toLoginPage();
+							}
+						});
+					},
+					fail(errMsg) {
+						console.log('获取用户信息失败失败', errMsg);
+						uni.setStorageSync('isAuth', false);
+						uni.setStorageSync('isToLogin', false);
+						that.toLoginPage();
 					}
 				});
 				// #endif
@@ -357,6 +343,7 @@ export default {
 				uni.showLoading({
 					title: '授权登录中'
 				});
+				return;
 				let req = [
 					{
 						data: [
@@ -368,7 +355,6 @@ export default {
 						serviceName: 'srvwx_app_login_verify'
 					}
 				];
-				// alert("准备登陆授权"+uni.getStorageSync("backUrl"))
 				let backUrl = uni.getStorageSync('backUrl');
 				console.log('回调页面', window.location, backUrl);
 				if (backUrl.indexOf('goodsDetail') !== -1) {
@@ -383,9 +369,7 @@ export default {
 					};
 					req[0].data[0]['shop_user'] = user;
 				}
-				// alert("登陆请求req"+JSON.stringify(req))
 				that.$http.post(url, req).then(response => {
-					// alert("登陆请求结果"+JSON.stringify(response.data))
 					if (response.data.resultCode === 'SUCCESS' && response.data.response[0].response) {
 						uni.showToast({
 							title: '登录成功'
@@ -424,34 +408,6 @@ export default {
 						uni.navigateBack({
 							delta: 1
 						});
-						// uni.showModal({
-						//     title: '提示',
-						//     content: '是否继续绑定已有百想系统帐号？',
-						// 	cancelText: "不用了",
-						// 	confirmText: "是",
-						//     success: function (res) {
-						//         if (res.confirm) {
-						//             that.isBindUser = true
-						//         } else if (res.cancel) {
-						//             console.log('用户点击取消');
-						// 			if (url) {
-						// 				url = that.getDecodeUrl(url)
-						// 				// alert("2::" + url + uni.getStorageSync('bx_auth_ticket'))
-						// 				if(url && url.lastIndexOf("backUrl=") !== -1){
-						// 					url = url.substring(url.lastIndexOf("backUrl=")+8,url.length)
-						// 					console.log("授权成功，准备返回用户界面url",url)
-						// 				}
-						// 				uni.reLaunch({
-						// 					url:url
-						// 				})
-						// 			} else {
-						// 				uni.reLaunch({
-						// 					url:that.$api.homePath
-						// 				})
-						// 			}
-						//         }
-						//     }
-						// });
 					} else {
 						uni.setStorageSync('isLogin', false);
 						console.log('授权失败');
@@ -465,69 +421,68 @@ export default {
 			let self = this;
 			uni.hideLoading();
 			// wx.login({
-				// success: function() {
-					wx.getUserInfo({
-						success: function(res) {
-							self.setWxUserInfo(res.userInfo);
-							uni.setStorageSync('wxuserinfo', res.userInfo);
-							uni.setStorageSync('isAuth', true);
-							if (uni.getStorageSync('isAuth') === true) {
-								self.loginNavUrl(); // 登录成功回调
-							} else {
-								uni.showToast({
-									title: '请点击授权按钮进行授权'
-								});
-							}
-						},
-						fail: function() {
-							uni.setStorageSync('isAuth', false);
-							uni.showToast({
-								title: '请点击授权按钮进行授权',
-								icon: 'none'
-							});
-							//3.授权友好提示
-							// wx.showModal({
-							//   title: '提示',
-							//   content: '您还未授权登录,部分功能将不能使用,是否重新授权?',
-							//   showCancel: true,
-							//   cancelText: '不用了',
-							//   confirmText: '是',
-							//   success: function(res) {
-							//     //4.确认授权调用wx.openSetting
-							//     if (res.confirm) {
-							//       if (wx.openSetting) {
-							//         //当前微信的版本 ,是否支持openSetting
-							//         wx.openSetting({
-							//           success: res => {
-							//             if (res.authSetting['scope.userInfo']) {
-							//               //如果用户重新同意了授权登录
-							//               wx.getUserInfo({
-							//                 success: function(res) {
-							//                   uni.setStorageSync('wxuserinfo', res.userInfo);
-							//                   console.log(res);
-							//                   self.setWxUserInfo(res.userInfo);
-							//                 }
-							//               });
-							//             } else {
-							//               //用户还是拒绝
-							//               console.log(res);
-							//             }
-							//           },
-							//           fail: function() {
-							//             //调用失败，授权登录不成功
-							//           }
-							//         });
-							//       } else {
-							//         console.log(res);
-							//       }
-							//     } else {
-							//       console.log(res);
-							//     }
-							//   }
-							// });
-						}
+			// success: function() {
+			wx.getUserInfo({
+				success: function(res) {
+					uni.setStorageSync('wxuserinfo', res.userInfo);
+					uni.setStorageSync('isAuth', true);
+					if (uni.getStorageSync('isAuth') === true) {
+						self.loginNavUrl(); // 登录成功回调
+					} else {
+						uni.showToast({
+							title: '请点击授权按钮进行授权'
+						});
+					}
+				},
+				fail: function() {
+					uni.setStorageSync('isAuth', false);
+					uni.showToast({
+						title: '请点击授权按钮进行授权',
+						icon: 'none'
 					});
-				// }
+					//3.授权友好提示
+					// wx.showModal({
+					//   title: '提示',
+					//   content: '您还未授权登录,部分功能将不能使用,是否重新授权?',
+					//   showCancel: true,
+					//   cancelText: '不用了',
+					//   confirmText: '是',
+					//   success: function(res) {
+					//     //4.确认授权调用wx.openSetting
+					//     if (res.confirm) {
+					//       if (wx.openSetting) {
+					//         //当前微信的版本 ,是否支持openSetting
+					//         wx.openSetting({
+					//           success: res => {
+					//             if (res.authSetting['scope.userInfo']) {
+					//               //如果用户重新同意了授权登录
+					//               wx.getUserInfo({
+					//                 success: function(res) {
+					//                   uni.setStorageSync('wxuserinfo', res.userInfo);
+					//                   console.log(res);
+					//                   self.setWxUserInfo(res.userInfo);
+					//                 }
+					//               });
+					//             } else {
+					//               //用户还是拒绝
+					//               console.log(res);
+					//             }
+					//           },
+					//           fail: function() {
+					//             //调用失败，授权登录不成功
+					//           }
+					//         });
+					//       } else {
+					//         console.log(res);
+					//       }
+					//     } else {
+					//       console.log(res);
+					//     }
+					//   }
+					// });
+				}
+			});
+			// }
 			// });
 		},
 		async userLogined(e) {
@@ -572,8 +527,8 @@ export default {
 					uni.setStorageSync('isLogin', true);
 					that.getWxUserInfo();
 					uni.navigateBack({
-						delta:1
-					})
+						delta: 1
+					});
 				}
 			} else {
 				this.user.pwd = '';

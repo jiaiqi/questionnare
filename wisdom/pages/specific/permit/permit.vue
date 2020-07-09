@@ -7,7 +7,7 @@
 			<!-- <view class="permit_cen_t">
 				<image src="../../../static/img/permit.png" mode=""></image>
 			</view> -->
-			<canvas canvas-id="qrcode" style="width: 215px;height: 215px;" />
+			<canvas canvas-id="qrcode" style="width: 300px;height: 300px;" />
 			
 			<view class="permit_cen_b">
 				<text>进入小区时，请主动出示，配合小区检查人员</text>
@@ -52,13 +52,13 @@
 			        canvasId: 'qrcode',
 			        componentInstance: this,
 			        // text: "VjAwMSu8cWuljgtCcn/ybfRTRBK8mBwm/ds8QINYB57LJniavQsBZXc2Im0Vd/Ql8R3sXXA=",
-					text:code,
-			        size: 215,
-			        margin: 10,
+					text:code, 	
+			        size: 300,
+			        margin: 5,
 			        backgroundColor: '#ffffff',
 			        foregroundColor: '#000000',
 			        fileType: 'png',
-			        correctLevel: uQRCode.defaults.correctLevel,
+			        correctLevel: 1,
 			        success: res => {
 			          console.log(res)
 			        }
@@ -79,8 +79,8 @@
 			font-weight: 700;
 		}
 		.permit_cen{
-			width: 580upx;
-			height: 580upx;
+			width: 680upx;
+			// height: 680upx;
 			margin: 0 auto;
 			display: flex;
 			justify-content: center;

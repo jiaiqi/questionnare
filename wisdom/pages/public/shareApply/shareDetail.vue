@@ -588,7 +588,7 @@ export default {
 					  if(item.column == key){
 						  item.value = a[key]
 						  if(a[key]){
-							  item.disabled = true
+							  item.disabled = false
 						  }
 					  }
 				  }

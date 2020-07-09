@@ -1,6 +1,6 @@
 <template>
 	<view class="info-wrap">
-		<view v-if="personInfo" class="cu-list menu" :class="[menuBorder ? 'sm-border' : '', menuCard ? 'card-menu margin-top' : '']">
+		<view v-if="personInfo && pageType === 'person'" class="cu-list menu" :class="[menuBorder ? 'sm-border' : '', menuCard ? 'card-menu margin-top' : '']">
 			<view class="cu-bar justify-start bg-white account-info-card">
 				<view class="action border-title">
 					<text class="text-xl text-bold text-green">个人信息</text>
@@ -10,7 +10,7 @@
 			<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
 				<view class="content content_info">
 					<text class="text-grey">姓名：</text>
-					<text class="text-grey">{{ personInfo.real_name?personInfo.real_name:personInfo.openid?personInfo.openid:'未知' }}</text>
+					<text class="text-grey">{{ personInfo.real_name ? personInfo.real_name : personInfo.openid ? personInfo.openid : '未知' }}</text>
 				</view>
 			</view>
 			<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
@@ -32,7 +32,7 @@
 				</view>
 			</view>
 		</view>
-		<view v-if="houseList && Array.isArray(houseList) && !isSingleHouse">
+		<view v-if="houseList && Array.isArray(houseList) && !isSingleHouse && pageType === 'house'">
 			<view class="cu-list menu account-info-card title" :class="[menuCard ? 'card-menu margin-top' : '']">
 				<view class="cu-bar justify-start bg-white">
 					<view class="action border-title">
@@ -74,47 +74,46 @@
 					</view>
 				</view>
 			</view>
-				<view class="house-people-list" >
-				
-					<view class="cu-list menu house-people" v-for="(item, index) in peopleList" :key="index" :style="{'margin-top':'10rpx'}">
-						<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-							<view class="content content_info">
-								<text class="text-grey">姓名:</text>
-								<text class="text-grey">{{ item.xm }}</text>
-							</view>
+			<view class="house-people-list">
+				<view class="cu-list menu house-people" v-for="(item, index) in peopleList" :key="index" :style="{ 'margin-top': '10rpx' }">
+					<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
+						<view class="content content_info">
+							<text class="text-grey">姓名:</text>
+							<text class="text-grey">{{ item.xm }}</text>
 						</view>
-						<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-							<view class="content content_info">
-								<text class="text-grey">性别:</text>
-								<text class="text-grey">{{ item._sex_disp }}</text>
-							</view>
+					</view>
+					<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
+						<view class="content content_info">
+							<text class="text-grey">性别:</text>
+							<text class="text-grey">{{ item._sex_disp }}</text>
 						</view>
-						<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-							<view class="content content_info">
-								<text class="text-grey">居住类型:</text>
-								<text class="text-grey">{{ item.fwyt }}</text>
-							</view>
+					</view>
+					<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
+						<view class="content content_info">
+							<text class="text-grey">居住类型:</text>
+							<text class="text-grey">{{ item.fwyt }}</text>
 						</view>
-						<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-							<view class="content content_info">
-								<text class="text-grey">与房主关系:</text>
-								<text class="text-grey">{{ item._yfzgx_disp }}</text>
-							</view>
+					</view>
+					<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
+						<view class="content content_info">
+							<text class="text-grey">与房主关系:</text>
+							<text class="text-grey">{{ item._yfzgx_disp }}</text>
 						</view>
-						<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-							<view class="content content_info">
-								<text class="text-grey">联系方式:</text>
-								<text class="text-grey">{{ item.lxfs }}</text>
-							</view>
+					</view>
+					<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
+						<view class="content content_info">
+							<text class="text-grey">联系方式:</text>
+							<text class="text-grey">{{ item.lxfs }}</text>
 						</view>
-						<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
-							<view class="content content_info">
-								<text class="text-grey">身份号码:</text>
-								<text class="text-grey">{{ item.gmsfhm }}</text>
-							</view>
+					</view>
+					<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
+						<view class="content content_info">
+							<text class="text-grey">身份号码:</text>
+							<text class="text-grey">{{ item.gmsfhm }}</text>
 						</view>
 					</view>
 				</view>
+			</view>
 		</uni-popup>
 	</view>
 </template>
@@ -134,7 +133,8 @@ export default {
 			houseList: [],
 			peopleList: [],
 			personInfo: null,
-			isSingleHouse: false //只有一套房产
+			isSingleHouse: false, //只有一套房产
+			pageType: 'person' //页面类型 展示房屋还是个人信息
 		};
 	},
 	computed: {
@@ -149,7 +149,7 @@ export default {
 	methods: {
 		clear(e) {
 			// TODO nvue 取消冒泡
-			e.stopPropagation()
+			e.stopPropagation();
 		},
 		startScroll(e) {},
 		showHouseDetail(e) {
@@ -191,7 +191,8 @@ export default {
 				} else {
 					uni.showToast({
 						title: '未发现当前账号下所属房屋，请确认已进行信息登记',
-						icon: 'none'
+						icon: 'none',
+						duration: 3000
 					});
 				}
 			}
@@ -238,16 +239,23 @@ export default {
 				}
 			}
 		}
-		
 	},
 	mounted() {
 		console.log('hook:mounted');
 	},
+	onLoad(option) {
+		if (option.type) {
+			this.pageType = option.type;
+		}
+	},
 	onShow() {
 		console.log('hook:onShow');
 		// this.getUserInfo();
-		this.getPersonInfo(); //在基础信息表中查找当前用户信息
-		this.getHousePeopleList(); //查找当前帐号登记的房子
+		if (this.pageType === 'person') {
+			this.getPersonInfo(); //在基础信息表中查找当前用户信息
+		} else if (this.pageType === 'house') {
+			this.getHousePeopleList(); //查找当前帐号登记的房子
+		}
 	}
 };
 </script>
@@ -282,7 +290,7 @@ export default {
 	margin-bottom: 10rpx;
 	border-radius: 0;
 	&:first-child {
-		margin-bottom:2px;
+		margin-bottom: 2px;
 		border-bottom-right-radius: 0;
 		border-bottom-left-radius: 0;
 		border-top-left-radius: 20rpx;
@@ -311,12 +319,12 @@ export default {
 	padding-top: 30rpx;
 }
 .house-people-list {
-	background-color: #f1f1f1 ;
+	background-color: #f1f1f1;
 	min-height: 30vh;
 	max-height: 80vh;
 	overflow: scroll;
 	// overflow: hidden;
-	.house-people{
+	.house-people {
 		// height: 100%;
 
 		// overflow: scroll;

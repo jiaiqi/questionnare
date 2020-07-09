@@ -698,6 +698,7 @@ export default {
 		},
 		saveWxUser() {
 			// 静默登录(验证登录)
+			return
 			let that = this;
 			// #ifdef MP-WEIXIN
 			wx.login({

@@ -51,7 +51,7 @@
 							<button
 								class="cu-btn round sm text-blue line-blue"
 								:class="'cuIcon-' + item.button_type"
-								v-if="deRowButDisplay(itemData, item) && !detailList && item.button_type !== 'applyProc'&&item.disp_show!==false"
+								v-if="deRowButDisplay(itemData, item) && !detailList && item.button_type !== 'applyProc' && item.disp_show !== false"
 								@click="footBtnClick(item)"
 								:key="item.id"
 							>
@@ -132,6 +132,7 @@
 </template>
 
 <script>
+import evaluatorTo from '@/common/evaluator.js';
 export default {
 	name: 'ListItem',
 	data() {
@@ -288,16 +289,31 @@ export default {
 	},
 	watch: {
 		srv_cols: {
+			deep: true,
+			immediate:true,
 			handler(newVal) {
+				let self = this;
 				let arr = Object.values(this.viewTemp);
-				// console.log(this.srv_cols);
-				// Object.values
 				if (arr.length === 0 && this.srv_cols && this.srv_cols.length > 0) {
 					let arr2 = this.srv_cols.map(item => item.columns);
 					Object.keys(this.goodsData).forEach((item, index) => {
 						this.goodsData[item] = this.itemData[arr2[index]];
 					});
 					this.goodsData['img'] = '';
+				} else {
+					newVal.forEach(item => {
+						if (item.col_type === 'Dict' && Array.isArray(item.option_list_v2)) {
+							item.option_list_v2.forEach(option => {
+								Object.keys(self.viewTemp).forEach(tem=>{
+									if(self.viewTemp[tem] === item.columns){
+										if(self.goodsData[tem] == option.value){
+											self.goodsData[tem] = option.label
+										}
+									}
+								})
+							});
+						}
+					});
 				}
 			}
 		},
@@ -306,8 +322,11 @@ export default {
 			immediate: true,
 			handler(newValue, oldValue) {
 				let item = this.itemData;
+				if (!newValue) {
+					return;
+				}
 				let rowButton = JSON.parse(JSON.stringify(newValue));
-				if (item.create_user === item.openid && item.is_benren !== '本人信息') {
+				if (item.create_user === item.openid && item.is_benren && item.is_benren !== '本人信息') {
 					//create_user和openid相同 说明还未分享或分享后被分享人还未确认信息
 					let noShareBtn = rowButton.filter(btn => btn.button_name === '邀请' && btn.client_type === 'MP-WEIXIN').length === 0;
 					if (noShareBtn) {
@@ -336,19 +355,29 @@ export default {
 				rowButton.forEach(btn => {
 					if (btn.disp_exps) {
 						let data = item;
-						if (btn.disp_exps === "data.proc_status=='完成'&&data.is_sync=='是'&&data.faceid!=null") {
-							if (data.proc_status == '完成' && data.is_sync == '是' && data.faceid != null) {
-								btn['disp_show'] = true;
-							}else{
-								btn['disp_show'] = false;
-							}
-						} else if (btn.disp_exps === "data.proc_status=='完成'&&data.is_sync=='是'&&data.faceid==null") {
-							if (data.proc_status == '完成' && data.is_sync == '是' && data.faceid == null) {
-								btn['disp_show'] = true;
-							}else{
-								btn['disp_show'] = false;
-							}
+						let more_config = {};
+						try {
+							more_config = JSON.parse(btn.more_config);
+						} catch (e) {
+							console.log(e);
+							//TODO handle the exception
 						}
+						if (typeof more_config === 'object' && more_config && more_config.formulaShow) {
+							btn['disp_show'] = evaluatorTo(data, more_config.formulaShow);
+						}
+						// if (btn.disp_exps === "data.proc_status=='完成'&&data.is_sync=='是'&&data.faceid!=null") {
+						// 	if (data.proc_status == '完成' && data.is_sync == '是' && data.faceid != null) {
+						// 		btn['disp_show'] = true;
+						// 	}else{
+						// 		btn['disp_show'] = false;
+						// 	}
+						// } else if (btn.disp_exps === "data.proc_status=='完成'&&data.is_sync=='是'&&data.faceid==null") {
+						// 	if (data.proc_status == '完成' && data.is_sync == '是' && data.faceid == null) {
+						// 		btn['disp_show'] = true;
+						// 	}else{
+						// 		btn['disp_show'] = false;
+						// 	}
+						// }
 					}
 				});
 				this.rowButtons = rowButton;
@@ -358,6 +387,7 @@ export default {
 			deep: true,
 			immediate: true,
 			handler(newValue, oldValue) {
+				let self =this
 				if (newValue[this.viewTemp.img]) {
 					this.getPicture(newValue[this.viewTemp.img]).then(url => {
 						this.goodsData.img = url;
@@ -378,6 +408,19 @@ export default {
 				if (newValue[this.viewTemp.number]) {
 					this.goodsData.number = newValue[this.viewTemp.number];
 				}
+				this.srv_cols.forEach(item => {
+					if (item.col_type === 'Dict' && Array.isArray(item.option_list_v2)) {
+						item.option_list_v2.forEach(option => {
+							Object.keys(self.viewTemp).forEach(tem=>{
+								if(self.viewTemp[tem] === item.columns){
+									if(self.goodsData[tem] == option.value){
+										self.goodsData[tem] = option.label
+									}
+								}
+							})
+						});
+					}
+				});
 			}
 		}
 	}
@@ -515,14 +558,17 @@ export default {
 				height: 80upx;
 				width: 100%;
 				align-items: center;
-				overflow: hidden;
+				// overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
+				flex-wrap: wrap;
+				justify-content: flex-end;
 				.foot-name {
 					position: relative;
 					display: inline-block;
 					padding-right: 28upx;
 					line-height: 44upx;
+					flex:1;
 					// &::after {
 					//   content: '';
 					//   display: block;

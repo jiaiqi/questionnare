@@ -74,9 +74,16 @@ export default {
 			uni.setStorageSync('activeApp', destApp);
 		}
 		// #endif
+	},
+	onShow() {
+		// #ifdef MP-WEIXIN
 		this.getWxUserInfo();
+		// #endif
 	},
 	onLoad(option) {
+		if(!option){
+			return
+		}
 		let query = JSON.parse(decodeURIComponent(option.query ? option.query : option.params ? option.params : option));
 		const destApp = query.destApp;
 		if (destApp) {
@@ -93,7 +100,6 @@ export default {
 			cond = JSON.parse(option.cond);
 		}
 		this.defaultCondition = cond;
-		// this.
 		if (query.cond || query.condition) {
 			let cond = '';
 			if (typeof query.cond === 'string' && query.cond) {
@@ -113,7 +119,6 @@ export default {
 					});
 					this.defaultCondition = cond;
 					this.getFieldsV2();
-					console.log('this.defaultCondition', this.defaultCondition);
 				});
 			}
 		}
@@ -136,139 +141,73 @@ export default {
 			});
 		}
 	},
-
 	methods: {
 		getWxUserInfo() {
 			// 检测是否有userInfo授权
 			let userInfo = uni.getStorageSync('login_user_info');
 			let self = this;
-			uni.authorize({
-				scope: 'scope.userInfo',
-				success() {
-					// 有userInfo授权
-					uni.getUserInfo({
-						provider: 'weixin',
-						success: function(infoRes) {
-							let resData = [
-								{
-									colName: 'openid',
-									value: userInfo.user_no
-								},
-								{
-									colName: 'nick_name',
-									value: infoRes.userInfo.nickName
-								},
-								{
-									colName: 'avatar',
-									value: infoRes.userInfo.avatarUrl
-								},
-								{
-									colName: 'gender',
-									value: infoRes.userInfo.gender
-								},
-								{
-									colName: 'country',
-									value: infoRes.userInfo.country
-								},
-								{
-									colName: 'province',
-									value: infoRes.userInfo.province
-								},
-								{
-									colName: 'city',
-									value: infoRes.userInfo.city
+			wx.getSetting({
+				success(res) {
+					if (!res.authSetting['scope.userInfo']) {
+						uni.showModal({
+							title: '提示',
+							content: '您还未授权获取用户信息,点击确定按钮跳转到授权页面',
+							success(res) {
+								uni.setStorageSync('isToLogin', true);
+								if (res.confirm) {
+									self.judgeClientEnviroment();
+									uni.navigateTo({
+										url: '/pages/public/accountExec/accountExec'
+									});
+								} else {
+									uni.setStorageSync('isToLogin', false);
 								}
-							];
-							self.defaultCondition = resData;
-							uni.setStorageSync('wxuserinfo', infoRes.userInfo);
-							console.log('resData：' + resData);
-						}
-					});
-				},
-				complete(res) {
-					debugger
-					uni.authorize({
-						scope: 'scope.userInfo',
-						success(res) {
-							uni.setStorageSync('isAuth', true);
-							// 获取用户信息
-							uni.getUserInfo({
-								provider: 'weixin',
-								success: function(infoRes) {
-									uni.setStorageSync('wxuserinfo', infoRes.userInfo);
-								},
-								fail: errMsg => {
-									uni.setStorageSync('isAuth', false);
-									console.log('获取用户信息失败失败', errMsg);
-									if (uni.$on('isToLogin') !== true) {
-										uni.$emit('isToLogin', true);
-										uni.navigateTo({
-											url: '/pages/public/accountExec/accountExec.vue'
-										});
+							}
+						});
+					} else {
+						wx.authorize({
+							scope: 'scope.userInfo',
+							success() {
+								// 用户已经授权访问用户信息
+								wx.getUserInfo({
+									success: function(infoRes) {
+										let resData = [
+											{
+												colName: 'openid',
+												value: userInfo.user_no
+											},
+											{
+												colName: 'nick_name',
+												value: infoRes.userInfo.nickName
+											},
+											{
+												colName: 'avatar',
+												value: infoRes.userInfo.avatarUrl
+											},
+											{
+												colName: 'gender',
+												value: infoRes.userInfo.gender
+											},
+											{
+												colName: 'country',
+												value: infoRes.userInfo.country
+											},
+											{
+												colName: 'province',
+												value: infoRes.userInfo.province
+											},
+											{
+												colName: 'city',
+												value: infoRes.userInfo.city
+											}
+										];
+										self.defaultCondition = resData;
+										uni.setStorageSync('wxuserinfo', infoRes.userInfo);
 									}
-								}
-							});
-						},
-						fail(errMsg) {
-							console.log('获取用户信息失败失败', errMsg);
-							uni.setStorageSync('isAuth', false);
-							if (uni.$on('isToLogin') !== true) {
-								uni.$emit('isToLogin', true);
-								uni.navigateTo({
-									url: '/pages/public/accountExec/accountExec.vue'
 								});
 							}
-						}
-					});
-				},
-				fail() {
-					self.toLoginPage()
-					// self.checkAuthorization();
-					// 	// 没有userInfo授权
-					// 	uni.setStorageSync('isAuth', false);
-					// 	uni.showToast({
-					// 		title: '请点击授权按钮进行授权',
-					// 		icon: 'none'
-					// 	});
-					// 	//3.授权友好提示
-					// 	wx.showModal({
-					// 	  title: '提示',
-					// 	  content: '您还未授权登录,部分功能将不能使用,是否重新授权?',
-					// 	  showCancel: true,
-					// 	  cancelText: '不用了',
-					// 	  confirmText: '是',
-					// 	  success: function(res) {
-					// 	    //4.确认授权调用wx.openSetting
-					// 	    if (res.confirm) {
-					// 	      if (wx.openSetting) {
-					// 	        //当前微信的版本 ,是否支持openSetting
-					// 	        wx.openSetting({
-					// 	          success: res => {
-					// 	            if (res.authSetting['scope.userInfo']) {
-					// 	              //如果用户重新同意了授权登录
-					// 	              wx.getUserInfo({
-					// 	                success: function(res) {
-					// 	                  uni.setStorageSync('wxuserinfo', res.userInfo);
-					// 	                  console.log(res);
-					// 	                }
-					// 	              });
-					// 	            } else {
-					// 	              //用户还是拒绝
-					// 	              console.log(res);
-					// 	            }
-					// 	          },
-					// 	          fail: function() {
-					// 	            //调用失败，授权登录不成功
-					// 	          }
-					// 	        });
-					// 	      } else {
-					// 	        console.log(res);
-					// 	      }
-					// 	    } else {
-					// 	      console.log(res);
-					// 	    }
-					// 	  }
-					// 	});
+						});
+					}
 				}
 			});
 		},
@@ -315,11 +254,13 @@ export default {
 						let arr = [];
 						this.defaultCondition.forEach(cond => {
 							colVs._fieldInfo.forEach(field => {
-								if (cond.colName === field.column) {
+								if (cond.colName === field.column&&field.isRequire!==true) {
 									field['value'] = cond['value'];
 									field['disabled'] = true;
 									field['display'] = false;
 									field['showExp'] = false;
+								}else if(cond.colName === field.column&&field.isRequire===true){
+									field['value'] = cond['value'];
 								}
 							});
 						});
@@ -333,17 +274,32 @@ export default {
 					break;
 			}
 		},
-		async checkHouseInfo(xm, gmsfhm) {
+		async checkBasicInfo(name, id) {
 			// 以姓名和身份证号检测当前登录用户是否已经登记过居住信息
 			let url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
 			let req = {
 				serviceName: 'srvzhxq_syrk_select',
 				colNames: ['*'],
-				condition: [{ colName: 'xm', ruleType: 'like', value: xm }, { colName: 'gmsfhm', ruleType: 'like', value: gmsfhm }]
+				condition: [{ colName: 'xm', ruleType: 'like', value: name }, { colName: 'gmsfhm', ruleType: 'like', value: id }]
 			};
 			let res = await this.$http.post(url, req);
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 				return true;
+			} else {
+				return false;
+			}
+		},
+		async checkHouseInfo(xm, gmsfhm) {
+			// 以姓名和身份证号检测当前登录用户是否已经登记过居住信息
+			let url = this.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
+			let req = {
+				serviceName: 'srvzhxq_member_select',
+				colNames: ['*'],
+				condition: [{ colName: 'real_name', ruleType: 'like', value: xm }, { colName: 'picp', ruleType: 'like', value: gmsfhm }]
+			};
+			let res = await this.$http.post(url, req);
+			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+				return res.data.data[0]
 			} else {
 				return false;
 			}
@@ -431,6 +387,9 @@ export default {
 							content: '基础信息只能提交一次，本次提交后将不能再更改，是否点击确定提交?',
 							success(res) {
 								if (res.confirm) {
+									debugger
+									self.checkBasicInfo(name,id)
+									// TODO 根据身份证号和姓名查询基础信息表，如果已存在，提示是否关联用户信息
 									req = [{ serviceName: e.service_name, data: [req] }];
 									let app = uni.getStorageSync('activeApp');
 									let url = self.getServiceUrl(app, e.service_name, 'add');

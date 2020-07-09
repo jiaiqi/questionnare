@@ -5,13 +5,16 @@
 				<text class="text-red text-shadow" v-show="fieldData.isRequire">*</text>
 				{{ fieldData.label }}:
 				<text v-show="!valid.valid">({{ valid.msg }})</text>
-				<!-- <button class="tel-btn text-black" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber" v-if="fieldData.type === 'input' && fieldData.column === 'tel'">填入</button> -->
 			</view>
 			<view v-if="pageFormType === 'detail'" class="detail-text">
 				<text class=" text-xl" v-if="pageFormType === 'detail' && fieldData.type !== 'images' && fieldData.type !== 'snote' && fieldData.type !== 'Note'">
 					{{ dictShowValue ? dictShowValue : treeSelectorShowValue ? treeSelectorShowValue : fieldData.value }}
 				</text>
 				<view class="" v-html="fieldData.value" v-if="pageFormType === 'detail' && (fieldData.type === 'snote' || fieldData.type === 'Note')"></view>
+				<!-- <view
+          v-html="JSON.parse(JSON.stringify(fieldData.value).replace(/\<img/gi, '<img width=100% height=auto '))"
+          v-if="pageFormType === 'detail' && (fieldData.type === 'snote' || fieldData.type === 'Note')"
+        ></view> -->
 				<view class="" v-else-if="pageFormType === 'detail' && fieldData.type === 'images'">
 					<image
 						v-if="fieldData.type === 'images'"
@@ -56,6 +59,7 @@
 						:checked="!!fieldData.value && itema.value === fieldData.value"
 						:value="itema.value"
 					>
+						<!-- <view class="title">{{itema.label}}</view> -->
 						<span style="flex: 1;padding-left: 2rpx;">{{ itema.label }}</span>
 					</radio>
 				</radio-group>
@@ -65,7 +69,7 @@
 							color="#0bc99d"
 							:value="item"
 							:disabled="fieldData.disabled ? fieldData.disabled : false"
-							:checked="typeArray && fieldData ? fieldData.value.indexOf(item) !== -1 : false"
+							:checked="fieldData && fieldData.value && isArray(fieldData.value) ? fieldData.value.indexOf(item) !== -1 : false"
 						/>
 						<text style="flex: 1;">{{ item }}</text>
 					</label>
@@ -76,11 +80,14 @@
 							color="#0bc99d"
 							:value="item.key"
 							:disabled="fieldData.disabled ? fieldData.disabled : false"
-							:checked="typeArray && fieldData ? fieldData.value.indexOf(item.key) !== -1 : false"
+							:checked="fieldData && fieldData.value && isArray(fieldData.value) ? fieldData.value.indexOf(item.key) !== -1 : false"
 						/>
 						<text style="flex: 1;">{{ item.label }}</text>
 					</label>
 				</checkbox-group>
+				<!-- <view v-else-if="fieldData.type === 'images'" style="width: 100%;">
+					<image style="width: 100%;" v-for="(item,index) in imagesUrl" :key="index" :src="item" mode="aspectFit"></image>
+				</view> -->
 				<view v-else-if="fieldData.type === 'images'">
 					<robby-image-upload
 						:value="imagesUrl"
@@ -134,6 +141,12 @@
 					<!-- <view class="picker">{{ index > -1 ? picker[index] : '请选择' }}</view> -->
 					<input type="text" :placeholder="'点击编辑' + fieldData.label" :value="picker[index]" :class="!valid.valid ? 'valid_error' : ''" name="input" :disabled="true" />
 				</picker>
+				<!--  <bx-editor
+          :field="fieldData"
+          v-if="(fieldData.type === 'snote' || fieldData.type === 'Note') && !fieldData.disabled"
+          ref="bxEditor"
+          @fieldData-value-changed="editorValueChange"
+        ></bx-editor> -->
 				<view
 					class="content padding-0"
 					style="padding:0;width: 100%!important;flex-direction: column;position: relative;"
@@ -222,7 +235,43 @@
 					name="input"
 					v-else-if="fieldData.type === 'digit' || fieldData.type === 'Float'"
 				/>
+				<!-- <view v-else-if="fieldData.type === 'treeSelector'"> -->
+				<!-- <bxTreeSelector
+            ref="bxTreeSelector"
+            :isMultiple="false"
+            :defaultValue="fieldData.value"
+            :options="fieldData.option_list_v2"
+            :fieldsModel="fieldsModel"
+            @on-tree-change="onTreeSelector"
+          ></bxTreeSelector> -->
+				<!-- <bxTreeSelector
+            :srvInfo="fieldData.option_list_v2"
+            :treeData="treeSelectorData"
+            :childNodeCol="'_childNode'"
+            :disColName="fieldData.option_list_v2['key_disp_col']"
+            :nodeKey="'no'"
+            @clickParentNode="onTreeGridChange"
+            @clickLastNode="onMenu"
+          ></bxTreeSelector> -->
+				<!-- </view> -->
 				<view v-else-if="fieldData.type === 'treeSelector'" @click="openTreeSelector">
+					<!-- <input :placeholder="'点击选择' + fieldData.label" v-model="fieldData.value" disabled :class="!valid.valid ? 'valid_error' : ''" name="input"  /> -->
+					<!--      <input
+            :placeholder="'点击选择' + fieldData.label"
+            :value="fieldData.colData[fieldData.option_list_v2.key_disp_col]"
+            disabled
+            :class="!valid.valid ? 'valid_error' : ''"
+            v-if="fieldData.colData && fieldData.value"
+            name="input"
+          /> -->
+					<!--    <input
+            :placeholder="'点击选择' + fieldData.label"
+            v-if="!fieldData.colData && fieldData.value"
+            :value="fieldData.value"
+            disabled
+            :class="!valid.valid ? 'valid_error' : ''"
+            name="input"
+          /> -->
 					<input :placeholder="'点击选择' + fieldData.label" :value="treeSelectorShowValue" disabled :class="!valid.valid ? 'valid_error' : ''" name="input" />
 				</view>
 				<view v-else-if="fieldData.type === 'cascader'" @click="openCascader">
@@ -240,7 +289,17 @@
 						name="input"
 						type="text"
 					/>
+					<!-- <button
+            class="cu-btn bg-green shadow input-button"
+            v-if="fieldData.buttons && fieldData.buttons.length > 0"
+            :key="index"
+            v-for="(btn, index) in fieldData.buttons"
+            @click.stop="onButtons(fieldData, btn)"
+          >
+            {{ btn.name }}
+          </button> -->
 				</view>
+
 				<!-- 字段按钮组 -->
 				<block v-if="fieldData.buttons && fieldData.buttons.length > 0">
 					<view class="grid text-center col-4">
@@ -259,22 +318,42 @@
 						<view class="action" @tap="hideModal"><text class="cuIcon-close text-blue"></text></view>
 					</view>
 				</view>
+				<!-- <view class="cu-bar bg-white">
+					<view class="action margin-0 flex-sub  solid-left" @tap="hideModal">关闭</view>
+				</view> -->
 			</view>
 		</view>
+		<!--    <uni-popup ref="treePopup" type="bottom" @change="changePopup">
+      <bxTreeSelector
+        :srvInfo="fieldData.option_list_v2"
+        :treeData="treeSelectorData"
+        :childNodeCol="'_childNode'"
+        :disColName="fieldData.option_list_v2 ? fieldData.option_list_v2['key_disp_col'] : {}"
+        :nodeKey="fieldData.option_list_v2 && fieldData.option_list_v2['refed_col'] ? fieldData.option_list_v2['refed_col'] : 'no'"
+        @clickParentNode="onTreeGridChange"
+        @clickLastNode="onMenu"
+      ></bxTreeSelector>
+    </uni-popup> -->
 		<view class="cu-modal bottom-modal" :class="{ show: showTreeSelector }">
 			<view class="cu-dialog tree-selector">
 				<bxTreeSelector
-					:srvInfo="srvInfo"
+					:srvInfo="isArray(fieldData.option_list_v2) ? null : fieldData.option_list_v2"
 					:treeData="treeSelectorData"
 					:childNodeCol="'_childNode'"
-					:disColName="srvInfo && srvInfo['key_disp_col'] ? srvInfo['key_disp_col'] : ''"
-					:nodeKey="srvInfo && srvInfo['refed_col'] ? srvInfo['refed_col'] : 'no'"
+					:disColName="fieldData && fieldData.option_list_v2 && fieldData.option_list_v2['key_disp_col'] ? fieldData.option_list_v2['key_disp_col'] : ''"
+					:nodeKey="fieldData.option_list_v2 && fieldData.option_list_v2['refed_col'] ? fieldData.option_list_v2['refed_col'] : 'no'"
 					@clickParentNode="onTreeGridChange"
 					@clickLastNode="onMenu"
 				></bxTreeSelector>
 				<view class="dialog-button"><view class="cu-btn bg-blue shadow" @tap="showTreeSelector = false">取消</view></view>
 			</view>
 		</view>
+		<!-- <view class="cu-modal bottom-modal" :class="{ show: showRichText }">
+      <view class="cu-dialog  rich-text">
+        <bx-editor :field="fieldData" ref="bxEditor" @fieldData-value-changed="editorValueChange"></bx-editor>
+        <view class="dialog-button"><view class="cu-btn bg-blue shadow" @tap="showRichText = false">确定</view></view>
+      </view>
+    </view> -->
 		<uni-popup ref="popup" type="bottom" @change="changePopup">
 			<cascader-selector @getCascaderValue="getCascaderValue" :srvInfo="fieldData.srvInfo" :defaultLineVal="defaultLineVal"></cascader-selector>
 		</uni-popup>
@@ -298,6 +377,7 @@ export default {
 		robbyImageUpload,
 		cascaderSelector,
 		uniPopup,
+		// bxEditor,
 		bxTreeSelector,
 		attachment
 	},
@@ -379,31 +459,6 @@ export default {
 	},
 	updated() {},
 	computed: {
-		srvInfo() {
-			if (!Array.isArray(this.fieldData.option_list_v2) && typeof this.fieldData.option_list_v2 === 'object') {
-				return this.fieldData.option_list_v2;
-			} else {
-				return null;
-			}
-		},
-		typeArray() {
-			let type = '';
-			if (this.fieldData && (this.fieldData.value || this.fieldData.value === 0) && Array.isArray(this.fieldData.value)) {
-				return true;
-			} else {
-				return false;
-			}
-		},
-		checkboxIsChecked() {
-			// let fieldData = this.fieldData
-			// if(fieldData&&fieldData.value && Array.isArray(fieldData.value)){
-			// 	return fieldData.value.includes(item.key)
-			// }else if(fieldData&&fieldData.value && Array.isArray(fieldData.value) ? fieldData.value.indexOf(item)!==-1 : false){
-			// 	return fieldData.value.includes(item)
-			// }else{
-			return false;
-			// }
-		},
 		dictShowValue() {
 			let option_list_v2 = this.fieldData.option_list_v2;
 			if (option_list_v2 && Array.isArray(option_list_v2) && option_list_v2.length > 0 && this.fieldData.col_type === 'Dict') {
@@ -550,12 +605,6 @@ export default {
 	// 	this.getDefVal()
 	// },
 	methods: {
-		getPhoneNumber(e) {
-			console.log(e, '手机号：');
-			console.log(e.detail.errMsg);
-			console.log(e.detail.iv);
-			console.log(e.detail.encryptedData);
-		},
 		async getpoupInfo(info) {
 			let serviceName = info.serviceName;
 			let req = { serviceName: serviceName, colNames: ['*'], condition: [] };
@@ -854,6 +903,7 @@ export default {
 			this.$emit('on-value-blur', this.fieldData);
 		},
 		getValid: function() {
+			
 			if (this.fieldData.isRequire && this.fieldData.value !== '') {
 				if (this.fieldData.hasOwnProperty('_validators') && this.fieldData._validators.hasOwnProperty('isType') && typeof this.fieldData._validators.isType === 'function') {
 					this.fieldData.valid = this.fieldData._validators.isType(this.fieldData.value);
@@ -918,8 +968,10 @@ export default {
 			};
 			const res = await this.$http.post(url, req);
 			return res.data.data;
+			// console.log("-------------房屋---------",res)
 		},
 		openTreeSelector() {
+			let self = this;
 			if (
 				this.service &&
 				(this.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
@@ -940,10 +992,10 @@ export default {
 					console.log('-------------房屋---------', person);
 				});
 			} else {
-				this.getTreeSelectorData().then(_ => {
-					if (this.fieldData.disabled === false) {
-						if (this.treeSelectorData.length > 0) {
-							this.showTreeSelector = true;
+				self.getTreeSelectorData().then(_ => {
+					if (self.fieldData.disabled === false) {
+						if (self.treeSelectorData.length > 0) {
+							self.showTreeSelector = true;
 						} else {
 							uni.showToast({
 								title: '暂无数据',
@@ -975,6 +1027,7 @@ export default {
 			const data = e.item ? e.item : {};
 			this.fieldData.value = this.fieldData.option_list_v2 && this.fieldData.option_list_v2['refed_col'] ? data[this.fieldData.option_list_v2['refed_col']] : data.no;
 			this.fieldData['colData'] = data;
+			// this.$refs.treePopup.close();
 			this.showTreeSelector = false;
 			this.onInputBlur();
 			this.$emit('on-value-change', this.fieldData);
@@ -1004,73 +1057,70 @@ export default {
 		},
 		async getTreeSelectorData(cond, serv) {
 			let self = this;
-
 			let req = {
-				serviceName: serv ? serv : this.fieldData.option_list_v2 ? this.fieldData.option_list_v2.serviceName : '',
+				serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2.serviceName : '',
 				colNames: ['*']
 			};
-			// let appName = this.fieldData.option_list_v2.srv_app;
 			let appName = '';
-			if (this.fieldData.option_list_v2 && this.fieldData.option_list_v2.srv_app) {
-				appName = this.fieldData.option_list_v2.srv_app;
+			if (self.fieldData.option_list_v2 && self.fieldData.option_list_v2.srv_app) {
+				appName = self.fieldData.option_list_v2.srv_app;
 			} else {
 				appName = uni.getStorageSync('activeApp');
 			}
-			// if (!appName) {
-			//   appName = uni.getStorageSync('activeApp');
-			// }
-			const fieldModelsData = JSON.parse(JSON.stringify(this.fieldsModel));
-			// let users = uni.getStorageSync('login_user_info')
+			const fieldModelsData = JSON.parse(JSON.stringify(self.fieldsModel));
 			// #ifdef H5
 			top.user = uni.getStorageSync('login_user_info');
 			// #endif
 			if (cond) {
 				req.condition = cond;
-			} else if (this.fieldData.option_list_v2.conditions && Array.isArray(this.fieldData.option_list_v2.conditions) && this.fieldData.option_list_v2.conditions.length > 0) {
-				let condition = JSON.parse(JSON.stringify(this.fieldData.option_list_v2.conditions));
+			} else if (
+				self.fieldData.option_list_v2 &&
+				self.fieldData.option_list_v2.conditions &&
+				Array.isArray(self.fieldData.option_list_v2.conditions) &&
+				self.fieldData.option_list_v2.conditions.length > 0
+			) {
+				let condition = JSON.parse(JSON.stringify(self.fieldData.option_list_v2.conditions));
 				condition = condition.map(item => {
 					if (item.value.indexOf('data.') !== -1) {
 						let colName = item.value.slice(item.value.indexOf('data.') + 5);
 						if (fieldModelsData[colName]) {
 							item.value = fieldModelsData[colName];
-							return item;
 						}
-					} else {
-						return item;
+					} else if (item.value.indexOf('top.user.user_no') !== -1) {
+						item.value = uni.getStorageSync('login_user_info').user_no;
+					} else if (item.value.indexOf("'") === 0 && item.value.lastIndexOf("'") === item.value.length - 1) {
+						item.value = item.value.replace(/\'/ig, '');
 					}
+					return item;
 				});
 				if (condition && condition[0]) {
-					// req.condition
 					req.condition = condition;
 				} else {
 					return;
 				}
 			}
-
 			if (req.serviceName === 'srvsso_user_select') {
 				req.condition = [{ colName: 'dept_no', ruleType: 'like', value: 'bx100sys' }];
 				appName = 'sso';
 			}
 			let res = await self.onRequest('select', req.serviceName, req, appName);
-			// .then(res => {
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
-				if (this.service && (this.service == 'srvzhxq_guest_mgmt_yezhu_add' || this.service == 'srvzhxq_guest_mgmt_yezhu_update' || this.service == 'srvzhxq_repairs_add')) {
-					this.treeSelectorData = [];
+				if (self.service && (self.service == 'srvzhxq_guest_mgmt_yezhu_add' || self.service == 'srvzhxq_guest_mgmt_yezhu_update' || self.service == 'srvzhxq_repairs_add')) {
+					self.treeSelectorData = [];
 					res.data.data.forEach(item => {
-						this.treeSelectorData.push(item);
+						self.treeSelectorData.push(item);
 					});
-					console.log('this.fieldData', this.fieldData);
+					console.log('self.fieldData', self.fieldData);
 					self.treeSelectorData.forEach(item => {
-						if (this.fieldData.option_list_v2 && item[this.fieldData.option_list_v2.refed_col] === this.fieldData.value) {
-							this.fieldData['colData'] = item;
+						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] === self.fieldData.value) {
+							self.fieldData['colData'] = item;
 						}
 					});
-					console.log('this.treeSelectorData', this.treeSelectorData);
-					// this.showTreeSelector = true
+					console.log('self.treeSelectorData', self.treeSelectorData);
 				} else {
 					let hasParentNo = res.data.data.filter(item => item.parent_no).length;
 					if (hasParentNo) {
-						self.treeSelectorData = self.treeReform(res.data.data, 'parent_no', 'no', this.fieldData.option_list_v2);
+						self.treeSelectorData = self.treeReform(res.data.data, 'parent_no', 'no', self.fieldData.option_list_v2);
 						self.treeSelectorData = self.treeSelectorData.map((item, index) => {
 							let a = {
 								title: '',
@@ -1099,7 +1149,6 @@ export default {
 					});
 				}
 			}
-			// });
 		}
 	},
 	watch: {
@@ -1120,13 +1169,24 @@ export default {
 				if (newValue.type === 'number' && parseInt(newValue.value).toString() !== 'NaN') {
 					newValue.value = parseInt(newValue.value);
 				}
+				// this.getValid();
 				this.getDefVal();
 			},
 			// immediate:true,
 			deep: true
 		},
 		fieldsModel: {
-			handler: function(newValue, oldValue) {},
+			handler: function(newValue, oldValue) {
+				console.log('fieldsModel--------', newValue);
+				//    if(self.fieldData.type === "list"){
+				//  let listItemModel =  self.fieldData.optionsConfig.model
+				//  let colKey = self.fieldData.optionsConfig.conditions
+				//  for(let i = 0;i<colKey.length;i++){
+				// 	 listItemModel[colKey[i].colName] = newValue[colKey[i].value]
+				//  }
+				//  self.listChildModel = listItemModel
+				// }
+			},
 			deep: true
 		}
 	}
@@ -1225,15 +1285,6 @@ uni-text.input-icon {
 }
 .item_type_attr {
 	width: 100%;
-}
-.tel-btn {
-	height: 40rpx;
-	line-height: 40rpx;
-	font-size: 30rpx;
-	margin: 0;
-	position: absolute;
-	right: 0;
-	bottom: 10rpx;
 }
 .cu-list.card-menu {
 	padding: 0;

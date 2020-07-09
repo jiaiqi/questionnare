@@ -1,7 +1,7 @@
 <template>
 	<view class="list-wrap">
 		<view class="list-wrap">
-			<scroll-view scroll-x class="bg-white nav cu-bar" v-if="listType === 'proc'">
+			<scroll-view scroll-x class="bg-white nav cu-bar" v-if="listType === 'proc' && tabList.length > 1">
 				<view class="flex text-center ">
 					<view
 						class="cu-item flex-sub"
@@ -23,7 +23,7 @@
 				:pullUp="loadData"
 				:enablePullDown="enablePullDown"
 				:enablePullUp="enablePullUp"
-				:top="top"
+				:top="tabList.length > 1 ? top : 0"
 				:fixed="fixed"
 				:bottom="bottom"
 				finishText="我是有底线的..."
@@ -120,17 +120,25 @@ export default {
 					this.srv_cols = newValue.srv_cols;
 					let rowButton = newValue.rowButton;
 					if (rowButton) {
-						rowButton = rowButton.filter(
-							item =>
-								item.button_type === 'edit' ||
-								item.button_type === 'delete' ||
-								item.button_type === 'procdetail' ||
-								((item.button_type === 'customize' && item.more_config && (JSON.parse(item.more_config).type === 'share' || JSON.parse(item.more_config).type === 'qrcode')) ||
-									JSON.parse(item.more_config).type === 'primary')
-						);
-						rowButton.forEach(btn => {
-							if (btn.button_type == 'procdetail' && uni.getStorageSync('activeApp') === 'zhxq') {
-								btn.button_name = '详情';
+						rowButton = rowButton.filter(item => {
+							if (item.button_type == 'procdetail' && uni.getStorageSync('activeApp') === 'zhxq') {
+								item.button_name = '详情';
+								return item;
+							}
+							if (item.more_config) {
+								let more_config = JSON.parse(item.more_config);
+								if (
+									item.button_type === 'edit' ||
+									item.button_type === 'delete' ||
+									item.button_type === 'procdetail' ||
+									((item.button_type === 'customize' && more_config && more_config.type === 'share') || more_config.type === 'qrcode') ||
+									more_config.type === 'primary'
+								) {
+									return item;
+								}
+							}
+							if(item.button_name==='住户登记'){
+								return item
 							}
 						});
 						this.rowButton = rowButton;
@@ -287,16 +295,7 @@ export default {
 			// this.tabList[this.TabCur]['page'] = { total: 0, rownumber: 5, pageNo: 1 };
 			this.listData = [];
 			this.onRefresh();
-			// this.getListData([], item.proc_data_type, index).then(callBackData => {
-			//   if (callBackData.page.rownumber * callBackData.page.pageNo >= callBackData.page.total) {
-			//     // finish(boolean:是否显示finishText,默认显示)
-			//     ;
-			//     console.log('callBackData', callBackData);
-			//     this.$refs.pullScroll.finish();
-			//   } else {
-			//     this.$refs.pullScroll.success();
-			//   }
-			// });
+			
 		},
 		toSearch() {
 			let keywords = this.searchWords;
@@ -333,7 +332,7 @@ export default {
 				order: this.order
 			};
 			if (this.listType === 'proc') {
-				// req.page = { rownumber: this.tabList[this.TabCur]['page']['rownumber'], pageNo: this.tabList[this.TabCur]['page']['pageNo'] };
+				
 				if (proc_data_type || this.proc_data_type) {
 					req['proc_data_type'] = proc_data_type || this.proc_data_type;
 				} else {
@@ -352,42 +351,41 @@ export default {
 
 			if (res.data.state === 'SUCCESS') {
 				if (this.pageInfo.pageNo === 1) {
-					this.listData = [];
+					self.listData = [];
 				}
-				this.listData = this.listData.concat(res.data.data);
-				this.pageInfo.total = res.data.page.total;
-				this.pageInfo.pageNo = res.data.page.pageNo;
-				this.$emit('list-change', this.listData);
-				if (this.listType === 'proc') {
-					for (let i = 0; i < this.tabList.length; i++) {
-						let item = this.tabList[i];
+				self.listData = self.listData.concat(res.data.data);
+				self.pageInfo.total = res.data.page.total;
+				self.pageInfo.pageNo = res.data.page.pageNo;
+				self.$emit('list-change', self.listData);
+				if (self.listType === 'proc') {
+					for (let i = 0; i < self.tabList.length; i++) {
+						let item = self.tabList[i];
 						if (item.proc_data_type === req.proc_data_type) {
-							item.data = this.listData;
+							item.data = self.listData;
 							item.total = res.data.page.total;
 							item.page = res.data.page;
-							this.$set(this.tabList, i, item);
+							self.$set(self.tabList, i, item);
 						}
 					}
-					this.listData = [];
-					this.listData = this.tabList[this.TabCur]['data'];
-
+					self.listData = [];
+					self.listData = self.tabList[self.TabCur]['data'];
 					let callBackData = {
-						data: this.listData,
+						data: self.listData,
 						page: res.data.page,
 						proc_data_type: req.proc_data_type
 					};
-					let page = this.pageInfo;
+					let page = self.pageInfo;
 					return callBackData;
-				} else if (this.listType === 'list') {
-					let page = this.pageInfo;
+				} else if (self.listType === 'list') {
+					let page = self.pageInfo;
 					if (page.rownumber * page.pageNo >= page.total) {
 						// finish(boolean:是否显示finishText,默认显示)
-						this.$refs.pullScroll.finish();
+						self.$refs.pullScroll.finish();
 					} else {
-						this.$refs.pullScroll.success();
+						self.$refs.pullScroll.success();
 					}
 				}
-				return this.listData;
+				return self.listData;
 			}
 		},
 		onRefresh() {
@@ -531,18 +529,8 @@ export default {
 						rownumber: 5,
 						pageNo: 1
 					}
-				}
-				// {
-				//   label: '我的申请',
-				//   proc_data_type: 'mine',
-				//   data: [],
-				//   total: 0,
-				//   page: {
-				//     total: 0,
-				//     rownumber: 5,
-				//     pageNo: 1
-				//   }
-				// },
+				},
+				
 			];
 		} else if (isOwner && serviceName == 'srvzhxq_guest_mgmt_select') {
 			this.tabList = [

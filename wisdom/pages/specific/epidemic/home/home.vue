@@ -700,11 +700,13 @@ export default {
 			// 静默登录(验证登录)
 			let that = this;
 			// #ifdef MP-WEIXIN
+			return
 			wx.login({
 				// 获取小程序code
 				success(res) {
 					if (res.code) {
 						//验证登录
+						debugger
 						let url = that.$api.verifyLogin.url;
 						let req = [
 							{
@@ -717,6 +719,7 @@ export default {
 								serviceName: 'srvwx_app_login_verify'
 							}
 						];
+						debugger
 						that.$http.post(url, req).then(response => {
 							if (response.data.resultCode === 'SUCCESS') {
 								let resData = response.data.response[0].response;

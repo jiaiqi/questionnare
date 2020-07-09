@@ -74,7 +74,7 @@ export default {
 				listConfig: null,
 				searchVal: '',
 				query: '',
-				app: uni.getStorageSync('activeApp')
+				app: ''
 			},
 			condItem: [],
 			listTop: 100
@@ -291,11 +291,15 @@ export default {
 		async getListV2() {
 			let self = this;
 			let app = uni.getStorageSync('activeApp');
+			this.app = app
 			let serviceName = self.listConfig.serviceName;
 			// app = 'oa';
 			let colVs = await self.getServiceV2(self.listConfig.serviceName, 'list', 'proclist', app);
 			colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1);
 			console.log('colVs', colVs);
+			uni.setNavigationBarTitle({
+				title:colVs.service_view_name
+			})
 			if (serviceName.indexOf('issue_') !== -1) {
 				colVs.rowButton = [
 					{
@@ -360,6 +364,7 @@ export default {
 		}
 	},
 	onLoad(option) {
+		
 		if (option.query) {
 			console.log('option----', option.query);
 			this.listConfig.query = JSON.parse(decodeURIComponent(option.query));

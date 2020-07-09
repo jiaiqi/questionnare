@@ -1,38 +1,40 @@
 <template>
-  <view>
-    <view class="search-bar" v-if="showSearchBar">
-      <view class="cu-bar search bg-white fixed">
-        <view class="search-form round">
-          <text class="cuIcon-search"></text>
-          <input @focus="searchBarFocus" @blur="serachBarBlur" :adjust-position="false" type="text" v-model="searchVal" :placeholder="placeholder" confirm-type="search" />
-        </view>
-        <view class="action"><button class="cu-btn bg-blue shadow-blur round" @click="toSearch">搜索</button></view>
-      </view>
-      <view style="height: 100upx;width: 100%;">占位</view>
-    </view>
-    <bx-list
-      ref="bxList"
-      :serviceName="serviceName"
-      :condition="condition"
-      :pageType="pageType"
-      :listType="'list'"
-      :showTab="false"
-      :viewTemp="viewTemp"
-      :listConfig="listConfig"
-      :fixed="true"
-      :top="listTop"
-      :searchWords="searchVal"
-      :searchColumn="keyColumn"
-	  :tempWord="tempWord"
-      :rownumber="10"
-      :showFootBtn="showFootBtn"
-      @click-list-item="clickItem"
-      @list-change="listChange"
-      @clickFootBtn="clickFootBtn"
-      @loadEnd="loadEnd"
-    ></bx-list>
-    <!-- <view class="public-button-box"><view class="add-button" @click="clickAddButton" v-if="showAdd"></view></view> -->
-  </view>
+	<view>
+		<!-- #ifdef H5 -->
+		<view class="search-bar" v-if="showSearchBar">
+			<view class="cu-bar search bg-white fixed">
+				<view class="search-form round">
+					<text class="cuIcon-search"></text>
+					<input @focus="searchBarFocus" @blur="serachBarBlur" :adjust-position="false" type="text" v-model="searchVal" :placeholder="placeholder" confirm-type="search" />
+				</view>
+				<view class="action"><button class="cu-btn bg-blue shadow-blur round" @click="toSearch">搜索</button></view>
+			</view>
+			<view style="height: 100upx;width: 100%;"></view>
+		</view>
+		<!-- #endif -->
+		<bx-list
+			ref="bxList"
+			:serviceName="serviceName"
+			:condition="condition"
+			:pageType="pageType"
+			:listType="'list'"
+			:showTab="false"
+			:viewTemp="viewTemp"
+			:listConfig="listConfig"
+			:fixed="true"
+			:top="listTop"
+			:searchWords="searchVal"
+			:searchColumn="keyColumn"
+			:tempWord="tempWord"
+			:rownumber="10"
+			:showFootBtn="showFootBtn"
+			@click-list-item="clickItem"
+			@list-change="listChange"
+			@clickFootBtn="clickFootBtn"
+			@loadEnd="loadEnd"
+		></bx-list>
+		<view class="public-button-box"><view class="add-button" @click="clickAddButton" v-if="showAdd"></view></view>
+	</view>
 </template>
 
 <script>
@@ -84,7 +86,7 @@ export default {
       this.$refs.bxList.onRefresh();
     }
   },
- 
+
   onLoad(option) {
 	 let query = {}
     // #ifdef H5
@@ -122,7 +124,7 @@ export default {
 			   value:u.fwbm
 		   }]
 		   this.condition = [...this.condition,...cond]
-	   console.log("users=====",this.condition)		   
+	   console.log("users=====",this.condition)
 	   })
    }
     if (query.viewTemp) {
@@ -137,7 +139,7 @@ export default {
     }
     if (query.cond) {
       try{
-        let cond = JSON.parse(this.getDecodeUrl(query.cond))
+        let cond = JSON.parse(decodeURIComponent(query.cond))
         if(Array.isArray(cond)){
           cond.forEach(item=>{
             if((item.colName==="create_user" || item.colName === 'glry')&&item.value==='user_no'){
@@ -147,13 +149,13 @@ export default {
           this.condition = cond
         }
       }catch(e){
+				console.log(e)
         //TODO handle the exception
       }
-      // this.condition = JSON.parse(this.getDecodeUrl(option.cond));      
+      // this.condition = JSON.parse(this.getDecodeUrl(option.cond));
     }
-	
+
 	if(query.tempWord){
-		
 		this.tempWord = JSON.parse(query.tempWord)
 	}
     if (query.serviceName && query.pageType) {
@@ -213,7 +215,7 @@ export default {
              url: '/pages/public/proc/apply/apply?serviceName=' + item.service_name +'&cond='+decodeURIComponent(JSON.stringify(this.condition))
            });
          }
-       }); 
+       });
       }else{
         this.publicButton.map(item => {
           if (item.button_type === 'add') {
@@ -229,7 +231,7 @@ export default {
           }
         });
       }
-     
+
     },
     searchBarFocus(e) {
       console.log('searchBarFocus:', e);
@@ -279,7 +281,6 @@ export default {
              this.$refs.bxList.onRefresh();
            }
          }
-         
          if (data.button && data.button.button_type === 'detail') {
            let row = res.row;
            let btn = res.button;
@@ -299,7 +300,11 @@ export default {
            uni.navigateTo({
              url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
            });
-         }
+         }else if (data.button && data.button.operate_type === '流程申请') {
+					 	uni.navigateTo({
+					 		url: "/pages/public/proc/apply/apply?serviceName=" + data.button.operate_service
+					 	})
+					 }
        });
      }
       console.log('clickFootBtn:', data);
@@ -335,39 +340,39 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .search-bar{
-    // height: 100px;
-  }
+.search-bar {
+	// height: 100px;
+}
 .add-button {
-  position: fixed;
-  bottom: 100upx;
-  left: calc(50% - 50upx);
-  width: 100upx;
-  height: 100upx;
-  border-radius: 50%;
-  background-color: #0bc99d;
-  z-index: 100;
-  &::before {
-    position: absolute;
-    width: 8upx;
-    height: 60upx;
-    left: calc(50% - 4upx);
-    top: 20upx;
-    content: '';
-    background-color: #fff;
-  }
-  &::after {
-    position: absolute;
-    width: 60upx;
-    height: 8upx;
-    content: '';
-    top: calc(50% - 4upx);
-    left: 20upx;
-    background-color: #fff;
-  }
-  &:active {
-    transform: rotate(45deg);
-    transition: all 0.2s;
-  }
+	position: fixed;
+	bottom: 100upx;
+	left: calc(50% - 50upx);
+	width: 100upx;
+	height: 100upx;
+	border-radius: 50%;
+	background-color: #0bc99d;
+	z-index: 100;
+	&::before {
+		position: absolute;
+		width: 8upx;
+		height: 60upx;
+		left: calc(50% - 4upx);
+		top: 20upx;
+		content: '';
+		background-color: #fff;
+	}
+	&::after {
+		position: absolute;
+		width: 60upx;
+		height: 8upx;
+		content: '';
+		top: calc(50% - 4upx);
+		left: 20upx;
+		background-color: #fff;
+	}
+	&:active {
+		transform: rotate(45deg);
+		transition: all 0.2s;
+	}
 }
 </style>

@@ -104,7 +104,7 @@ export default {
           title: '加载中'
         });
         let res = await this.onRequest('add', this.serviceName, req, uni.getStorageSync('activeApp'));
-		console.log("req-==========----------==========",req,itemData)
+		console.log("req-==========----------==========",res)
         if (res.data.state === 'SUCCESS') {
           console.log(res.data, 'res.data');
           uni.hideLoading();
@@ -183,7 +183,7 @@ export default {
               colVs._fieldInfo.forEach(field => {
                 if (cond.colName === field.column) {
                   field['value'] = cond['value'];
-                  field['disabled'] = true;
+                  field['disabled'] = false;
                 }
               });
             });
@@ -230,7 +230,6 @@ export default {
         query = JSON.parse(decodeURIComponent(option.query));
       }
       //  // let cond = JSON.parse(option.cond)
-	  
       if (query.cond) {
         let conds = JSON.parse(query.cond);
         conds.forEach(item => {
@@ -241,9 +240,9 @@ export default {
           }
           if (uni.getStorageSync('activeApp') == 'zhxq') {
             let basicInfo = uni.getStorageSync('basics_info');
-            if (item.colName === 'xm') {
-              item.value = basicInfo.real_name;
-            }
+            // if (item.colName === 'xm') {
+            //   item.value = basicInfo.real_name;
+            // }
             if (item.colName === 'lxfs' || item.colName === 'lxdh') {
               item.value = basicInfo.tel;
             }

@@ -173,7 +173,7 @@ export default {
 						if ('rowButton' in response.data.data) {
 							// response.data.data._footerBtns = this.getFooterBtns(response.data.data.rowButton)
 						}
-
+						
 						// 第一次拿到，缓存
 						let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
 						self.$store.commit('setSrvCol', pageconfig)
@@ -181,8 +181,7 @@ export default {
 					}
 				} else {
 					console.log('=====3', nCols)
-					// let pageconfig = Vue.prototype.getPageConfig(nCols[0],pageType)
-					// return pageconfig
+					
 					return nCols[0]
 				}
 			} else {
@@ -263,8 +262,9 @@ export default {
 				fieldInfo.column = item.columns
 				fieldInfo.label = item.label
 				fieldInfo.seq = item.seq
-
 				fieldInfo.option_list_v2 = item.option_list_v2
+				fieldInfo.bx_col_type = item.bx_col_type
+				fieldInfo.redundant = item.redundant
 				fieldInfo.col_type = item.col_type
 				fieldInfo.section = item.section
 				fieldInfo.validators = item.validators
@@ -346,8 +346,11 @@ export default {
 						break;
 				}
 				// 处理字段统一属性
-				fieldInfo.disabled = item.updatable === 0 ? true : false, //字段是否冻结
-					fieldInfo._validators = Vue.prototype.getValidators(item.validators, item.validators_message)
+				fieldInfo.disabled = item.updatable === 0 ? true : false;//字段是否冻结
+				if(item.updatable===0&&item.updatable_add===1&&useType==='add'){
+					fieldInfo.disabled = false
+				}
+				fieldInfo._validators = Vue.prototype.getValidators(item.validators, item.validators_message)
 				fieldInfo.isRequire = fieldInfo._validators.required
 				fieldInfo.value = null //初始化value
 				fieldInfo._colDatas = item //保存原始data
@@ -812,7 +815,6 @@ export default {
 				let showExp = false
 				let isShowNum = 0
 				if (exp && exp.length > 0) {
-
 					for (let i = 0; i < exp.length; i++) {
 						if (exp[i].type === 'eq') {
 							if (item[exp[i].column] === exp[i].value) {
@@ -881,45 +883,42 @@ export default {
 					return response.data.data
 				}
 			}
-			// http://srvms.100xsys.cn/file/select/srvfile_attachment_select?srvfile_attachment_select
 		}
 		Vue.prototype.getDayDate = function(e, type) {
+			let date = new Date();
 			if (e) {
-				var date = new Date(e);
-				let year = date.getFullYear()
-				let mon = date.getMonth() + 1
-				let day = date.getDate()
-				let hour = date.getHours()
-				let mint = date.getMinutes()
-				let scends = date.getSeconds()
-				if (date.getFullYear() < 10) {
-					year = '0' + date.getFullYear()
-				}
-				if (date.getMonth() < 10) {
-					mon = '0' + (date.getMonth() + 1)
-				}
-				if (date.getDate() < 10) {
-					day = '0' + date.getDate()
-				}
-				if (hour < 10) {
-					hour = '0' + hour
-				}
-				if (mint < 10) {
-					mint = '0' + mint
-				}
-				if (scends < 10) {
-					scends = '0' + scends
-				}
-				let str = year + '-' + mon + '-' + day
-
-				if (type && type == 'all') {
-					str = year + '-' + mon + '-' + day + ' ' + hour + ':' + mint + ':' + scends
-				}
-				return str
-			} else {
-				var date = new Date();
-				return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+				date = new Date(e);
 			}
+			let year = date.getFullYear()
+			let mon = date.getMonth() + 1
+			let day = date.getDate()
+			let hour = date.getHours()
+			let mint = date.getMinutes()
+			let scends = date.getSeconds()
+			// if (date.getFullYear() < 10) {
+			// 	year = '0' + date.getFullYear()
+			// }
+			if (mon < 10) {
+				mon = '0' + mon
+			}
+			if (day < 10) {
+				day = '0' + day
+			}
+			if (hour < 10) {
+				hour = '0' + hour
+			}
+			if (mint < 10) {
+				mint = '0' + mint
+			}
+			if (scends < 10) {
+				scends = '0' + scends
+			}
+			let str = year + '-' + mon + '-' + day
+
+			if (type && type == 'all') {
+				str = year + '-' + mon + '-' + day + ' ' + hour + ':' + mint + ':' + scends
+			}
+			return str
 		}
 		Vue.prototype.getResData = function(e) {
 			if (e.length > 0) {
@@ -1167,7 +1166,6 @@ export default {
 						case "edit":
 							if (e.hasOwnProperty("row")) {
 								row = e.row
-
 								let params = {
 									"type": "update",
 									"condition": [{
@@ -1196,9 +1194,6 @@ export default {
 								Vue.prototype.onButtonRequest(e).then((res) => {
 									if (res) {
 										resolve(res)
-										// uni.showToast({
-										// 	title:e.button.button_name
-										// })
 									} else {
 										reject(res)
 									}
@@ -1228,7 +1223,6 @@ export default {
 						case "detail":
 							if (e.hasOwnProperty("row")) {
 								row = e.row
-
 								let params = {
 									"type": "detail",
 									"condition": [{
@@ -1246,9 +1240,16 @@ export default {
 							} else {
 								console.log("点击了【无效】的公共编辑按钮")
 							}
-
-
+						case "customize":
 							//代码块
+							if (btn.operate_type === '流程申请') {
+								// uni.navigateTo({
+								// 	url: "/pages/public/proc/apply/apply?serviceName=" + btn.operate_service
+								// })
+								return new Promise((resolve, reject) => {
+									resolve(e)
+								})
+							}
 							break;
 						case "delete":
 							//代码块
@@ -1363,85 +1364,98 @@ export default {
 							uni.setStorageSync('isAuth', false)
 							uni.setStorageSync('isToLogin', false)
 							// Vue.prototype.toLoginPage()
-							uni.navigateTo({
-								url: '/pages/public/accountExec/accountExec.vue'
-							});
+							Vue.prototype.wxLogin()
+
 						}
 					});
 					// #endif
 				},
+				Vue.prototype.wxLogin = function(backUrl) {
+					wx.login({
+						success(res) {
+							if (res.code) {
+								//发起网络请求
+								Vue.prototype.verifyLogin(res.code)
+								wx.getSetting({
+									success(res) {
+										let isAuthUserInfo = res.authSetting['scope.userInfo']
+										let isAuth = uni.getStorageSync('isAuth')
+										if (!isAuthUserInfo && !isAuth) {
+											uni.showModal({
+												title: '提示',
+												content: "您还未授权获取用户信息,点击确定按钮跳转到授权页面",
+												success(res) {
+													uni.setStorageSync('isToLogin', true)
+													if (res.confirm) {
+														Vue.prototype.judgeClientEnviroment()
+														if (backUrl) {
+															uni.navigateTo({
+																url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
+															})
+														} else {
+															uni.navigateTo({
+																url: '/pages/public/accountExec/accountExec'
+															})
+														}
+													} else {
+														uni.setStorageSync('isToLogin', false)
+													}
+												}
+											})
+										}
+									}
+								})
+							} else {
+								uni.showToast({
+									title: '授权失败！' + res.errMsg,
+									icon: 'none'
+								})
+							}
+						}
+					})
+				},
 				Vue.prototype.toLoginPage = function(backUrl) {
 					// if (!uni.getStorageSync('isToLogin')) {
-						// #ifdef MP-WEIXIN
-						wx.login({
-							success(res) {
-								if (res.code) {
-									//发起网络请求
-									Vue.prototype.verifyLogin(res.code)
-									wx.getSetting({
-										success(res) {
-											let isAuthUserInfo = res.authSetting['scope.userInfo']
-											let isAuth = uni.getStorageSync('isAuth')
-											if (!isAuthUserInfo&&!isAuth) {
-												uni.showModal({
-													title: '提示',
-													content: "您还未授权获取用户信息,点击确定按钮跳转到授权页面",
-													success(res) {
-														uni.setStorageSync('isToLogin', true)
-														if (res.confirm) {
-															Vue.prototype.judgeClientEnviroment()
-															if (backUrl) {
-																uni.navigateTo({
-																	url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
-																})
-															} else {
-																uni.navigateTo({
-																	url: '/pages/public/accountExec/accountExec'
-																})
-															}
-														} else {
-															uni.setStorageSync('isToLogin', false)
-														}
-													}
-												})
-											}
-										}
+					// #ifdef MP-WEIXIN
+					wx.checkSession({
+						success() {
+							//session_key 未过期，并且在本生命周期一直有效
+							if (uni.getStorageSync('isLogin') === false) {
+								// 虽然session_key 未过期但是在百想后台的登录状态过期了
+								Vue.prototype.wxLogin(backUrl)
+							}
+						},
+						fail() {
+							// session_key 已经失效，需要重新执行登录流程
+							//重新登录
+							Vue.prototype.wxLogin(backUrl)
+						}
+					})
+					// #endif
+					// #ifdef H5
+					uni.showModal({
+						title: '提示',
+						content: "您还未登录,请先登录在进行相关操作,点击确定按钮跳转到登录页面",
+						success(res) {
+							if (res.confirm) {
+								uni.setStorageSync('isToLogin', true)
+								Vue.prototype.judgeClientEnviroment()
+								if (backUrl) {
+									uni.navigateTo({
+										url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
 									})
 								} else {
-									uni.showToast({
-										title: '授权失败！' + res.errMsg,
-										icon: 'none'
+									uni.navigateTo({
+										url: '/pages/public/accountExec/accountExec'
 									})
 								}
+							} else {
+								uni.setStorageSync('isToLogin', false)
 							}
-						})
-
-						// #endif
-						// #ifdef H5
-						uni.showModal({
-							title: '提示',
-							content: "您还未登录,请先登录在进行相关操作,点击确定按钮跳转到登录页面",
-							success(res) {
-								if (res.confirm) {
-									uni.setStorageSync('isToLogin', true)
-									Vue.prototype.judgeClientEnviroment()
-									if (backUrl) {
-										uni.navigateTo({
-											url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
-										})
-									} else {
-										uni.navigateTo({
-											url: '/pages/public/accountExec/accountExec'
-										})
-									}
-								} else {
-									uni.setStorageSync('isToLogin', false)
-								}
-							}
-						})
-						// #endif
+						}
+					})
+					// #endif
 					// }
-
 				},
 				Vue.prototype.selectInfoFromMember = async function() {
 						let userInfo = uni.getStorageSync('login_user_info');
