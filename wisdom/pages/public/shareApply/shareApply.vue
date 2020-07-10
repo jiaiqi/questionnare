@@ -54,7 +54,9 @@ export default {
       let self = this;
       let serviceName = this.serviceName;
       let itemData = this.$refs.bxForm.getFieldModel();
+	  let basic = uni.getStorageSync("basics_info")
       console.log('itemData', itemData);
+	  itemData["person_no"] = basic.person_no
       if (!itemData) {
         return;
       } else {

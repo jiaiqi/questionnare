@@ -1099,13 +1099,14 @@ export default {
 					return;
 				}
 			}
-			if (req.serviceName === 'srvsso_user_select') {
+			if ( req.serviceName === 'srvsso_user_select') {
 				req.condition = [{ colName: 'dept_no', ruleType: 'like', value: 'bx100sys' }];
 				appName = 'sso';
 			}
 			let res = await self.onRequest('select', req.serviceName, req, appName);
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 				if (self.service && (self.service == 'srvzhxq_guest_mgmt_yezhu_add' || self.service == 'srvzhxq_guest_mgmt_yezhu_update' || self.service == 'srvzhxq_repairs_add')) {
+					
 					self.treeSelectorData = [];
 					res.data.data.forEach(item => {
 						self.treeSelectorData.push(item);

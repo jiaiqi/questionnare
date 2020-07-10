@@ -26,14 +26,14 @@ let ENV = {
 	backEndAddress:"https://login.100xsys.cn",//后台管理系统地址
 	frontEndAddress: remoteAddress.frontEndAddress, //前端线上地址
 	appNo: {
-		// wxmp: 'APPNO20200706143751', //海纳小区小程序
-		wxmp: 'APPNO20200214122021', //百想助理小程序
+		wxmp: 'APPNO20200706143751', //海纳小区小程序
+		// wxmp: 'APPNO20200214122021', //百想助理小程序
 		wxh5: 'APPNO20200107181133', //百想助理公众号
 	},
 	appID: {
-		// wxmp: 'wxce3602949765245f', //派诚小程序AppID
+		wxmp: 'wxce3602949765245f', //派诚小程序AppID
 		secret:'f8576848439ead39690542a8fb0d6f7d',//派诚小程序的AppSecret
-		wxmp: 'wx8e6f993081f6e979', //百想助理小程序
+		// wxmp: 'wx8e6f993081f6e979', //百想助理小程序
 		wxh5: ''
 	},
 	isThirdParty:remoteAddress.isThirdParty,

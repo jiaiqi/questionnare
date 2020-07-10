@@ -529,6 +529,7 @@ export default {
           let item = this.stepsCfgData[i];
           if (item.formType) {
             let serviceName = item[`${item.formType}_service`];
+			
             let itemData = self.$refs[ref][0].getFieldModel();
             if (!itemData) {
               itemData = this.activityData;
@@ -587,6 +588,8 @@ export default {
             let item = this.stepsCfgData[i];
             if (item.formType) {
               let serviceName = item[`${item.formType}_service`];
+			  let end_datas = self.$refs[ref][0].getFieldModel()
+			  console.log("------=========serviceName",serviceName)
               let obj = {
                 serviceName: item[`${item.formType}_service`],
                 data: [self.$refs[ref][0].getFieldModel()],

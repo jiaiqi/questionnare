@@ -124,15 +124,18 @@ export default {
 				});
 			} else if (item && item.page_no !== this.currentPage.page_no && item.page_no == 'BX202006171012480019') {
 				console.log('点击我的');
-				this.selectInfoFromMember().then(result => {
-					if (!!result) {
-						this.currentPage = item;
-						this.index = 1;
-						this.$nextTick(() => {
-							this.$refs.profile.getUserInfo();
-						});
-					}
-				});
+				this.getUserInfoLimits().then(result => {
+					this.selectInfoFromMember().then(result => {
+						if (!!result) {
+							this.currentPage = item;
+							this.index = 1;
+							this.$nextTick(() => {
+								this.$refs.profile.getUserInfo();
+							});
+						}
+					});
+				})
+				
 			}
 		},
 
@@ -178,14 +181,14 @@ export default {
 			}
 		},
 		async getUserInfoLimits() {
-			let user_no = uni.getStorageSync('login_user_info').user_no;
+			let user_no = uni.getStorageSync('basics_info').picp;
 			let urls = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
 			let reqs = {
 				serviceName: 'srvzhxq_syrk_select',
 				colNames: ['*'],
 				condition: [
 					{
-						colName: 'openid',
+						colName: 'gmsfhm',
 						ruleType: 'eq',
 						value: user_no
 					},
@@ -215,8 +218,15 @@ export default {
 					uni.setStorageSync('infoObj', ress.data.data[0]);
 					uni.setStorageSync('infoObjArr', ress.data.data);
 					return this.isOwner;
+				}else{
+					uni.setStorageSync('is_owner', false);
 				}
 			}
+		}
+	},
+	onShow() {
+		if (uni.getStorageSync('activeApp') == 'zhxq') {
+			this.getUserInfoLimits();
 		}
 	},
 	created() {
@@ -238,9 +248,7 @@ export default {
 		if (option.destApp) {
 			uni.setStorageSync('activeApp', option.destApp);
 		}
-		if (uni.getStorageSync('activeApp') == 'zhxq') {
-			this.getUserInfoLimits();
-		}
+		
 	},
 	onShareAppMessage(res) {
 		return {

@@ -416,6 +416,9 @@ export default {
 					}
 				});
 			}
+			if(e.column == "bfrbm"){
+				this.fieldModel["person_no"] = e.colData.person_no
+			}
 			e.value = this.fieldModel[e.column];
 			const fieldModel = JSON.parse(JSON.stringify(this.fieldModel));
 			this.allField = this.allField.map((item, index) => {

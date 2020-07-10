@@ -81,8 +81,8 @@ export default {
 		// #endif
 	},
 	onLoad(option) {
-		if(!option){
-			return
+		if (!option) {
+			return;
 		}
 		let query = JSON.parse(decodeURIComponent(option.query ? option.query : option.params ? option.params : option));
 		const destApp = query.destApp;
@@ -246,6 +246,22 @@ export default {
 			this.colsV2Data = colVs;
 			switch (this.type) {
 				case 'update':
+					if (this.defaultCondition && Array.isArray(this.defaultCondition) && colVs._fieldInfo && Array.isArray(colVs._fieldInfo)) {
+						console.log('this.defaultCondition', this.defaultCondition, colVs._fieldInfo);
+						let arr = [];
+						this.defaultCondition.forEach(cond => {
+							colVs._fieldInfo.forEach(field => {
+								if (cond.colName === field.column && field.isRequire !== true) {
+									field['value'] = cond['value'];
+									field['disabled'] = true;
+									field['display'] = false;
+									field['showExp'] = false;
+								} else if (cond.colName === field.column && field.isRequire === true) {
+									field['value'] = cond['value'];
+								}
+							});
+						});
+					}
 					this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, this.params.defaultVal);
 					break;
 				case 'add':
@@ -254,12 +270,12 @@ export default {
 						let arr = [];
 						this.defaultCondition.forEach(cond => {
 							colVs._fieldInfo.forEach(field => {
-								if (cond.colName === field.column&&field.isRequire!==true) {
+								if (cond.colName === field.column && field.isRequire !== true) {
 									field['value'] = cond['value'];
 									field['disabled'] = true;
 									field['display'] = false;
 									field['showExp'] = false;
-								}else if(cond.colName === field.column&&field.isRequire===true){
+								} else if (cond.colName === field.column && field.isRequire === true) {
 									field['value'] = cond['value'];
 								}
 							});
@@ -276,11 +292,27 @@ export default {
 		},
 		async checkBasicInfo(name, id) {
 			// 以姓名和身份证号检测当前登录用户是否已经登记过居住信息
+			let url = this.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
+			let req = {
+				serviceName: 'srvzhxq_member_select',
+				colNames: ['*'],
+				condition: [{ colName: 'real_name', ruleType: 'like', value: name }, { colName: 'picp', ruleType: 'like', value: id }]
+			};
+			let res = await this.$http.post(url, req);
+			debugger;
+			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+				return res.data.data[0];
+			} else {
+				return false;
+			}
+		},
+		async checkHouseInfo(xm, gmsfhm) {
+			// 以姓名和身份证号检测当前登录用户是否已经登记过居住信息
 			let url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
 			let req = {
 				serviceName: 'srvzhxq_syrk_select',
 				colNames: ['*'],
-				condition: [{ colName: 'xm', ruleType: 'like', value: name }, { colName: 'gmsfhm', ruleType: 'like', value: id }]
+				condition: [{ colName: 'xm', ruleType: 'like', value: xm }, { colName: 'gmsfhm', ruleType: 'like', value: gmsfhm }]
 			};
 			let res = await this.$http.post(url, req);
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
@@ -289,24 +321,9 @@ export default {
 				return false;
 			}
 		},
-		async checkHouseInfo(xm, gmsfhm) {
-			// 以姓名和身份证号检测当前登录用户是否已经登记过居住信息
-			let url = this.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
-			let req = {
-				serviceName: 'srvzhxq_member_select',
-				colNames: ['*'],
-				condition: [{ colName: 'real_name', ruleType: 'like', value: xm }, { colName: 'picp', ruleType: 'like', value: gmsfhm }]
-			};
-			let res = await this.$http.post(url, req);
-			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
-				return res.data.data[0]
-			} else {
-				return false;
-			}
-		},
 		async updateHouseInfo(xm, gmsfhm, openid) {
 			let self = this;
-			// 以姓名和身份证号检测当前登录用户是否已经登记过居住信息
+			// 将当前帐号user_no的值赋给居住信息中和当前填写的姓名&身份证号相同的数据的openid字段
 			let url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_update', 'operate');
 			let req = [
 				{
@@ -382,58 +399,141 @@ export default {
 						let name = req.real_name;
 						let id = req.picp;
 						let openid = uni.getStorageSync('login_user_info').user_no;
-						uni.showModal({
-							title: '提示',
-							content: '基础信息只能提交一次，本次提交后将不能再更改，是否点击确定提交?',
-							success(res) {
-								if (res.confirm) {
-									debugger
-									self.checkBasicInfo(name,id)
-									// TODO 根据身份证号和姓名查询基础信息表，如果已存在，提示是否关联用户信息
-									req = [{ serviceName: e.service_name, data: [req] }];
-									let app = uni.getStorageSync('activeApp');
-									let url = self.getServiceUrl(app, e.service_name, 'add');
-									console.log(url, e);
-									self.$http.post(url, req).then(res => {
-										console.log(url, res.data);
-										if (res.data.state === 'SUCCESS') {
-											uni.showModal({
-												title: '提示',
-												content: '登记成功',
-												showCancel: false,
-												success(res) {
-													if (res.confirm) {
-														self.checkHouseInfo(name, id).then(result => {
-															if (result) {
-																uni.showModal({
-																	title: '提示',
-																	content: '检测到系统中已存在您的住房信息，是否将住房信息绑定到当前帐号',
-																	cancelText: '不绑定',
-																	confirmText: '绑定',
-																	confirmColor: '#0BC99D',
-																	success(res) {
-																		if (res.confirm) {
-																			self.updateHouseInfo(name, id, openid).then(_ => {});
-																		} else {
-																			uni.navigateBack();
-																		}
-																	}
-																});
-															} else {
-																uni.navigateBack({
-																	delta: 1
-																});
-															}
-														});
+						let hasBasicInfo = await self.checkBasicInfo(name, id);
+						if (hasBasicInfo && typeof hasBasicInfo === 'object' && Object.keys(hasBasicInfo).length > 0) {
+							uni.showModal({
+								title: '提示',
+								content: '检测到系统中已存在您的基础信息，是否将此信息关联到当前账号',
+								confirmText: '关联信息',
+								success(res) {
+									if (res.confirm) {
+										uni.showModal({
+											title: '提示',
+											content: '基础信息只能提交一次，本次提交后将不能再更改，是否确定提交?',
+											success(res) {
+												if (res.confirm) {
+													// TODO 根据身份证号和姓名查询基础信息表，如果已存在，提示是否关联用户信息
+													let app = uni.getStorageSync('activeApp');
+													let url = self.getServiceUrl(app, e.service_name, 'add');
+													if (hasBasicInfo !== false) {
+														// update
+														url = self.getServiceUrl(app, e.service_name.replace('_add', '_update'), 'operate');
+														req = [{ serviceName: e.service_name.replace('_add', '_update'), condition: [{ colName: 'id', ruleType: 'eq', value: hasBasicInfo.id }], data: [req] }];
+													} else {
+														// add
+														req = [{ serviceName: e.service_name, data: [req] }];
 													}
+													console.log(url, e,req);
+													debugger
+													self.$http.post(url, req).then(res => {
+														console.log(url, res.data);
+														if (res.data.state === 'SUCCESS') {
+															uni.showModal({
+																title: '提示',
+																content: hasBasicInfo === false ? '登记成功' : '关联成功',
+																showCancel: false,
+																success(res) {
+																	if (res.confirm) {
+																		self.checkHouseInfo(name, id).then(result => {
+																			if (result) {
+																				uni.showModal({
+																					title: '提示',
+																					content: '检测到系统中已存在您的住房信息，是否将住房信息绑定到当前帐号',
+																					cancelText: '不绑定',
+																					confirmText: '绑定',
+																					confirmColor: '#0BC99D',
+																					success(res) {
+																						if (res.confirm) {
+																							self.updateHouseInfo(name, id, openid).then(_ => {});
+																						} else {
+																							uni.navigateBack();
+																						}
+																					}
+																				});
+																			} else {
+																				uni.navigateBack({
+																					delta: 1
+																				});
+																			}
+																		});
+																	}
+																}
+															});
+														}
+													});
+												} else if (res.cancel) {
+													// 不提交
 												}
-											});
-										}
-									});
-								} else if (res.cancel) {
+											}
+										});
+									} else if (res.cancel) {
+										// 不关联信息
+										// uni.showToast({
+										// 	title:"",
+										// 	icon:'none'
+										// })
+									}
 								}
-							}
-						});
+							});
+						} else {
+							uni.showModal({
+								title: '提示',
+								content: '基础信息只能提交一次，本次提交后将不能再更改，是否点击确定提交?',
+								success(res) {
+									if (res.confirm) {
+										self.checkBasicInfo(name, id).then(res => {
+											debugger;
+											if (res !== false) {
+											}
+										});
+										return;
+										// TODO 根据身份证号和姓名查询基础信息表，如果已存在，提示是否关联用户信息
+										req = [{ serviceName: e.service_name, data: [req] }];
+										let app = uni.getStorageSync('activeApp');
+										let url = self.getServiceUrl(app, e.service_name, 'add');
+										console.log(url, e);
+										self.$http.post(url, req).then(res => {
+											console.log(url, res.data);
+											if (res.data.state === 'SUCCESS') {
+												uni.showModal({
+													title: '提示',
+													content: '登记成功',
+													showCancel: false,
+													success(res) {
+														if (res.confirm) {
+															self.checkHouseInfo(name, id).then(result => {
+																if (result) {
+																	uni.showModal({
+																		title: '提示',
+																		content: '检测到系统中已存在您的住房信息，是否将住房信息绑定到当前帐号',
+																		cancelText: '不绑定',
+																		confirmText: '绑定',
+																		confirmColor: '#0BC99D',
+																		success(res) {
+																			if (res.confirm) {
+																				self.updateHouseInfo(name, id, openid).then(_ => {});
+																			} else {
+																				uni.navigateBack();
+																			}
+																		}
+																	});
+																} else {
+																	uni.navigateBack({
+																		delta: 1
+																	});
+																}
+															});
+														}
+													}
+												});
+											}
+										});
+									} else if (res.cancel) {
+										//不提交
+									}
+								}
+							});
+						}
 					}
 					break;
 				case 'reset':
