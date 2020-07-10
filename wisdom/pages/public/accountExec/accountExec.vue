@@ -403,7 +403,7 @@ export default {
 						if (resData.login_user_info && resData.login_user_info.data) {
 							uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
 							that.$store.commit('setVisitorInfo', resData.login_user_info.data[0]);
-							// that.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
+							
 						}
 						uni.navigateBack({
 							delta: 1

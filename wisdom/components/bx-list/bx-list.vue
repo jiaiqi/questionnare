@@ -128,11 +128,12 @@ export default {
 							if (item.more_config) {
 								let more_config = JSON.parse(item.more_config);
 								if (
-									item.button_type === 'edit' ||
-									item.button_type === 'delete' ||
+									// item.button_type === 'edit' ||
+									// item.button_type === 'delete' ||
 									item.button_type === 'procdetail' ||
 									((item.button_type === 'customize' && more_config && more_config.type === 'share') || more_config.type === 'qrcode') ||
-									more_config.type === 'primary'
+									more_config.type === 'primary'||
+									more_config.type === 'shareBind'
 								) {
 									return item;
 								}
@@ -332,7 +333,6 @@ export default {
 				order: this.order
 			};
 			if (this.listType === 'proc') {
-				
 				if (proc_data_type || this.proc_data_type) {
 					req['proc_data_type'] = proc_data_type || this.proc_data_type;
 				} else {

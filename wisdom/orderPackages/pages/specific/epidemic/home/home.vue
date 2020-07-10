@@ -729,7 +729,7 @@ export default {
 									//匿名登录
 									uni.setStorageSync('is_login', false);
 									uni.setStorageSync('visiter_user_info', resData.login_user_info); //匿名登录信息
-									// that.$store.commit('setOpenid', resData.login_user_info.openid);
+									
 									that.openid = resData.login_user_info.openid;
 									uni.setStorageSync('user_type', '匿名用户'); //微信环境匿名用户
 									console.log('微信小程序环境---未登录');

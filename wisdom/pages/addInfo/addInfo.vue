@@ -107,20 +107,7 @@ export default {
 			}
 			if (typeof query.condition === 'object') {
 				cond = query.condition;
-			}
-			if (query.serviceName == 'srvzhxq_clgl_add') {
-				this.getUserInfo().then(u => {
-					cond.forEach(con => {
-						if (con.colName === 'glry' && con.value === 'user_no') {
-							con.value = uni.getStorageSync('login_user_info').user_no;
-						} else {
-							con.value = u[con.colName];
-						}
-					});
-					this.defaultCondition = cond;
-					this.getFieldsV2();
-				});
-			}
+			}			
 		}
 		if (option.hasOwnProperty('loadedType')) {
 			this.loadedType = option.loadedType;
@@ -299,7 +286,6 @@ export default {
 				condition: [{ colName: 'real_name', ruleType: 'like', value: name }, { colName: 'picp', ruleType: 'like', value: id }]
 			};
 			let res = await this.$http.post(url, req);
-			debugger;
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 				return res.data.data[0];
 			} else {
@@ -412,6 +398,7 @@ export default {
 											content: '基础信息只能提交一次，本次提交后将不能再更改，是否确定提交?',
 											success(res) {
 												if (res.confirm) {
+													
 													// TODO 根据身份证号和姓名查询基础信息表，如果已存在，提示是否关联用户信息
 													let app = uni.getStorageSync('activeApp');
 													let url = self.getServiceUrl(app, e.service_name, 'add');
@@ -424,9 +411,9 @@ export default {
 														req = [{ serviceName: e.service_name, data: [req] }];
 													}
 													console.log(url, e,req);
-													debugger
 													self.$http.post(url, req).then(res => {
-														console.log(url, res.data);
+														// console.log("==============>>>>>>",url, res.data);
+														uni.setStorageSync("basics_info",res.data?.response[0]?.response?.effect_data[0])
 														if (res.data.state === 'SUCCESS') {
 															uni.showModal({
 																title: '提示',
@@ -434,6 +421,7 @@ export default {
 																showCancel: false,
 																success(res) {
 																	if (res.confirm) {
+																		// uni.setStorageSync("basics_info",hasBasicInfo)
 																		self.checkHouseInfo(name, id).then(result => {
 																			if (result) {
 																				uni.showModal({
@@ -482,11 +470,9 @@ export default {
 								success(res) {
 									if (res.confirm) {
 										self.checkBasicInfo(name, id).then(res => {
-											debugger;
 											if (res !== false) {
 											}
 										});
-										return;
 										// TODO 根据身份证号和姓名查询基础信息表，如果已存在，提示是否关联用户信息
 										req = [{ serviceName: e.service_name, data: [req] }];
 										let app = uni.getStorageSync('activeApp');
@@ -495,12 +481,15 @@ export default {
 										self.$http.post(url, req).then(res => {
 											console.log(url, res.data);
 											if (res.data.state === 'SUCCESS') {
+												console.log("res.data",res.data.response[0].response.effect_data[0])
+												uni.setStorageSync("basics_info",res.data?.response[0]?.response?.effect_data[0])
 												uni.showModal({
 													title: '提示',
 													content: '登记成功',
 													showCancel: false,
 													success(res) {
 														if (res.confirm) {
+															
 															self.checkHouseInfo(name, id).then(result => {
 																if (result) {
 																	uni.showModal({
@@ -596,36 +585,7 @@ export default {
 					});
 					break;
 			}
-		},
-		async getUserInfo() {
-			let user_no = uni.getStorageSync('login_user_info').user_no;
-			let urls = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
-			let reqs = {
-				serviceName: 'srvzhxq_syrk_select',
-				colNames: ['*'],
-				condition: [
-					{
-						colName: 'openid',
-						ruleType: 'eq',
-						value: user_no
-					},
-					{
-						colName: 'proc_status',
-						ruleType: 'eq',
-						value: '完成'
-					},
-					{
-						colName: 'status',
-						ruleType: 'eq',
-						value: '有效'
-					}
-				]
-				// order: [{ colName: 'seq', orderType: 'asc' }] ,
-			};
-			let ress = await this.$http.post(urls, reqs);
-			console.log('------------', ress);
-			return ress.data.data[0];
-		}
+		}		
 	}
 };
 </script>

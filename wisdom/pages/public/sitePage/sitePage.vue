@@ -52,7 +52,7 @@ export default {
 						(e.dest_menu_no === '访客登记' ||
 							e.dest_menu_no === '物业录入' ||
 							e.dest_menu_no === '物业报修' ||
-							e.dest_menu_no === '信息登记' ||
+							e.dest_menu_no === '成员登记' ||
 							e.dest_menu_no === '住户登记' ||
 							e.dest_menu_no === '车辆登记' ||
 							e.dest_menu_no === '工作人员登记' ||

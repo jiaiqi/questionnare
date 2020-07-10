@@ -93,14 +93,14 @@ export default {
 			this.showModal = false;
 		},
 		async getUserInfo() {
-			let user_no = uni.getStorageSync('login_user_info').user_no;
+			let user_no = uni.getStorageSync('basics_info').picp;
 			let urls = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
 			let reqs = {
 				serviceName: 'srvzhxq_syrk_select',
 				colNames: ['*'],
 				condition: [
 					{
-						colName: 'openid',
+						colName: 'gmsfhm',
 						ruleType: 'eq',
 						value: user_no
 					},

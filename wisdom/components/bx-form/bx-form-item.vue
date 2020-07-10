@@ -522,12 +522,20 @@ export default {
 		if (this.fieldData.type === 'poupchange') {
 			this.getpoupInfo(this.fieldData.option_list_v2);
 		}
+		if (this.field.condition && Array.isArray(this.field.condition)) {
+			// this.field.condition.forEach()
+		}
 		if (
 			this.service &&
 			(this.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
 				this.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
 				this.service == 'srvzhxq_repairs_add' ||
-				this.service == 'srvzhxq_clgl_add')
+				this.service == 'srvzhxq_clgl_add' ||
+				(this.service === 'srvzhxq_syrk_add' &&
+					this.field.condition &&
+					Array.isArray(this.field.condition) &&
+					this.field.condition.length > 0 &&
+					this.field.condition[0].colName === this.field.condition[0].value))
 		) {
 			this.getShareRoomNum().then(s => {
 				let fieldData = this.fieldData;
@@ -903,7 +911,6 @@ export default {
 			this.$emit('on-value-blur', this.fieldData);
 		},
 		getValid: function() {
-			
 			if (this.fieldData.isRequire && this.fieldData.value !== '') {
 				if (this.fieldData.hasOwnProperty('_validators') && this.fieldData._validators.hasOwnProperty('isType') && typeof this.fieldData._validators.isType === 'function') {
 					this.fieldData.valid = this.fieldData._validators.isType(this.fieldData.value);
@@ -972,12 +979,20 @@ export default {
 		},
 		openTreeSelector() {
 			let self = this;
+			if(this.field.disabled===true){
+				return
+			}
 			if (
 				this.service &&
 				(this.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
 					this.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
 					this.service == 'srvzhxq_repairs_add' ||
-					this.service == 'srvzhxq_clgl_add')
+					this.service == 'srvzhxq_clgl_add' ||
+					(this.service === 'srvzhxq_syrk_add' &&
+						this.field.condition &&
+						Array.isArray(this.field.condition) &&
+						this.field.condition.length > 0 &&
+						this.field.condition[0].colName === this.field.condition[0].value))
 			) {
 				this.getShareRoomNum().then(a => {
 					this.showTreeSelector = true;
@@ -989,7 +1004,6 @@ export default {
 					person.forEach(per => {
 						this.treeSelectorData.push(per);
 					});
-					console.log('-------------房屋---------', person);
 				});
 			} else {
 				self.getTreeSelectorData().then(_ => {
@@ -1045,12 +1059,12 @@ export default {
 			console.log('onTreeGridChange', e);
 		},
 		async getShareRoomNum() {
-			let user = uni.getStorageSync('login_user_info').user_no;
+			let user = uni.getStorageSync('basics_info').picp;
 			let condition = [
-				{ colName: 'openid', ruleType: 'eq', value: user },
+				{ colName: 'gmsfhm', ruleType: 'eq', value: user },
 				{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
-				{ colName: 'status', ruleType: 'eq', value: '有效' },
-				{ colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
+				{ colName: 'status', ruleType: 'eq', value: '有效' }
+				// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
 			];
 			let jig = await this.getTreeSelectorData(condition, 'srvzhxq_syrk_select');
 			return jig;
@@ -1080,6 +1094,10 @@ export default {
 				self.fieldData.option_list_v2.conditions.length > 0
 			) {
 				let condition = JSON.parse(JSON.stringify(self.fieldData.option_list_v2.conditions));
+				// if (self.fieldData.condition && Array.isArray(self.fieldData.condition)) {
+				// 	debugger;
+				// 	// condition = condition.concat(self.fieldData.condition)
+				// }
 				condition = condition.map(item => {
 					if (item.value.indexOf('data.') !== -1) {
 						let colName = item.value.slice(item.value.indexOf('data.') + 5);
@@ -1089,7 +1107,7 @@ export default {
 					} else if (item.value.indexOf('top.user.user_no') !== -1) {
 						item.value = uni.getStorageSync('login_user_info').user_no;
 					} else if (item.value.indexOf("'") === 0 && item.value.lastIndexOf("'") === item.value.length - 1) {
-						item.value = item.value.replace(/\'/ig, '');
+						item.value = item.value.replace(/\'/gi, '');
 					}
 					return item;
 				});
@@ -1099,14 +1117,19 @@ export default {
 					return;
 				}
 			}
-			if ( req.serviceName === 'srvsso_user_select') {
+			if (req.serviceName === 'srvsso_user_select') {
 				req.condition = [{ colName: 'dept_no', ruleType: 'like', value: 'bx100sys' }];
 				appName = 'sso';
 			}
 			let res = await self.onRequest('select', req.serviceName, req, appName);
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
-				if (self.service && (self.service == 'srvzhxq_guest_mgmt_yezhu_add' || self.service == 'srvzhxq_guest_mgmt_yezhu_update' || self.service == 'srvzhxq_repairs_add')) {
-					
+				if (
+					self.service &&
+					(self.service == 'srvzhxq_syrk_add' ||
+						self.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
+						self.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
+						self.service == 'srvzhxq_repairs_add')
+				) {
 					self.treeSelectorData = [];
 					res.data.data.forEach(item => {
 						self.treeSelectorData.push(item);
@@ -1115,6 +1138,19 @@ export default {
 					self.treeSelectorData.forEach(item => {
 						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] === self.fieldData.value) {
 							self.fieldData['colData'] = item;
+						} else if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] && !self.fieldData.value) {
+							let colData = JSON.parse(JSON.stringify(item));
+							let refed_col = self.fieldData.option_list_v2.refed_col;
+							if (
+								colData[refed_col] &&
+								colData['_' + refed_col + '_disp'] &&
+								self.fieldData.condition &&
+								Array.isArray(self.fieldData.condition) &&
+								self.fieldData.condition.length > 0
+							) {
+								self.fieldData.option_list_v2['key_disp_col'] = '_'+refed_col+'_disp'
+								self.fieldData['colData'] = item;
+							}
 						}
 					});
 					console.log('self.treeSelectorData', self.treeSelectorData);

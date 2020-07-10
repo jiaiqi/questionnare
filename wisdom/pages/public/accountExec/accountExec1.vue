@@ -329,7 +329,7 @@ export default {
 									}
 									if (resData.login_user_info.data) {
 										uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
-										// this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
+										
 									}
 									uni.setStorageSync('isLogin',true)
 									console.log('that.backUrl',that.backUrl)
@@ -392,7 +392,7 @@ export default {
 						}
 						if (resData.login_user_info && resData.login_user_info.data) {
 							uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
-							// this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
+							
 						}
 						// 获取回调前记录的url 并再回调后 再次进入该url，没有该url时 进入 home
 						let url = uni.getStorageSync('backUrl');
@@ -584,7 +584,7 @@ export default {
 							}
 							if (res.login_user_info.data) {
 								uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
-								// this.$store.commit('setOpenid', resData.login_user_info.data[0].openid);
+								
 							}
 							uni.setStorageSync('isLogin',true)
 							

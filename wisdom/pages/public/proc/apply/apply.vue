@@ -67,7 +67,6 @@ export default {
 	methods: {
 		onShareAppMessage(res) {
 			console.log(res.target.dataset.procno, 'onShareAppMessage');
-
 			return {
 				title: '绑定住户邀请',
 				path: '/pages/specific/shareBind/shareBind?proc_instance_no=' + this.proc_instance_no

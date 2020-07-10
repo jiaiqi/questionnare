@@ -1242,14 +1242,14 @@ export default {
 							}
 						case "customize":
 							//代码块
-							if (btn.operate_type === '流程申请') {
+							// if (btn.operate_type === '流程申请') {
 								// uni.navigateTo({
 								// 	url: "/pages/public/proc/apply/apply?serviceName=" + btn.operate_service
 								// })
 								return new Promise((resolve, reject) => {
 									resolve(e)
 								})
-							}
+							// }
 							break;
 						case "delete":
 							//代码块

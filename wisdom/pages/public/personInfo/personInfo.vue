@@ -46,7 +46,7 @@
 					<view class="content content_info">
 						<text class="text-grey">房间号:</text>
 						<text class="text-grey">
-							{{ item._lybm_disp + item._dybm_disp + item._fwbm_disp }}
+							{{ item._fwbm_disp }}
 							<text style="margin-left: 10rpx;" class="lg text-gray  cuIcon-right"></text>
 						</text>
 					</view>
@@ -159,14 +159,14 @@ export default {
 		},
 		async getHousePeopleList(fwbm) {
 			const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
-			let user = uni.getStorageSync('login_user_info').user_no;
+			let user = uni.getStorageSync('basics_info').picp;
 			let req = {
 				serviceName: 'srvzhxq_syrk_select',
 				colNames: ['*'],
 				condition: [
-					{ colName: 'openid', ruleType: 'eq', value: user },
+					{ colName: 'gmsfhm', ruleType: 'eq', value: user },
 					{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
-					{ colName: 'is_fuzeren', ruleType: 'eq', value: '是' },
+					// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' },
 					{ colName: 'status', ruleType: 'eq', value: '有效' }
 				]
 			};

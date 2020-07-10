@@ -106,6 +106,7 @@ export default {
 	},
 	onLoad(option) {
 		let query = JSON.parse(decodeURIComponent(option.query ? option.query : option.params ? option.params : '{}'));
+		console.log('---------', option);
 		const destApp = query.destApp;
 		if (destApp) {
 			uni.setStorageSync('activeApp', destApp);
@@ -149,7 +150,11 @@ export default {
 			this.type = this.params.type;
 			this.condition = this.params.condition;
 			this.defaultVal = this.params.defaultVal;
-			this.getFieldsV2();
+			let cond = [];
+			if (this.params.cond && Array.isArray(this.params.cond)) {
+				cond = this.params.cond;
+			}
+			this.getFieldsV2(cond);
 		} else if (query.serviceName && query.type) {
 			this.serviceName = query.serviceName;
 			this.type = query.type;
@@ -163,10 +168,11 @@ export default {
 	},
 
 	methods: {
-		getFieldsV2: async function() {
+		getFieldsV2: async function(condition) {
 			let app = uni.getStorageSync('activeApp');
 			let colVs = await this.getServiceV2(this.serviceName, this.type, this.type, app);
 			this.colsV2Data = colVs;
+			let self = this;
 			switch (this.type) {
 				case 'update':
 				// debugger
@@ -185,6 +191,35 @@ export default {
 							});
 						});
 					}
+					if (condition && Array.isArray(condition)) {
+						condition.forEach(item => {
+							colVs._fieldInfo.forEach(field => {
+								if (field.column === item.colName) {
+									field.condition = item.value;
+								}
+								if (typeof item.value !== 'string' && Array.isArray(item.value)) {
+									item.value.forEach(cond => {
+										if (cond.colName === cond.value && field.column === cond.value) {
+											field['display'] = false;
+										}
+									});
+								}
+								if (this.params.defaultVal) {
+									if (
+										field.column === 'xm' &&
+										self.params.defaultVal['real_name'] &&
+										self.params.eventOrigin &&
+										self.params.eventOrigin.service === 'srvzhxq_member_front_select'
+									) {
+										// 如果是从人员登记列表进入的
+										field.value = self.params.defaultVal['real_name'];
+										field.disabled = true;
+									}
+								}
+							});
+						});
+					}
+
 					this.fields = colVs._fieldInfo;
 					break;
 				case 'detail':
@@ -196,12 +231,14 @@ export default {
 		},
 		async onButton(e) {
 			let req = this.$refs.bxForm.getFieldModel();
+			debugger;
+			if ((e.service_name == 'srvzhxq_syrk_wuye_add' || e.service_name == 'srvzhxq_syrk_add') && (!req.proc_status || req.proc_status != '完成')) {
+				req.proc_status = '完成';
+			}
 			console.log(e, req);
 			switch (e.button_type) {
 				case 'edit':
 					if (e.page_type === '详情') {
-						// this.
-						// this.type = 'update'
 					} else {
 						if (req) {
 							req = [{ serviceName: e.service_name, data: [req], condition: this.condition }];
@@ -222,8 +259,6 @@ export default {
 											}
 										}
 									});
-
-									// uni.navigateBack();
 								}
 							});
 						}
@@ -313,14 +348,14 @@ export default {
 			}
 		},
 		async getUserInfo() {
-			let user_no = uni.getStorageSync('login_user_info').user_no;
+			let user_no = uni.getStorageSync('basics_info').picp;
 			let urls = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
 			let reqs = {
 				serviceName: 'srvzhxq_syrk_select',
 				colNames: ['*'],
 				condition: [
 					{
-						colName: 'openid',
+						colName: 'gmsfhm',
 						ruleType: 'eq',
 						value: user_no
 					},

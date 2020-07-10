@@ -38,10 +38,18 @@ function evaluatorTo(rowData, formula) {
 					case 'not': //取反 !
 						break;
 					case 'eq': //等于 === equal
-						result = rowData[evaluator(formula[operator]['col'], result)] == formula[operator].val
+						if (!formula[operator].val) {
+							result = !rowData[evaluator(formula[operator]['col'], result)]
+						} else {
+							result = rowData[evaluator(formula[operator]['col'], result)] == formula[operator].val
+						}
 						break;
 					case 'neq': //不等于 !== not equal
-						result = rowData[evaluator(formula[operator]['col'], result)] != formula[operator].val
+						if (!formula[operator].val) {
+							result = !!rowData[evaluator(formula[operator]['col'], result)]
+						} else {
+							result = rowData[evaluator(formula[operator]['col'], result)] != formula[operator].val
+						}
 						break;
 					case 'gt': // greater than or equal >
 						result = rowData[evaluator(formula[operator]['col'], result)] > formula[operator].val

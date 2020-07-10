@@ -27,7 +27,9 @@ export default {
 			type: 'detail',
 			serviceName: '',
 			condition: [],
-			proc_instance_no: ''
+			proc_instance_no: '',
+
+			dataid: ''
 		};
 	},
 	created() {
@@ -43,14 +45,23 @@ export default {
 			this.proc_instance_no = option.proc_instance_no;
 			this.getFieldsV2();
 		}
+		if (option.dataid && option.serviceName) {
+			this.serviceName = option.serviceName;
+			this.dataid = option.dataid;
+			this.getFieldsV2();
+		}
 	},
 	methods: {
 		async getV2Data() {
 			let url = this.getServiceUrl('zhxq', 'srvsys_service_columnex_v2_select', 'select');
+			let serviceName = 'srvzhxq_syrk_select';
+			if (this.serviceName) {
+				serviceName = this.serviceName.replace('_update','_select');
+			}
 			let req = {
 				serviceName: 'srvsys_service_columnex_v2_select',
 				colNames: ['*'],
-				condition: [{ colName: 'service_name', value: 'srvzhxq_syrk_select', ruleType: 'eq' }, { colName: 'use_type', value: 'list', ruleType: 'eq' }],
+				condition: [{ colName: 'service_name', value: serviceName, ruleType: 'eq' }, { colName: 'use_type', value: 'list', ruleType: 'eq' }],
 				order: [{ colName: 'seq', orderType: 'asc' }]
 			};
 			let res = await this.$http.post(url, req);
@@ -59,14 +70,22 @@ export default {
 			}
 		},
 		async getDefaultValue() {
-			let url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
+			let serviceName = 'srvzhxq_syrk_select';
+			if (this.serviceName) {
+				serviceName = this.serviceName.replace('_update','_select');
+			}
+			let url = this.getServiceUrl('zhxq', serviceName, 'select');
 			let req = {
-				serviceName: 'srvzhxq_syrk_select',
+				serviceName: serviceName,
 				colNames: ['*'],
 				condition: [{ colName: 'proc_instance_no', value: this.proc_instance_no, ruleType: 'eq' }],
 				page: { pageNo: 1, rownumber: 10 },
 				order: []
 			};
+			
+			if (!this.proc_instance_no && this.dataid) {
+				req.condition = [{ colName: 'id', value: this.dataid, ruleType: 'eq' }];
+			}
 			let res = await this.$http.post(url, req);
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 				return res.data.data[0];
@@ -75,28 +94,28 @@ export default {
 		getFieldsV2: async function() {
 			let colVs = await this.getV2Data();
 			let defaultData = await this.getDefaultValue();
-			colVs = await this.getServiceV2('srvzhxq_syrk_select', 'update', 'update', 'zhxq');
+			let serviceName = 'srvzhxq_syrk_select';
+			if (this.serviceName) {
+				serviceName = this.serviceName;
+			}
+			colVs = await this.getServiceV2(serviceName, 'update', 'update', 'zhxq');
 			this.colsV2Data = colVs;
 			let fieldsArr = this.setFieldsDefaultVal(colVs._fieldInfo, defaultData);
 			fieldsArr.forEach(item => {
 				item.disabled = true;
-				if(item.column == 'is_benren'){
-					item.value = "本人信息"
+				if (item.column == 'is_benren') {
+					item.value = '本人信息';
 				}
 			});
-			console.log("fieldsArr--------------",fieldsArr)
-			
 			this.fields = this.deepClone(fieldsArr);
 		},
 		confirmInfo() {
 			let self = this;
 			let data = this.$refs.bxForm.getFieldModel();
-			;
-			data.is_benren = '本人信息'
+			data.is_benren = '本人信息';
 			if (data.is_benren == '本人信息') {
 				data.openid = uni.getStorageSync('login_user_info').user_no;
 			}
-			
 			console.log(data.openid, 'data.openid');
 			console.log(data, 'data');
 			Object.keys(data).forEach(item => {
@@ -111,9 +130,14 @@ export default {
 					success(res) {
 						if (res.confirm) {
 							console.info('11111111111111111', self.proc_instance_no);
-							let req = [
-								{ serviceName: 'srvzhxq_syrk_update', condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: self.proc_instance_no }], data: [data] }
-							];
+								let serviceName = 'srvzhxq_syrk_update';
+										if (this.serviceName) {
+											serviceName = this.serviceName;
+										}
+							let req = [{ serviceName: 'srvzhxq_syrk_update', condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: self.proc_instance_no }], data: [data] }];
+							if (!self.proc_instance_no && self.dataid) {
+								req.condition = [{ colName: 'id', value: self.dataid, ruleType: 'eq' }];
+							}
 							let app = uni.getStorageSync('activeApp');
 							let url = self.getServiceUrl(app, 'srvzhxq_syrk_update', 'update');
 							self.$http.post(url, req).then(res => {

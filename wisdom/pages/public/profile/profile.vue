@@ -37,6 +37,18 @@
 						<text class="text-grey">房屋信息</text>
 					</view>
 				</view>
+				<view @tap="toFamily" class="cu-item" :class="menuArrow ? 'arrow' : ''">
+					<view class="content">
+						<image src="../../../static/family.png" class="png" mode="aspectFit"></image>
+						<text class="text-grey">家庭成员</text>
+					</view>
+				</view>
+				<view @tap="toMyCar" class="cu-item" :class="menuArrow ? 'arrow' : ''">
+					<view class="content">
+						<image src="../../../static/car.png" class="png" mode="aspectFit"></image>
+						<text class="text-grey">我的车辆</text>
+					</view>
+				</view>
 				<view @tap="toVisitor" class="cu-item" :class="menuArrow ? 'arrow' : ''">
 					<view class="content">
 						<image src="../../../static/fk.png" class="png" mode="aspectFit"></image>
@@ -50,12 +62,6 @@
 					</view>
 				</view>
 
-				<view @tap="toMyCar" class="cu-item" :class="menuArrow ? 'arrow' : ''">
-					<view class="content">
-						<image src="../../../static/car.png" class="png" mode="aspectFit"></image>
-						<text class="text-grey">我的车辆</text>
-					</view>
-				</view>
 				<!-- <view @tap="faceReg" class="cu-item" :class="menuArrow?'arrow':''">
 					<view class="content">
 						<image src="../../../static/face.png" class="png" mode="aspectFit"></image>
@@ -92,8 +98,8 @@ export default {
 			userInfo: uni.getStorageSync('wxuserinfo'),
 			loginUserInfo: uni.getStorageSync('login_user_info'),
 			menuArrow: true,
-			menuBorder:true,
-			menuCard:false,
+			menuBorder: true,
+			menuCard: false,
 			infoObj: ''
 		};
 	},
@@ -156,9 +162,15 @@ export default {
 				url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=person'
 			});
 		},
-		toHouse(){
+		toHouse() {
 			uni.navigateTo({
 				url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=house'
+			});
+		},
+		toFamily() {
+			uni.navigateTo({
+				url:
+					'/pages/public/list/list?serviceName=srvzhxq_member_front_select&pageType=list&viewTemp={"title":"real_name","tip":"gender","footer":"tel","img":"card_photo"}&cond=[{"colName":"create_user","ruleType":"like","value":"user_no"}]'
 			});
 		},
 		toRepair() {
@@ -318,7 +330,7 @@ export default {
 				},
 				fail: function() {
 					uni.setStorageSync('isAuth', false);
-					self.checkAuthorization()
+					self.checkAuthorization();
 				}
 			});
 		},
@@ -345,7 +357,7 @@ export default {
 	},
 
 	onShow() {
-		console.log("onShow")
+		console.log('onShow');
 		this.getWxUserInfo();
 	},
 	mounted() {

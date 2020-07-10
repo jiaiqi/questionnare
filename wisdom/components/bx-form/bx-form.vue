@@ -395,6 +395,13 @@ export default {
 			} else {
 				this.fieldModel[e.column] = e.value;
 			}
+			if (e.column === 'fwbm') {
+				if (e.condition && Array.isArray(e.condition) && e.condition.length > 0 && e.condition[0].colName === e.condition[0].value) {
+					e.condition.forEach(col=>{
+						this.fieldModel[col.value] = e.colData[col.value]
+					})
+				}
+			}
 			if (e.column === 'fwbm' && this.service == 'srvzhxq_guest_mgmt_yezhu_add') {
 				this.allField.forEach(fileIf => {
 					if (fileIf.column === 'bfr' || fileIf.column === 'bfrbm' || fileIf.column === 'dybm' || fileIf.column === 'lybm') {
@@ -416,8 +423,8 @@ export default {
 					}
 				});
 			}
-			if(e.column == "bfrbm"){
-				this.fieldModel["person_no"] = e.colData.person_no
+			if (e.column == 'bfrbm') {
+				this.fieldModel['person_no'] = e.colData.person_no;
 			}
 			e.value = this.fieldModel[e.column];
 			const fieldModel = JSON.parse(JSON.stringify(this.fieldModel));
@@ -509,7 +516,7 @@ export default {
 								item.value = e.colData[item.redundant.refedCol];
 							}
 						}
-						this.fieldModel[item.column]=item.value
+						this.fieldModel[item.column] = item.value;
 					}
 				});
 			}

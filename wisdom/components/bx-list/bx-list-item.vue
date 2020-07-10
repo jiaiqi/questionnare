@@ -123,6 +123,19 @@
 						>
 							{{ item.button_name }}
 						</text>
+						<button
+							v-for="item in rowButtons"
+							:key="item.id"
+							:data-info="item"
+							:data-id="itemData.id"
+							@click="footBtnClick(item)"
+							open-type="share"
+							class="cu-btn round sm text-blue line-blue"
+							:class="'cuIcon-' + item.button_type"
+							v-if="item.more_config && JSON.parse(item.more_config).type == 'shareBind' && item.disp_show !== false"
+						>
+							{{ item.button_name }}
+						</button>
 						<text v-if="detailList" class="text-gray" :class="'cuIcon-more'"></text>
 					</view>
 				</view>
@@ -199,6 +212,9 @@ export default {
 					return false;
 				}
 			} else {
+				if (button.more_config && JSON.parse(button.more_config).type == 'shareBind') {
+					return false;
+				}
 				return true;
 			}
 		}
@@ -290,7 +306,7 @@ export default {
 	watch: {
 		srv_cols: {
 			deep: true,
-			immediate:true,
+			immediate: true,
 			handler(newVal) {
 				let self = this;
 				let arr = Object.values(this.viewTemp);
@@ -304,13 +320,13 @@ export default {
 					newVal.forEach(item => {
 						if (item.col_type === 'Dict' && Array.isArray(item.option_list_v2)) {
 							item.option_list_v2.forEach(option => {
-								Object.keys(self.viewTemp).forEach(tem=>{
-									if(self.viewTemp[tem] === item.columns){
-										if(self.goodsData[tem] == option.value){
-											self.goodsData[tem] = option.label
+								Object.keys(self.viewTemp).forEach(tem => {
+									if (self.viewTemp[tem] === item.columns) {
+										if (self.goodsData[tem] == option.value) {
+											self.goodsData[tem] = option.label;
 										}
 									}
-								})
+								});
 							});
 						}
 					});
@@ -353,32 +369,20 @@ export default {
 					}
 				}
 				rowButton.forEach(btn => {
-					if (btn.disp_exps) {
-						let data = item;
-						let more_config = {};
-						try {
-							more_config = JSON.parse(btn.more_config);
-						} catch (e) {
-							console.log(e);
-							//TODO handle the exception
-						}
-						if (typeof more_config === 'object' && more_config && more_config.formulaShow) {
-							btn['disp_show'] = evaluatorTo(data, more_config.formulaShow);
-						}
-						// if (btn.disp_exps === "data.proc_status=='完成'&&data.is_sync=='是'&&data.faceid!=null") {
-						// 	if (data.proc_status == '完成' && data.is_sync == '是' && data.faceid != null) {
-						// 		btn['disp_show'] = true;
-						// 	}else{
-						// 		btn['disp_show'] = false;
-						// 	}
-						// } else if (btn.disp_exps === "data.proc_status=='完成'&&data.is_sync=='是'&&data.faceid==null") {
-						// 	if (data.proc_status == '完成' && data.is_sync == '是' && data.faceid == null) {
-						// 		btn['disp_show'] = true;
-						// 	}else{
-						// 		btn['disp_show'] = false;
-						// 	}
-						// }
+					// if (btn.disp_exps) {
+					let data = item;
+					let more_config = {};
+					try {
+						more_config = JSON.parse(btn.more_config);
+					} catch (e) {
+						console.log(e);
+						//TODO handle the exception
 					}
+					if (typeof more_config === 'object' && more_config && more_config.formulaShow) {
+						debugger;
+						btn['disp_show'] = evaluatorTo(data, more_config.formulaShow);
+					}
+					// }
 				});
 				this.rowButtons = rowButton;
 			}
@@ -387,7 +391,7 @@ export default {
 			deep: true,
 			immediate: true,
 			handler(newValue, oldValue) {
-				let self =this
+				let self = this;
 				if (newValue[this.viewTemp.img]) {
 					this.getPicture(newValue[this.viewTemp.img]).then(url => {
 						this.goodsData.img = url;
@@ -411,13 +415,13 @@ export default {
 				this.srv_cols.forEach(item => {
 					if (item.col_type === 'Dict' && Array.isArray(item.option_list_v2)) {
 						item.option_list_v2.forEach(option => {
-							Object.keys(self.viewTemp).forEach(tem=>{
-								if(self.viewTemp[tem] === item.columns){
-									if(self.goodsData[tem] == option.value){
-										self.goodsData[tem] = option.label
+							Object.keys(self.viewTemp).forEach(tem => {
+								if (self.viewTemp[tem] === item.columns) {
+									if (self.goodsData[tem] == option.value) {
+										self.goodsData[tem] = option.label;
 									}
 								}
-							})
+							});
 						});
 					}
 				});
@@ -568,7 +572,7 @@ export default {
 					display: inline-block;
 					padding-right: 28upx;
 					line-height: 44upx;
-					flex:1;
+					flex: 1;
 					// &::after {
 					//   content: '';
 					//   display: block;
