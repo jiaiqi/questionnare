@@ -2,7 +2,9 @@
 	<view>
 		<view class="tip">
 			<text class="text-red">*</text>
-			请检查以下信息是否跟您本人信息匹配，确定信息匹配后请点击确定按钮登记您的入住信息
+			请检查以下信息是否跟您本人信息匹配，确定信息匹配后请点击确定按钮{{
+				serviceName && (serviceName === 'srvzhxq_member_update' || serviceName === 'srvzhxq_member_select') ? '绑定您的基本信息' : '登记您的入住信息'
+			}}
 		</view>
 		<bxform
 			:service="serviceName"
@@ -56,7 +58,7 @@ export default {
 			let url = this.getServiceUrl('zhxq', 'srvsys_service_columnex_v2_select', 'select');
 			let serviceName = 'srvzhxq_syrk_select';
 			if (this.serviceName) {
-				serviceName = this.serviceName.replace('_update','_select');
+				serviceName = this.serviceName.replace('_update', '_select');
 			}
 			let req = {
 				serviceName: 'srvsys_service_columnex_v2_select',
@@ -72,7 +74,7 @@ export default {
 		async getDefaultValue() {
 			let serviceName = 'srvzhxq_syrk_select';
 			if (this.serviceName) {
-				serviceName = this.serviceName.replace('_update','_select');
+				serviceName = this.serviceName.replace('_update', '_select');
 			}
 			let url = this.getServiceUrl('zhxq', serviceName, 'select');
 			let req = {
@@ -82,7 +84,7 @@ export default {
 				page: { pageNo: 1, rownumber: 10 },
 				order: []
 			};
-			
+
 			if (!this.proc_instance_no && this.dataid) {
 				req.condition = [{ colName: 'id', value: this.dataid, ruleType: 'eq' }];
 			}
@@ -113,16 +115,7 @@ export default {
 			let self = this;
 			let data = this.$refs.bxForm.getFieldModel();
 			data.is_benren = '本人信息';
-			if (data.is_benren == '本人信息') {
-				data.openid = uni.getStorageSync('login_user_info').user_no;
-			}
-			console.log(data.openid, 'data.openid');
-			console.log(data, 'data');
-			Object.keys(data).forEach(item => {
-				if (!data[item]) {
-					delete data[item];
-				}
-			});
+
 			if (data) {
 				uni.showModal({
 					title: '警告',
@@ -130,16 +123,37 @@ export default {
 					success(res) {
 						if (res.confirm) {
 							console.info('11111111111111111', self.proc_instance_no);
-								let serviceName = 'srvzhxq_syrk_update';
-										if (this.serviceName) {
-											serviceName = this.serviceName;
-										}
-							let req = [{ serviceName: 'srvzhxq_syrk_update', condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: self.proc_instance_no }], data: [data] }];
+							let serviceName = 'srvzhxq_syrk_update';
+							if (self.serviceName) {
+								serviceName = self.serviceName;
+								if (serviceName === 'srvzhxq_member_update') {
+									let wxuserinfo = uni.getStorageSync('wxuserinfo');
+									if (wxuserinfo && typeof wxuserinfo === 'object') {
+										Object.keys(wxuserinfo).forEach(key => {
+											if (data[key]) {
+												data[key] = wxuserinfo[key];
+											}
+										});
+										console.log('------基础信息绑定------', data, wxuserinfo);
+									}
+								}
+							} else {
+								if (data.is_benren == '本人信息') {
+									data.openid = uni.getStorageSync('login_user_info').user_no;
+								}
+								console.log('-------------data-----------------', data);
+								Object.keys(data).forEach(item => {
+									if (!data[item]) {
+										delete data[item];
+									}
+								});
+							}
+							let req = [{ serviceName: serviceName, condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: self.proc_instance_no }], data: [data] }];
 							if (!self.proc_instance_no && self.dataid) {
 								req.condition = [{ colName: 'id', value: self.dataid, ruleType: 'eq' }];
 							}
 							let app = uni.getStorageSync('activeApp');
-							let url = self.getServiceUrl(app, 'srvzhxq_syrk_update', 'update');
+							let url = self.getServiceUrl(app, serviceName, 'operate');
 							self.$http.post(url, req).then(res => {
 								console.log(url, res.data);
 								uni.showToast({
@@ -149,7 +163,7 @@ export default {
 								if (res.data.state === 'SUCCESS') {
 									uni.showModal({
 										title: '提示',
-										content: '您的住户信息已成功登记',
+										content: self.serviceName ? '登记成功' : '您的住户信息已成功登记',
 										showCancel: false,
 										success(res) {
 											if (res.confirm) {
@@ -166,35 +180,6 @@ export default {
 					}
 				});
 			}
-		},
-		async getUserInfo() {
-			let user_no = uni.getStorageSync('login_user_info').user_no;
-			let urls = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
-			let reqs = {
-				serviceName: 'srvzhxq_syrk_select',
-				colNames: ['*'],
-				condition: [
-					{
-						colName: 'create_user',
-						ruleType: 'eq',
-						value: user_no
-					},
-					{
-						colName: 'proc_status',
-						ruleType: 'eq',
-						value: '完成'
-					},
-					{
-						colName: 'status',
-						ruleType: 'eq',
-						value: '有效'
-					}
-				]
-				// order: [{ colName: 'seq', orderType: 'asc' }] ,
-			};
-			let ress = await this.$http.post(urls, reqs);
-			console.log('------------', ress);
-			return ress.data.data[0];
 		}
 	}
 };

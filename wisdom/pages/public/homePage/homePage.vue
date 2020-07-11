@@ -7,7 +7,7 @@
 		>
 			<SwiperCarousel :swiperList="swiperList" v-if="pageItem.div_type === 'carousel'" @clickSwiper="clickSwiper" :imgCol="'picUrl'"></SwiperCarousel>
 			<!-- <SwiperMenu  v-if="pageItem.div_type === 'buttons'" :menuList="menuList" @clickMenu="clickMenu"></SwiperMenu> -->
-			<SwiperMenu v-if="pageItem.div_type === 'buttons'" :menuList="pageItem.data" :menuLabel="pageItem.item_label" @clickMenu="clickMenu"></SwiperMenu>
+			<SwiperMenu v-if="pageItem.div_type === 'buttons'" :menuList="pageItem.data" :menuLabel="pageItem.item_label" :gridWidth="pageItem.grid_width" @clickMenu="clickMenu"></SwiperMenu>
 			<TabList
 				@clickListItem="clickListItem"
 				@showMore="showMore($event, pageItem)"
@@ -399,7 +399,7 @@ export default {
 		}
 		.menu-view {
 			width: 100%;
-			max-width: 375px;
+			// max-width: 375px;
 			margin: 0 auto;
 			/deep/ .screen-swiper {
 				width: 100%;
@@ -417,7 +417,7 @@ export default {
 @media screen and (max-width: 750px) {
 	.menu-view {
 		width: 100%;
-		max-width: 375px;
+		// max-width: 375px;
 		margin: 0 auto;
 		/deep/ .screen-swiper {
 			width: 100%;

@@ -9,7 +9,7 @@
         :class="{ 'bg-imgs': !item.icon, 'menu-image': item.icon }"
         v-for="(item, index) in menus"
         :key="index"
-        :style="{ width: menus.length === 5 || menus.length > 8 ? '20%' : '25%' }"
+        :style="{ width:gridWidth?100/gridWidth+'%': menus.length === 5 || menus.length > 8 ? '20%' : '25%' }"
       >
         <view class="menu-pic bg-blue" @click="clickMenu(item)" v-if="!item.icon">{{ item[menuTemplate['lableCol']].slice(0, 2) }}</view>
         <view class="menu-pic" @click="clickMenu(item)" v-if="item.icon">
@@ -67,6 +67,10 @@ export default {
       type: String,
       default: ''
     },
+		gridWidth:{
+			type: String,
+			default: ''
+		},
     menuTemplate: {
       type: Object,
       default: () => {
@@ -116,7 +120,7 @@ export default {
   margin: 20upx auto;
   background-color: #fff;
   overflow: hidden;
-  width: 750upx;
+  width: 100%;
 }
 .menu-list {
   margin-top: 20rpx;
