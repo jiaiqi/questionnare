@@ -51,7 +51,7 @@
 							<button
 								class="cu-btn round sm text-blue line-blue"
 								:class="'cuIcon-' + item.button_type"
-								v-if="deRowButDisplay(itemData, item) && !detailList && item.button_type !== 'applyProc' && item.disp_show !== false"
+								v-if="deRowButDisplay(itemData, item) && !detailList && item.button_type !== 'applyProc'&& item.button_type !== 'customize' && item.disp_show !== false"
 								@click="footBtnClick(item)"
 								:key="item.id"
 							>
@@ -379,7 +379,6 @@ export default {
 						//TODO handle the exception
 					}
 					if (typeof more_config === 'object' && more_config && more_config.formulaShow) {
-						debugger;
 						btn['disp_show'] = evaluatorTo(data, more_config.formulaShow);
 					}
 					// }

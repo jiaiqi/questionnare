@@ -105,7 +105,8 @@ export default {
 	},
 	methods: {
 		toApply() {
-			if (this.infoObj.id) {
+			
+			if (uni.getStorageSync("infoObjArr").length>0) {
 				let date = this.getDayDate(new Date(), 'all');
 				let userIf = uni.getStorageSync('infoObj');
 				let cond = [
@@ -164,17 +165,18 @@ export default {
 		},
 		toHouse() {
 			uni.navigateTo({
-				url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=house'
+				// url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=house',
+				url:'/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"is_fuzeren","ruleType":"like","value":"是"},{"colName":"openid","ruleType":"like","value":"user_no"}]'
 			});
 		},
 		toFamily() {
 			uni.navigateTo({
 				url:
-					'/pages/public/list/list?serviceName=srvzhxq_member_front_select&pageType=list&viewTemp={"title":"real_name","tip":"gender","footer":"tel","img":"card_photo"}&cond=[{"colName":"create_user","ruleType":"like","value":"user_no"}]'
+					'/pages/public/list/list?serviceName=srvzhxq_member_front_select&pageType=list&viewTemp={"title":"real_name","tip":"gender","footer":"tel","img":"head_img"}&cond=[{"colName":"create_user","ruleType":"like","value":"user_no"}]'
 			});
 		},
 		toRepair() {
-			if (this.infoObj.id) {
+			if (uni.getStorageSync("infoObjArr").length>0) {
 				let user = uni.getStorageSync('login_user_info').user_no;
 				let viewTemp = {
 					title: 'fwbm',
@@ -205,7 +207,7 @@ export default {
 			}
 		},
 		toMyCar() {
-			if (this.infoObj.id) {
+			if (uni.getStorageSync("infoObjArr").length>0) {
 				let user = uni.getStorageSync('login_user_info').user_no;
 				let viewTemp = {
 					title: 'cphm',
@@ -247,7 +249,7 @@ export default {
 			});
 		},
 		async toVisitor() {
-			if (this.infoObj.id) {
+			if (uni.getStorageSync("infoObjArr").length>0) {
 				const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
 				let user = uni.getStorageSync('login_user_info').user_no;
 				let req = {
@@ -335,16 +337,17 @@ export default {
 			});
 		},
 		async getUserInfo() {
+			
 			const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
-			let user = uni.getStorageSync('login_user_info').user_no;
+			let user = uni.getStorageSync('basics_info').picp;
 			let req = {
 				serviceName: 'srvzhxq_syrk_select',
 				colNames: ['*'],
 				condition: [
-					{ colName: 'create_user', ruleType: 'eq', value: user },
+					{ colName: 'gmsfhm', ruleType: 'eq', value: user },
 					{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
 					{ colName: 'status', ruleType: 'eq', value: '有效' },
-					{ colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
+					// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
 				]
 			};
 			const res = await this.$http.post(url, req);

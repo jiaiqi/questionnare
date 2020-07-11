@@ -16,7 +16,7 @@
 			<view class="cu-item" :class="menuArrow ? 'arrow' : ''">
 				<view class="content content_info">
 					<text class="text-grey">性别：</text>
-					<text class="text-grey">{{ personInfo.gender === 0 ? '男' : '女' }}</text>
+					<text class="text-grey">{{ personInfo.gender == 1 ? '男' : personInfo.gender == 2 ? '女' : '' }}</text>
 				</view>
 			</view>
 			<view class="cu-item" :class="menuArrow ? 'arrow' : ''">

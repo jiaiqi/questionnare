@@ -529,7 +529,7 @@ export default {
 			this.service &&
 			(this.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
 				this.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
-				this.service == 'srvzhxq_repairs_add' ||
+				
 				this.service == 'srvzhxq_clgl_add' ||
 				(this.service === 'srvzhxq_syrk_add' &&
 					this.field.condition &&
@@ -872,7 +872,14 @@ export default {
 				console.log('updated', this.fieldModelsData);
 				// this.listModel = listItemModel
 				// return this.listModel
-			}
+			}else{
+				Object.keys(this.fieldsModel).forEach(key=>{
+					if(this.fieldData.column===key&&!this.fieldData.value&&this.fieldsModel[key]){
+						
+						this.fieldData.value = this.fieldsModel[key]
+					}
+				})
+				}
 		},
 		radioChange(e) {
 			if (this.fieldData.type === 'radioFk' || this.fieldData.type === 'checkboxFk') {
@@ -979,33 +986,36 @@ export default {
 		},
 		openTreeSelector() {
 			let self = this;
-			if(this.field.disabled===true){
-				return
+			if (this.field.disabled === true) {
+				return;
 			}
 			if (
 				this.service &&
 				(this.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
 					this.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
-					this.service == 'srvzhxq_repairs_add' ||
+					
 					this.service == 'srvzhxq_clgl_add' ||
-					(this.service === 'srvzhxq_syrk_add' &&
+					((this.service === 'srvzhxq_syrk_add' || this.service === 'srvzhxq_syrk_wuye_add') &&
 						this.field.condition &&
 						Array.isArray(this.field.condition) &&
 						this.field.condition.length > 0 &&
 						this.field.condition[0].colName === this.field.condition[0].value))
 			) {
-				this.getShareRoomNum().then(a => {
+				this.getShareRoomNum(this.service).then(a => {
 					this.showTreeSelector = true;
 				});
-			} else if (this.fieldData.col_type == 'bxzhxq_syrk') {
-				this.getUserRoomPerson(this.fieldData.option_list_v2).then(person => {
-					this.showTreeSelector = true;
-					this.treeSelectorData = [];
-					person.forEach(per => {
-						this.treeSelectorData.push(per);
-					});
-				});
-			} else {
+			} 
+			// else if (this.fieldData.col_type == 'bxzhxq_syrk') {
+			// 	debugger
+			// 	this.getUserRoomPerson(this.fieldData.option_list_v2).then(person => {
+			// 		this.showTreeSelector = true;
+			// 		this.treeSelectorData = [];
+			// 		person.forEach(per => {
+			// 			this.treeSelectorData.push(per);
+			// 		});
+			// 	});
+			// }
+			 else {
 				self.getTreeSelectorData().then(_ => {
 					if (self.fieldData.disabled === false) {
 						if (self.treeSelectorData.length > 0) {
@@ -1058,17 +1068,45 @@ export default {
 		onTreeGridChange(e) {
 			console.log('onTreeGridChange', e);
 		},
-		async getShareRoomNum() {
+		async getShareRoomNum(serv) {
 			let user = uni.getStorageSync('basics_info').picp;
-			let condition = [
-				{ colName: 'gmsfhm', ruleType: 'eq', value: user },
-				{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
-				{ colName: 'status', ruleType: 'eq', value: '有效' }
-				// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
-			];
-			let jig = await this.getTreeSelectorData(condition, 'srvzhxq_syrk_select');
-			return jig;
+			const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
+			let serviceName = 'srvzhxq_syrk_select';
+			if (serv && serv === 'srvzhxq_syrk_wuye_add') {
+				let url = this.getServiceUrl(uni.getStorageSync('activeApp'), 'srvzhxq_syrk_select', 'select');
+				let req = {
+					serviceName: 'srvzhxq_syrk_select',
+					colNames: ['*'],
+					condition: [{ colName: 'is_fuzeren', ruleType: 'in', value: '是' }]
+				};
+				let houseList = await this.$http.post(url, req);
+				if (houseList.data.state === 'SUCCESS') {
+					houseList = houseList.data.data.map(item => {
+						return item.fwbm;
+					});
+					if (Array.isArray(houseList) && houseList.length > 0) {
+						condition = [{ colName: 'fwbm', ruleType: 'in', value: houseList.toString() }];
+						serviceName = "srvzhxq_buiding_house_select"
+						let jig = await this.getTreeSelectorData(condition, serviceName);
+					}
+				}
+			}else{
+				let req = {
+					serviceName: 'srvzhxq_syrk_select',
+					colNames: ['*'],
+					condition: [
+					]
+				
+				};
+				
+				const res = await this.$http.post(url, req);
+					console.log('jig=====>>>', jig);
+					return jig;
+				}
+			}
+								
 		},
+
 		async getTreeSelectorData(cond, serv) {
 			let self = this;
 			let req = {
@@ -1095,7 +1133,7 @@ export default {
 			) {
 				let condition = JSON.parse(JSON.stringify(self.fieldData.option_list_v2.conditions));
 				// if (self.fieldData.condition && Array.isArray(self.fieldData.condition)) {
-				// 	debugger;
+				// 	;
 				// 	// condition = condition.concat(self.fieldData.condition)
 				// }
 				condition = condition.map(item => {
@@ -1127,7 +1165,6 @@ export default {
 					self.service &&
 					(self.service == 'srvzhxq_syrk_add' ||
 						self.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
-						self.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
 						self.service == 'srvzhxq_repairs_add')
 				) {
 					self.treeSelectorData = [];
@@ -1136,8 +1173,9 @@ export default {
 					});
 					console.log('self.fieldData', self.fieldData);
 					self.treeSelectorData.forEach(item => {
-						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] === self.fieldData.value) {
+						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] === self.fieldData.value) {							
 							self.fieldData['colData'] = item;
+							
 						} else if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] && !self.fieldData.value) {
 							let colData = JSON.parse(JSON.stringify(item));
 							let refed_col = self.fieldData.option_list_v2.refed_col;
@@ -1148,7 +1186,7 @@ export default {
 								Array.isArray(self.fieldData.condition) &&
 								self.fieldData.condition.length > 0
 							) {
-								self.fieldData.option_list_v2['key_disp_col'] = '_'+refed_col+'_disp'
+								self.fieldData.option_list_v2['key_disp_col'] = '_' + refed_col + '_disp';
 								self.fieldData['colData'] = item;
 							}
 						}
@@ -1186,7 +1224,6 @@ export default {
 					});
 				}
 			}
-		}
 	},
 	watch: {
 		field: {
@@ -1236,6 +1273,7 @@ export default {
 	line-height: 2.4em;
 	min-height: 2.4em;
 }
+
 /* #ifdef MP-WEIXIN */
 .valid_error {
 	.form-content {
@@ -1454,5 +1492,10 @@ uni-text.input-icon {
 }
 .cu-form-group uni-picker::after {
 	display: none !important;
+}
+.valid_error {
+	.form-content {
+		border: 1rpx solid #ff0000;
+	}
 }
 </style>

@@ -40,8 +40,8 @@
 			}
 			if(option && option.code){
 				this.code = option.code
+				this.make(option.code)
 			}
-			this.make(option.code)
 			// setTimeout(()=>{
 				// this.make("VjAwMSu8cWuljgtCcn/ybfRTRBK8mBwm/ds8QINYB57LJniavQsBZXc2Im0Vd/Ql8R3sXXA=")
 			// },2000)

@@ -23,7 +23,7 @@
 				:pullUp="loadData"
 				:enablePullDown="enablePullDown"
 				:enablePullUp="enablePullUp"
-				:top="tabList.length > 1 ? top : 0"
+				:top="tabsLength > 1 ? 100 : 0"
 				:fixed="fixed"
 				:bottom="bottom"
 				finishText="我是有底线的..."
@@ -96,6 +96,7 @@ export default {
 			rowButton: this.rowButtons,
 			searchCol: '',
 			tabList: [],
+			tabsLength:"",
 			proc_data_type: 'wait'
 		};
 	},
@@ -126,7 +127,14 @@ export default {
 								return item;
 							}
 							if (item.more_config) {
-								let more_config = JSON.parse(item.more_config);
+								let more_config = {}
+								try{
+									more_config =JSON.parse(item.more_config);
+									item['moreConfig'] = more_config
+								}catch(e){
+									console.log(e)
+									//TODO handle the exception
+								}
 								if (
 									// item.button_type === 'edit' ||
 									// item.button_type === 'delete' ||
@@ -138,7 +146,7 @@ export default {
 									return item;
 								}
 							}
-							if(item.button_name==='住户登记'){
+							if(item.button_name==='住户登记'||item.button_name==='绑定房屋'){
 								return item
 							}
 						});
@@ -600,6 +608,7 @@ export default {
 			];
 		}
 		this.getAllData();
+		this.tabsLength = this.tabList.length
 	}
 };
 </script>

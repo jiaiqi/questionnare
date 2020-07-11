@@ -347,15 +347,19 @@ export default {
       }
     },
     async getBasicCfg(proc_instance_no) {
+		console.log("进入===",proc_instance_no)
       // srvprocess_basic_cfg_select 流程初始化数据查询
       let serviceName = this.srvInfo.serviceName;
 	  this.approvalFormCfg[0].options = []
+	  
       let req = { serviceName: 'srvprocess_basic_cfg_select', colNames: ['*'], condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: proc_instance_no }] };
       let res = await this.onRequest('select', 'srvprocess_basic_cfg_select', req, this.srvInfo.app ? this.srvInfo.app : 'oa');
+	  console.log("进入res===",res)
 	  // console.log("流程-----",res)
       if (res.data.state === 'SUCCESS') {
         this.procBasicConfig = res.data;
         this.activityData = res.data.mainData;
+		console.log("进入this.activityData===",this.activityData)
 		for(let key in res.data.proHanleData.proc_result){
 			let obj = {
 				value:"",
@@ -772,7 +776,8 @@ export default {
       }
     console.log("------------instanceNo-------------",instanceNo)
       this.proc_instance_no = instanceNo;
-      this.srvInfo.app = uni.getStorageSync('activeApp');
+      this.srvInfo.app = uni.getStorageSync('activeApp')?uni.getStorageSync('activeApp'):"zhxq";
+	  console.log("------------instanceNo-------------",this.srvInfo.app)
       this.getBasicCfg(instanceNo);
       this.getProcRecord(instanceNo);
     }

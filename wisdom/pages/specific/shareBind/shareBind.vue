@@ -114,7 +114,6 @@ export default {
 		confirmInfo() {
 			let self = this;
 			let data = this.$refs.bxForm.getFieldModel();
-			data.is_benren = '本人信息';
 
 			if (data) {
 				uni.showModal({
@@ -128,19 +127,31 @@ export default {
 								serviceName = self.serviceName;
 								if (serviceName === 'srvzhxq_member_update') {
 									let wxuserinfo = uni.getStorageSync('wxuserinfo');
+									let user_no =  uni.getStorageSync('login_user_info').user_no;
 									if (wxuserinfo && typeof wxuserinfo === 'object') {
-										Object.keys(wxuserinfo).forEach(key => {
-											if (data[key]) {
-												data[key] = wxuserinfo[key];
-											}
-										});
+										if(wxuserinfo.nickName){
+											data['nick_name'] = wxuserinfo.nickName
+										}
+										if(wxuserinfo.gender){
+											data['gender'] = wxuserinfo.gender
+										}
+										if(wxuserinfo.city){
+											data['city'] = wxuserinfo.city
+										}
+										if(wxuserinfo.country){
+											data['country'] = wxuserinfo.country
+										}
+										if(wxuserinfo.avatar){
+											data['avatar'] = wxuserinfo.avatar
+										}
+										if(wxuserinfo.province){
+											data['province'] = wxuserinfo.province
+										}
 										console.log('------基础信息绑定------', data, wxuserinfo);
 									}
 								}
 							} else {
-								if (data.is_benren == '本人信息') {
-									data.openid = uni.getStorageSync('login_user_info').user_no;
-								}
+								data.is_benren = '本人信息';
 								console.log('-------------data-----------------', data);
 								Object.keys(data).forEach(item => {
 									if (!data[item]) {
@@ -148,13 +159,23 @@ export default {
 									}
 								});
 							}
-							let req = [{ serviceName: serviceName, condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: self.proc_instance_no }], data: [data] }];
-							if (!self.proc_instance_no && self.dataid) {
-								req.condition = [{ colName: 'id', value: self.dataid, ruleType: 'eq' }];
+							let req = [];
+							if (serviceName === 'srvzhxq_member_update' && self.dataid) {
+								req = [{ serviceName: serviceName, condition: [{ colName: 'id', value: self.dataid, ruleType: 'eq' }], data: [data] }];
+							} else if (self.proc_instance_no) {
+								req = [{ serviceName: serviceName, condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: self.proc_instance_no }], data: [data] }];
+							}
+							if(Array.isArray(req)&&req.length>0){
+								if (!req[0].condition || Array.isArray(req[0].condition) !== true || req[0].condition.length < 1) {
+									console.log('没有condition', req);
+									return;
+								}
 							}
 							let app = uni.getStorageSync('activeApp');
 							let url = self.getServiceUrl(app, serviceName, 'operate');
 							self.$http.post(url, req).then(res => {
+								console.log('req------\n', req);
+								console.log('res------\n', res);
 								console.log(url, res.data);
 								uni.showToast({
 									title: res.data.resultMessage,

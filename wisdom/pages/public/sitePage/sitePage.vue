@@ -138,7 +138,33 @@ export default {
 				
 			}
 		},
-
+		async getbasicsInfo(){
+			let user_no = uni.getStorageSync('login_user_info').user_no;
+			let urls = this.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
+			let reqs = {
+				serviceName: 'srvzhxq_member_select',
+				colNames: ['*'],
+				condition: [
+					{
+						colName: 'openid',
+						ruleType: 'eq',
+						value: user_no
+					}
+					// {
+					//  colName:"is_fuzeren",
+					//  ruleType:"eq",
+					//  value:"是"
+					// }
+				],
+				order: [{ colName: 'create_time', orderType: 'asc' }]
+			};
+			let ress = await this.$http.post(urls, reqs);
+			if (ress.data.state === 'SUCCESS') {
+				if (ress.data.data.length > 0) {
+					uni.setStorageSync('basics_info', ress.data.data[0]);
+				}
+			}
+		},
 		async getWebsiteList() {
 			const url = this.getServiceUrl('daq', 'srvdaq_website_page_select', 'select');
 
@@ -220,13 +246,18 @@ export default {
 					return this.isOwner;
 				}else{
 					uni.setStorageSync('is_owner', false);
+					uni.setStorageSync('infoObj', "");
+					uni.setStorageSync('infoObjArr', ress.data.data)
 				}
 			}
 		}
 	},
+	
 	onShow() {
+	
 		if (uni.getStorageSync('activeApp') == 'zhxq') {
 			this.getUserInfoLimits();
+			this.getbasicsInfo()
 		}
 	},
 	created() {
@@ -243,10 +274,11 @@ export default {
 		// #endif
 	},
 	onLoad(option) {
+			console.log("-0-0-0-0-0-0-0-0-0-0-0",option)
 		this.website_no = option.website_no;
 		uni.setStorageSync('is_owner', false);
-		if (option.destApp) {
-			uni.setStorageSync('activeApp', option.destApp);
+		if (this.website_no == 'WS2020060611100007') {
+			uni.setStorageSync('activeApp', 'zhxq');
 		}
 		
 	},

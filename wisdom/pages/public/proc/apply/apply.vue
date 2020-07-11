@@ -18,7 +18,7 @@
 				<!-- <button class="bg-green cu-btn lg" @click="submitData">提交</button> -->
 				<button class="bg-green cu-btn lg" @click="submitData" v-if="!showShareButton && hasSubmit === false">提交</button>
 				<button class="bg-green cu-btn lg" @click="showShareButton = true" v-if="showShareButton && hasSubmit">邀请绑定</button>
-				<!-- <button class="bg-green cu-btn lg" open-type="share">邀请绑定</button> -->
+				<!-- <button class="bg-green cu-btn lg" open-type="share">邀请</button> -->
 				<button class="bg-green cu-btn lg" @click="toList">查看记录</button>
 				<!-- #ifdef MP-WEIXIN -->
 				<!-- <button class="share-btn cu-btn lg bg-blue" open-type="share">分享</button> -->
@@ -71,6 +71,10 @@ export default {
 				title: '绑定住户邀请',
 				path: '/pages/specific/shareBind/shareBind?proc_instance_no=' + this.proc_instance_no
 			};
+			// return {
+			// 	title: '绑定住户邀请',
+			// 	path: '/pages/public/proc/apply/apply?serviceName=srvzhxq_guest_mgmt_add'
+			// };
 		},
 		radioBenRen(e) {
 			console.log('本人信息-------', e, this.fields);

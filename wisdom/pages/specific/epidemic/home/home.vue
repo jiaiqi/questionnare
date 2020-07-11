@@ -706,7 +706,7 @@ export default {
 				success(res) {
 					if (res.code) {
 						//验证登录
-						debugger
+						
 						let url = that.$api.verifyLogin.url;
 						let req = [
 							{
@@ -719,7 +719,7 @@ export default {
 								serviceName: 'srvwx_app_login_verify'
 							}
 						];
-						debugger
+						
 						that.$http.post(url, req).then(response => {
 							if (response.data.resultCode === 'SUCCESS') {
 								let resData = response.data.response[0].response;

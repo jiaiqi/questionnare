@@ -8,6 +8,7 @@
 			:service="serviceName"
 			ref="bxForm"
 			:pageType="type"
+			:defaultCondition="defaultCondition"
 			:BxformType="type"
 			:fields="fields"
 			:moreConfig="colsV2Data && colsV2Data.more_config ? colsV2Data.more_config : null"
@@ -175,7 +176,7 @@ export default {
 			let self = this;
 			switch (this.type) {
 				case 'update':
-				// debugger
+				// 
 				//       this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, this.params.defaultVal);
 				//       break;
 				case 'add':
@@ -209,10 +210,20 @@ export default {
 										field.column === 'xm' &&
 										self.params.defaultVal['real_name'] &&
 										self.params.eventOrigin &&
-										self.params.eventOrigin.service === 'srvzhxq_member_front_select'
+										(self.params.eventOrigin.service === 'srvzhxq_member_front_select'||self.params.eventOrigin.service_name==='srvzhxq_syrk_wuye_add')
 									) {
 										// 如果是从人员登记列表进入的
 										field.value = self.params.defaultVal['real_name'];
+										field.disabled = true;
+									}
+									if(field.column === 'gmsfhm' &&
+										self.params.defaultVal['picp'] ){
+										field.value = self.params.defaultVal['picp'];
+										field.disabled = true;
+									}
+									if(field.column === 'openid' &&
+										self.params.defaultVal['openid'] ){
+										field.value = self.params.defaultVal['openid'];
 										field.disabled = true;
 									}
 								}
@@ -231,8 +242,8 @@ export default {
 		},
 		async onButton(e) {
 			let req = this.$refs.bxForm.getFieldModel();
-			debugger;
-			if ((e.service_name == 'srvzhxq_syrk_wuye_add' || e.service_name == 'srvzhxq_syrk_add') && (!req.proc_status || req.proc_status != '完成')) {
+			
+			if ((e.service_name == 'srvzhxq_syrk_wuye_add' || e.service_name == 'srvzhxq_syrk_add') && (!req.proc_status || req.proc_status != '完成')&&req) {
 				req.proc_status = '完成';
 			}
 			console.log(e, req);

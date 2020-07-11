@@ -395,6 +395,7 @@ export default {
 			} else {
 				this.fieldModel[e.column] = e.value;
 			}
+			debugger
 			if (e.column === 'fwbm') {
 				if (e.condition && Array.isArray(e.condition) && e.condition.length > 0 && e.condition[0].colName === e.condition[0].value) {
 					e.condition.forEach(col=>{
@@ -402,7 +403,7 @@ export default {
 					})
 				}
 			}
-			if (e.column === 'fwbm' && this.service == 'srvzhxq_guest_mgmt_yezhu_add') {
+			if (e.column === 'fwbm' && (this.service == 'srvzhxq_guest_mgmt_yezhu_add' || this.service == 'srvzhxq_clgl_add')) {
 				this.allField.forEach(fileIf => {
 					if (fileIf.column === 'bfr' || fileIf.column === 'bfrbm' || fileIf.column === 'dybm' || fileIf.column === 'lybm') {
 						let infoArr = uni.getStorageSync('infoObjArr');
@@ -486,6 +487,9 @@ export default {
 				if (e.value === '他人信息') {
 					fields.forEach(item => {
 						if (item.column == 'xm' || item.column == 'lxfs' || item.column == 'gmsfhm') {
+							if(this.service==='srvzhxq_syrk_wuye_add'){
+								return
+							}
 							item.value = '';
 						}
 					});
@@ -532,10 +536,11 @@ export default {
 			return this.fieldModel;
 		},
 		getFieldModel() {
+			
+			console.log(this.fieldModel)
 			let valid = 0;
 			let showsNum = 0;
 			console.log('this.$refs', this.$refs);
-
 			this.allField.map((item, index) => {
 				let valids = this.$refs.fitem[index].getValid();
 				console.log('字段校验', valids);

@@ -69,7 +69,8 @@ export default {
 			noData: false,
 			showSearchBar: false,
 			showFootBtn: true,
-			tempWord: {}
+			tempWord: {},
+			queryParams: {}
 		};
 	},
 	onReachBottom() {
@@ -141,11 +142,12 @@ export default {
 			}
 		}
 		if (query.cond) {
+			;
 			try {
 				let cond = JSON.parse(decodeURIComponent(query.cond));
 				if (Array.isArray(cond)) {
 					cond.forEach(item => {
-						if ((item.colName === 'create_user' || item.colName === 'glry') && item.value === 'user_no') {
+						if ((item.colName === 'create_user' || item.colName === 'openid' || item.colName === 'glry') && item.value === 'user_no') {
 							item.value = uni.getStorageSync('login_user_info').user_no;
 						}
 					});
@@ -162,9 +164,19 @@ export default {
 			this.tempWord = JSON.parse(query.tempWord);
 		}
 		if (query.serviceName && query.pageType) {
-			// console.log('list option:', option);
 			this.serviceName = query.serviceName;
 			this.pageType = query.pageType;
+			if (query.params) {
+				let params = {};
+				if (typeof query.params === 'string') {
+					try {
+						params = JSON.parse(query.params);
+						this.queryParams = params;
+					} catch (e) {
+						//TODO handle the exception
+					}
+				}
+			}
 			this.getListV2();
 		} else {
 			// uni.showToast({
@@ -235,6 +247,42 @@ export default {
 						uni.navigateTo({
 							url: '../formPage/formPage?serviceName=' + item.service_name + '&type=add&cond=' + decodeURIComponent(JSON.stringify(this.condition))
 						});
+					} else if (item.button_type === 'customize') {
+						if (item.button_name === '住户录入') {
+							;
+							let queryParams = this.queryParams;
+							let condition = this.condition;
+							let user_no = '';
+							let params = {
+								type: 'add',
+								serviceName: item.service_name,
+								defaultVal: queryParams.defaultVal,
+								eventOrigin: item
+							};
+							params.cond = [
+									{
+										colName: 'fwbm',
+										ruleType: 'condition',
+										value: [
+											{
+												colName: 'dybm',
+												ruleType: 'eq',
+												value: 'dybm'
+											},
+											{
+												colName: 'lybm',
+												ruleType: 'eq',
+												value: 'lybm'
+											}
+										]
+									}
+								];
+							uni.navigateTo({
+								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+							});
+						}
+
+						// url: '../formPage/formPage?serviceName=' + item.service_name + '&type=add&cond=' + decodeURIComponent(JSON.stringify(this.condition))
 					}
 				});
 			}
@@ -282,6 +330,7 @@ export default {
 			} else {
 				this.onButtonToUrl(data).then(res => {
 					console.log('footBTN :', res);
+
 					if (data.button && data.button.button_type === 'delete') {
 						if (res.state === 'SUCCESS') {
 							this.$refs.bxList.onRefresh();
@@ -314,6 +363,92 @@ export default {
 							} catch (e) {
 								//TODO handle the exception
 								console.log(e);
+							}
+						}
+						if (data.button.servcie_type === 'add') {
+							let params = {
+								type: 'add',
+								serviceName: res.button.service_name,
+								defaultVal: res.row,
+								eventOrigin: res.button
+							};
+							if ((data.button.main_table = 'bxzhxq_member' && data.button.operate_service === 'srvzhxq_syrk_add')) {
+								params.cond = [
+									{
+										colName: 'fwbm',
+										ruleType: 'condition',
+										value: [
+											{
+												colName: 'dybm',
+												ruleType: 'eq',
+												value: 'dybm'
+											},
+											{
+												colName: 'lybm',
+												ruleType: 'eq',
+												value: 'lybm'
+											}
+										]
+									}
+								];
+							}
+							uni.navigateTo({
+								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+							});
+						} else if (data.button.servcie_type === 'select') {
+							let params = {
+								type: 'select',
+								serviceName: res.button.service_name,
+								defaultVal: res.row,
+								eventOrigin: res.button
+							};
+							if ((data.button.main_table = 'bxzhxq_member' && data.button.operate_service === 'srvzhxq_syrk_select')) {
+								params.cond = [
+									{
+										colName: 'fwbm',
+										ruleType: 'condition',
+										value: [
+											{
+												colName: 'dybm',
+												ruleType: 'eq',
+												value: 'dybm'
+											},
+											{
+												colName: 'lybm',
+												ruleType: 'eq',
+												value: 'lybm'
+											}
+										]
+									}
+								];
+							}
+							// uni.navigateTo({
+							// 	url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+							// });
+							if (data.button.button_name === '绑定房屋') {
+								if(data.row.openid){
+									uni.navigateTo({
+										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&params=${JSON.stringify(
+											params
+										)}&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"openid","ruleType":"like","value":"${data.row.openid}"}]`
+									});
+								}else{
+									uni.showModal({
+										title:"提示",
+										content:"当前数据未绑定微信用户，请先点击邀请绑定按钮进行账号绑定",
+										showCancel:false,
+										confirmText:"知道了~",
+										success(res) {
+											
+										}
+									})
+								}
+								
+							} else {
+								uni.navigateTo({
+									url:
+										'/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"is_fuzeren","ruleType":"like","value":"是"},{"colName":"openid","ruleType":"like","value":"user_no"}]'
+								});
 							}
 						}
 					} else if (data.button.servcie_type === 'add') {
@@ -364,6 +499,7 @@ export default {
 			if (this.pageType === 'proc') {
 				this.showFootBtn = false;
 			}
+			;
 			this.publicButton = colVs.gridButton.filter(item => {
 				if (item.permission === true) {
 					switch (item.button_type) {
@@ -376,6 +512,11 @@ export default {
 							this.showSearchBar = true;
 							return item;
 							break;
+						case 'customize':
+							if (item.application === 'zhxq' && item.button_name === '住户录入') {
+								this.showAdd = true;
+								return item;
+							}
 					}
 				}
 			});
@@ -395,7 +536,7 @@ export default {
 		) {
 			return {
 				title: '绑定住户邀请',
-				path: '/pages/specific/shareBind/shareBind?dataid=' + res.target.dataset.id+'&serviceName=srvzhxq_member_update'
+				path: '/pages/specific/shareBind/shareBind?dataid=' + res.target.dataset.id + '&serviceName=srvzhxq_member_update'
 			};
 		} else {
 			return {
