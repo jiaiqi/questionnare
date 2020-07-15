@@ -394,6 +394,12 @@ export default {
 				return {};
 			}
 		},
+		detailFiledData:{
+			type: Object,
+			default() {
+				return {};
+			}
+		},
 		pageFormType: {
 			type: String,
 			default: 'form'
@@ -453,6 +459,7 @@ export default {
 			header: '',
 			index: -1,
 			picker: ['网络状况较差，请稍后进行选择'],
+			modelData:'',
 			oriPicker: [],
 			treeSelectorShowValue: '' //属性选择器input框中显示的值
 		};
@@ -519,6 +526,7 @@ export default {
 	},
 	updated() {},
 	mounted() {
+		console.log("procDataprocDataprocData",this.procData)
 		if (this.fieldData.type === 'poupchange') {
 			this.getpoupInfo(this.fieldData.option_list_v2);
 		}
@@ -608,6 +616,7 @@ export default {
 		this.getDefVal();
 		// console.log(this.fieldData.label + this.pageFormType + this.fieldData.value);
 	},
+	
 	// onShow() {
 	// 	this.fieldData = this.field;
 	// 	this.getDefVal()
@@ -1006,7 +1015,7 @@ export default {
 				});
 			} 
 			// else if (this.fieldData.col_type == 'bxzhxq_syrk') {
-			// 	debugger
+			// 	
 			// 	this.getUserRoomPerson(this.fieldData.option_list_v2).then(person => {
 			// 		this.showTreeSelector = true;
 			// 		this.treeSelectorData = [];
@@ -1071,13 +1080,14 @@ export default {
 		async getShareRoomNum(serv) {
 			let user = uni.getStorageSync('basics_info').picp;
 			const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
-			let serviceName = 'srvzhxq_syrk_select';
+			let serviceName = 'srvzhxq_syrk_select'
 			if (serv && serv === 'srvzhxq_syrk_wuye_add') {
+				let condition = []
 				let url = this.getServiceUrl(uni.getStorageSync('activeApp'), 'srvzhxq_syrk_select', 'select');
 				let req = {
 					serviceName: 'srvzhxq_syrk_select',
 					colNames: ['*'],
-					condition: [{ colName: 'is_fuzeren', ruleType: 'in', value: '是' }]
+					condition: [{ colName: 'is_fuzeren', ruleType: 'in', value: '是' },{ colName: 'openid', ruleType: 'eq', value: uni.getStorageSync('login_user_info').user_no }]
 				};
 				let houseList = await this.$http.post(url, req);
 				if (houseList.data.state === 'SUCCESS') {
@@ -1088,6 +1098,11 @@ export default {
 						condition = [{ colName: 'fwbm', ruleType: 'in', value: houseList.toString() }];
 						serviceName = "srvzhxq_buiding_house_select"
 						let jig = await this.getTreeSelectorData(condition, serviceName);
+					}else{
+						uni.showToast({
+							title:"暂无数据",
+							icon:'none'
+						})
 					}
 				}
 			}else{
@@ -1095,12 +1110,42 @@ export default {
 					serviceName: 'srvzhxq_syrk_select',
 					colNames: ['*'],
 					condition: [
-					]
+					{ colName: 'gmsfhm', ruleType: 'eq', value: user },
+					{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
+					{ colName: 'status', ruleType: 'eq', value: '有效' }
+					// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
 				
+				]
 				};
 				
 				const res = await this.$http.post(url, req);
-					console.log('jig=====>>>', jig);
+				if(res.data.data.length > 0){
+					let arr = []
+					res.data.data.forEach(item=>{
+						arr.push(item.fwbm)
+					})
+					let syr = arr.toString()
+					let cond = [{
+						colName:"fwbm",
+						ruleType:"in",
+						value:syr
+					}]
+					if(serv != 'srvzhxq_clgl_add'){
+						serviceName = 'srvzhxq_buiding_house_select'
+					}else{						
+						serviceName = this.fieldData.option_list_v2.serviceName
+						if(this.fieldData.column == 'glry'){
+							cond = [{
+								colName:"fwbm",
+								ruleType:"eq",
+								value:this.fieldsModel.fwbm
+							}]
+						}
+						
+						console.log("--============-------",this.fieldsModel)
+					}
+					let jig = await this.getTreeSelectorData(cond, serviceName);
+					console.log("jig=====>>>",jig)
 					return jig;
 				}
 			}
@@ -1108,6 +1153,8 @@ export default {
 		},
 
 		async getTreeSelectorData(cond, serv) {
+			debugger
+			console.log("detailFiledDatadetailFiledData",this.detailFiledData)
 			let self = this;
 			let req = {
 				serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2.serviceName : '',
@@ -1119,7 +1166,14 @@ export default {
 			} else {
 				appName = uni.getStorageSync('activeApp');
 			}
-			const fieldModelsData = JSON.parse(JSON.stringify(self.fieldsModel));
+			console.log('-===-=-==-=-=-=-=-=',self.modelData,this.procData)
+			let fieldModelsData = JSON.parse(JSON.stringify(self.fieldsModel));
+			if(!self.procData.id){
+				fieldModelsData = JSON.parse(JSON.stringify(self.fieldsModel));
+			}else{
+				fieldModelsData = JSON.parse(JSON.stringify(self.procData));
+			}
+			
 			// #ifdef H5
 			top.user = uni.getStorageSync('login_user_info');
 			// #endif
@@ -1136,6 +1190,7 @@ export default {
 				// 	;
 				// 	// condition = condition.concat(self.fieldData.condition)
 				// }
+				
 				condition = condition.map(item => {
 					if (item.value.indexOf('data.') !== -1) {
 						let colName = item.value.slice(item.value.indexOf('data.') + 5);
@@ -1160,13 +1215,17 @@ export default {
 				appName = 'sso';
 			}
 			let res = await self.onRequest('select', req.serviceName, req, appName);
+			console.log("0000000000000000000",res,this.service)
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 				if (
 					self.service &&
 					(self.service == 'srvzhxq_syrk_add' ||
 						self.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
-						self.service == 'srvzhxq_repairs_add')
+						self.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
+						self.service == 'srvzhxq_clgl_add'
+						)
 				) {
+					
 					self.treeSelectorData = [];
 					res.data.data.forEach(item => {
 						self.treeSelectorData.push(item);
@@ -1176,6 +1235,9 @@ export default {
 						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] === self.fieldData.value) {							
 							self.fieldData['colData'] = item;
 							
+						}else if(self.service == 'srvzhxq_repairs_add' && self.fieldData.option_list_v2){
+							self.fieldData.option_list_v2['key_disp_col'] = 'name'
+							self.fieldData['colData'] = item;
 						} else if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] && !self.fieldData.value) {
 							let colData = JSON.parse(JSON.stringify(item));
 							let refed_col = self.fieldData.option_list_v2.refed_col;
@@ -1215,6 +1277,7 @@ export default {
 							return a;
 						});
 					} else {
+						
 						self.treeSelectorData = res.data.data;
 					}
 					self.treeSelectorData.forEach(item => {
@@ -1224,6 +1287,7 @@ export default {
 					});
 				}
 			}
+		}
 	},
 	watch: {
 		field: {
@@ -1252,6 +1316,8 @@ export default {
 		fieldsModel: {
 			handler: function(newValue, oldValue) {
 				console.log('fieldsModel--------', newValue);
+				// this.modelData = JSON.parse(JSON.stringify(newValue))
+				// console.log('this.modelData........', this.modelData);
 				//    if(self.fieldData.type === "list"){
 				//  let listItemModel =  self.fieldData.optionsConfig.model
 				//  let colKey = self.fieldData.optionsConfig.conditions
@@ -1273,7 +1339,6 @@ export default {
 	line-height: 2.4em;
 	min-height: 2.4em;
 }
-
 /* #ifdef MP-WEIXIN */
 .valid_error {
 	.form-content {
@@ -1410,6 +1475,7 @@ uni-text.input-icon {
 		height: auto;
 		margin: 10px 0 0px;
 		line-height: 60rpx;
+		overflow: scroll;
 	}
 }
 .cu-card.article > .cu-item .title {
@@ -1492,10 +1558,5 @@ uni-text.input-icon {
 }
 .cu-form-group uni-picker::after {
 	display: none !important;
-}
-.valid_error {
-	.form-content {
-		border: 1rpx solid #ff0000;
-	}
 }
 </style>

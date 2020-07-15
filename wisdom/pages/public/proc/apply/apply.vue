@@ -19,7 +19,7 @@
 				<button class="bg-green cu-btn lg" @click="submitData" v-if="!showShareButton && hasSubmit === false">提交</button>
 				<button class="bg-green cu-btn lg" @click="showShareButton = true" v-if="showShareButton && hasSubmit">邀请绑定</button>
 				<!-- <button class="bg-green cu-btn lg" open-type="share">邀请</button> -->
-				<button class="bg-green cu-btn lg" @click="toList">查看记录</button>
+				<!-- <button class="bg-green cu-btn lg" @click="toList">查看记录</button> -->
 				<!-- #ifdef MP-WEIXIN -->
 				<!-- <button class="share-btn cu-btn lg bg-blue" open-type="share">分享</button> -->
 				<!-- #endif -->
@@ -160,12 +160,14 @@ export default {
 					leftTempWord: leftTempWord
 				};
 			}
+			
 			uni.navigateTo({
 				url: '/pages/public/proc/procList/procList?query=' + encodeURIComponent(JSON.stringify(query))
 			});
 		},
 		async submitData() {
 			let serviceName = this.serviceName;
+			console.log("service_name",serviceName)
 			let itemData = this.$refs.bxForm.getFieldModel();
 			console.log('itemData', itemData);
 			if (!itemData) {
@@ -176,6 +178,13 @@ export default {
 						itemData[item] = uni.getStorageSync('login_user_info').user_no;
 					}
 				});
+				if(serviceName == 'srvzhxq_member_fuwu_add'){
+					Object.keys(itemData).forEach(item => {
+						if (item == 'openid') {
+							itemData[item] = uni.getStorageSync('login_user_info').user_no;
+						}
+					});
+				}
 				let req = [
 					{
 						data: [itemData],
@@ -373,8 +382,13 @@ export default {
 		let userInfo = uni.getStorageSync('infoObj');
 		let basicInfo = uni.getStorageSync('basics_info');
 		let query = {};
-		if (option.query) {
-			query = JSON.parse(decodeURIComponent(option.query));
+		if (!option.query) {
+			query = option;
+		}else{
+			query = JSON.parse(decodeURIComponent(option.query))
+		}
+		if (query) {
+			// query = JSON.parse(decodeURIComponent(option.query));
 			if (query.cond) {
 				let conds = JSON.parse(query.cond);
 				conds.forEach(item => {
@@ -408,9 +422,7 @@ export default {
 				this.defaultCondition = conds;
 			}
 		}
-		if (!option.query) {
-			query = option;
-		}
+		
 		if (query.serviceName) {
 			this.serviceName = query.serviceName;
 		}

@@ -33,6 +33,7 @@ export default {
   data() {
     return {
       TabCur: 0,
+	  oldData:{},
       scrollLeft: 0,
       tabList: [
         {
@@ -158,6 +159,22 @@ export default {
   	//  }
   },
   methods: {
+	  async getFKcode(fkcode){
+	  		  let req = {
+	  			  serviceName:"srvzhxq_guest_mgmt_select",
+	  			   colNames: ['*'],
+	  			  condition:[{
+	  				  colName:"id",
+	  				  ruleType:"eq",
+	  				  value:fkcode
+	  			  }]
+	  		  }
+	  		  let res = await this.onRequest('select', req.serviceName, req, uni.getStorageSync('activeApp'))
+	  		  console.log("------------====",res.data.data)
+	  		  if(res.data.data.length>0){
+	  			  return res.data.data[0].qr_code
+	  		  }
+	  },
 	async submitData(){
 		let itemData = this.$refs.bxDetailForm.getFieldModel();
 		console.log("itemData",itemData)
@@ -171,19 +188,28 @@ export default {
 			//   }
 			// ];
 			itemData['proc_status'] = '完成'
+			itemData['fwbm'] = this.oldData['fwbm']
 			let req = [{ data: [itemData],serviceName: 'srvzhxq_guest_mgmt_fangke_update', colNames: ['*'], condition: [{ colName: 'id', ruleType: 'eq', value: this.proc_instance_no }] }]
 			// let res = await this.onRequest('operate', 'srvzhxq_guest_mgmt_fangke_update', 'zhxq');
 			let res = await this.onRequest('operate', 'srvzhxq_guest_mgmt_fangke_update', req,uni.getStorageSync('zhxq'));
 			if(res.data.state === 'SUCCESS'){
+				console.log("---------------------",res.data.response[0].response.effect_data[0].id)
+				let resDataId = res.data.response[0].response.effect_data[0].id
+				this.getFKcode(resDataId).then(codes=>{
 				if(!this.detailQuery || !this.detailQuery.type){
-					uni.redirectTo({
-						url:'/pages/specific/permit/permit'
-					})
+					// let resData = res.data.response[0].response;	
+									console.log("codes======",codes)
+						if(codes){
+							uni.redirectTo({
+								url:'/pages/specific/permit/permit?code=' + codes
+							})
+						}					
 				}else{
 					uni.redirectTo({
-						url:'/pages/specific/permit/permit&type=share'
+						url:'/pages/specific/permit/permit?type=share&code=' + codes
 					})
 				}
+				})
 				
 			}
 			console.log("res-----=========",res)
@@ -583,10 +609,14 @@ export default {
 		  // this.fields = fields
 		  this.getDetail('srvzhxq_guest_mgmt_select',fields).then(a=>{
 			  let infoObj = uni.getStorageSync('infoObj')
+			  this.oldData = JSON.parse(JSON.stringify(a))
 			  fields.forEach(item=>{
 				  for(let key in a){
 					  if(item.column == key){
 						  item.value = a[key]
+						  if(key == 'fwbm'){
+							  item.value = a['_fwbm_disp']
+						  }
 						  if(a[key]){
 							  item.disabled = false
 						  }

@@ -38,7 +38,7 @@
 				</view>
 			</view>
 		</view>
-		<!-- <view class="public-button-box"><view class="add-button" @click="toApply"></view></view> -->
+		<view class="public-button-box"><view class="add-button" @click="toApply"></view></view>
 	</view>
 </template>
 
@@ -127,15 +127,37 @@ export default {
 			let date = this.getDayDate(new Date());
 			let cond = [];
 			console.log('date-------', date);
+			
 			if (this.listConfig.addService == 'srvzhxq_guest_mgmt_add') {
 				cond = [
+					// {
+					// 	colName: 'fwrq',
+					// 	ruleType: 'eq',
+					// 	value: date
+					// },
 					{
-						colName: 'fwrq',
-						ruleType: 'eq',
-						value: date
-					}
+							"colName": "fwrq",
+							"ruleType": "eq",
+							"value": "dateTime"
+						},
+						{
+							"colName": "xm",
+							"ruleType": "eq",
+							"value": "xm"
+						},
+						{
+							"colName": "lxdh",
+							"ruleType": "eq",
+							"value": "lxdh"
+						},
+						{
+							"colName": "zjhm",
+							"ruleType": "eq",
+							"value": "zjhm"
+						}
 				];
 			} else if (this.listConfig.addService == 'srvzhxq_repairs_add') {
+				debugger
 				if (this.condItem) {
 					cond = [
 						{
@@ -144,13 +166,79 @@ export default {
 							value: this.condItem.lxfs
 						},
 						{
+							"colName": "lybm",
+							"ruleType": "eq",
+							"value": "lybm"
+						},
+						{
+							"colName": "dybm",
+							"ruleType": "eq",
+							"value": "dybm"
+						},
+						{
 							colName: 'fwbm',
 							ruleType: 'eq',
 							value: this.condItem.fwbm
 						}
 					];
 				}
+			}else if (this.listConfig.addService == 'srvzhxq_syrk_add') {
+				if (this.condItem) {
+					cond = [
+						{
+							"colName": "xm",
+							"ruleType": "eq",
+							"value": "xm"
+						},
+						{
+							"colName": "lxfs",
+							"ruleType": "eq",
+							"value": "lxfs"
+						},
+						{
+							"colName": "gmsfhm",
+							"ruleType": "eq",
+							"value": "gmsfhm"
+						}
+					];
+				}
+			}else if (this.listConfig.addService == 'srvzhxq_clgl_add') {
+				if (this.condItem) {
+					cond = [
+						    {
+								"colName": "lybm",
+								"ruleType": "eq",
+								"value": "lybm"
+							},
+							{
+								"colName": "dybm",
+								"ruleType": "eq",
+								"value": "dybm"
+							},
+							{
+								"colName": "fwbm",
+								"ruleType": "eq",
+								"value": "fwbm"
+							}
+					];
+				}
+			}else if(this.listConfig.addService == 'srvzhxq_member_fuwu_add'){
+				if (this.condItem) {
+					cond = [
+						{
+								"colName": "xm",
+								"ruleType": "eq",
+								"value": "xm"
+							},
+							{
+								"colName": "lxdh",
+								"ruleType": "eq",
+								"value": "lxdh"
+							}
+					];
+				}
 			}
+
 
 			uni.navigateTo({
 				url: '../apply/apply?serviceName=' + this.listConfig.addService + '&cond=' + JSON.stringify(cond)
@@ -364,7 +452,7 @@ export default {
 		}
 	},
 	onLoad(option) {
-		
+		console.log("option----",option)
 		if (option.query) {
 			console.log('option----', option.query);
 			this.listConfig.query = JSON.parse(decodeURIComponent(option.query));
@@ -393,7 +481,58 @@ export default {
 		querysApp = queryWx.destApp;
 		queryser = queryWx.serviceName;
 		queryViewTemp = queryWx.viewTemp;
-		this.listConfig.queryLeftWord = queryWx.leftTempWord;
+		let isOwner = uni.getStorageSync('is_owner');
+		let leftTempWord = {
+			   title: '身份证号',
+				tip: '联系电话',
+				footer: '访问时间',
+				title_col: 'zjhm',
+				tip_col: 'lxdh',
+				footer_col: 'create_time'}
+		if (queryser.indexOf('zhxq_guest_mgmt') !== -1 && !isOwner) {
+			leftTempWord.title = '访问地址';
+		}
+		if (queryser.indexOf('zhxq_syrk') !== -1) {
+			leftTempWord = {
+				title: '人员类型',
+				tip: '身份证号',
+				footer: '联系电话',
+				title_col: 'rylx',
+				tip_col: 'gmsfhm',
+				footer_col: 'lxfs'
+			};
+		}
+		if (queryser.indexOf('zhxq_repairs') !== -1) {
+			leftTempWord = {
+				title: '保修类型',
+				tip: '联系电话',
+				footer: '保修内容',
+				title_col: 'type',
+				tip_col: 'lxdh',
+				footer_col: 'remark'
+			};
+		}
+		if (queryser.indexOf('zhxq_member_fuwu') !== -1) {
+			leftTempWord = {
+				title: '职业',
+				tip: '联系电话',
+				footer: '申请时间',
+				title_col: 'zhiye',
+				tip_col: 'lxdh',
+				footer_col: 'create_time'
+			};
+		}
+		if (queryser.indexOf('zhxq_clgl') !== -1) {
+			leftTempWord = {
+				title: '车牌号',
+				tip: '车辆类型',
+				footer: '车辆颜色',
+				title_col: 'cphm',
+				tip_col: '_cllx_disp',
+				footer_col: '_csys_disp'
+			};
+		}
+		this.listConfig.queryLeftWord = leftTempWord;
 		// #endif
 		if (querysApp) {
 			uni.setStorageSync('activeApp', querysApp);

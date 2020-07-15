@@ -478,6 +478,7 @@ export default {
 		let serviceName = this.serviceName;
 		let isOwner = uni.getStorageSync('is_owner');
 		let isWy = uni.getStorageSync('isWy');
+		let isBaoAn = uni.getStorageSync('is_baoan')
 		if (isWy == true && (serviceName == 'srvzhxq_member_fuwu_select' || serviceName == 'srvzhxq_clgl_select')) {
 			this.tabList = [
 				{
@@ -525,22 +526,7 @@ export default {
 					}
 				}
 			];
-		} else if (!isOwner && serviceName == 'srvzhxq_guest_mgmt_select') {
-			this.tabList = [
-				{
-					label: '我的全部',
-					proc_data_type: 'myall',
-					data: [],
-					total: 0,
-					page: {
-						total: 0,
-						rownumber: 5,
-						pageNo: 1
-					}
-				},
-				
-			];
-		} else if (isOwner && serviceName == 'srvzhxq_guest_mgmt_select') {
+		} else if ((isOwner || isBaoAn) && serviceName == 'srvzhxq_guest_mgmt_select') {
 			this.tabList = [
 				{
 					label: '待我处理',
@@ -587,7 +573,22 @@ export default {
 					}
 				}
 			];
-		} else if (
+		}else if (!isOwner && serviceName == 'srvzhxq_guest_mgmt_select') {
+			this.tabList = [
+				{
+					label: '我的申请',
+					proc_data_type: 'mine',
+					data: [],
+					total: 0,
+					page: {
+						total: 0,
+						rownumber: 5,
+						pageNo: 1
+					}
+				},
+				
+			];
+		}  else if (
 			serviceName == 'srvzhxq_repairs_select' ||
 			serviceName == 'srvzhxq_syrk_select' ||
 			serviceName == 'srvzhxq_member_fuwu_select' ||

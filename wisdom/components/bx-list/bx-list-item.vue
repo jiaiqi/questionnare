@@ -51,7 +51,7 @@
 							<button
 								class="cu-btn round sm text-blue line-blue"
 								:class="'cuIcon-' + item.button_type"
-								v-if="deRowButDisplay(itemData, item) && !detailList && item.button_type !== 'applyProc'&& item.button_type !== 'customize' && item.disp_show !== false"
+								v-if="deRowButDisplay(itemData, item) && !detailList && item.button_type !== 'applyProc' && item.button_type !== 'customize' && item.disp_show !== false"
 								@click="footBtnClick(item)"
 								:key="item.id"
 							>
@@ -400,13 +400,25 @@ export default {
 					this.goodsData.title = newValue[this.viewTemp.title];
 				}
 				if (newValue[this.viewTemp.tip]) {
-					this.goodsData.tip = newValue[this.viewTemp.tip];
+					if (this.viewTemp.tip === 'gender' && (newValue[this.viewTemp.tip] === '1' || newValue[this.viewTemp.tip] === '2')) {
+						this.goodsData.tip = newValue[this.viewTemp.tip] === '1' ? '男' : newValue[this.viewTemp.tip] === '2' ? '女' : '未知';
+					} else {
+						this.goodsData.tip = newValue[this.viewTemp.tip];
+					}
 				}
 				if (newValue[this.viewTemp.price]) {
-					this.goodsData.price = newValue[this.viewTemp.price];
+					if (this.viewTemp.price === 'gender' && (newValue[this.viewTemp.price] === '1' || newValue[this.viewTemp.price] === '2')) {
+						this.goodsData.price = newValue[this.viewTemp.price] === '1' ? '男' : newValue[this.viewTemp.price] === '2' ? '女' : '未知';
+					} else {
+						this.goodsData.price = newValue[this.viewTemp.price];
+					}
 				}
 				if (newValue[this.viewTemp.footer]) {
-					this.goodsData.footer = newValue[this.viewTemp.footer];
+					if (this.viewTemp.footer === 'gender' && (newValue[this.viewTemp.footer] === '1' || newValue[this.viewTemp.footer] === '2')) {
+						this.goodsData.footer = newValue[this.viewTemp.footer] === '1' ? '男' : newValue[this.viewTemp.footer] === '2' ? '女' : '未知';
+					} else {
+						this.goodsData.footer = newValue[this.viewTemp.footer];
+					}
 				}
 				if (newValue[this.viewTemp.number]) {
 					this.goodsData.number = newValue[this.viewTemp.number];

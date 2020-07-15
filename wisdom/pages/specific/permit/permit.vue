@@ -7,8 +7,8 @@
 			<!-- <view class="permit_cen_t">
 				<image src="../../../static/img/permit.png" mode=""></image>
 			</view> -->
-			<canvas canvas-id="qrcode" style="width: 350px;height: 350px;" />
-			
+			<canvas v-show="isShow" canvas-id="qrcode" style="width: 350px;height: 350px;" />
+			<image v-show="!isShow" style="width: 350px;height: 350px;"  :src="url" mode="">{{failText}}</image>
 			<view class="permit_cen_b">
 				<text>进入小区时，请主动出示，配合小区检查人员</text>
 			</view>
@@ -29,7 +29,10 @@
 		data(){
 			return {
 				type:"",
-				code:""
+				code:"",
+				url:"",
+				isShow:true,
+				failText:""
 				
 			}
 		},
@@ -38,10 +41,15 @@
 			if(option && option.type){
 				this.type = option.type
 			}
-			if(option && option.code){
-				this.code = option.code
-				this.make(option.code)
-			}
+			this.$nextTick(()=>{
+				if(option && option.code){
+					this.code = option.code
+					setTimeout(()=>{
+						this.make(option.code)
+					},400)
+				}
+			})
+			
 			// setTimeout(()=>{
 				// this.make("VjAwMSu8cWuljgtCcn/ybfRTRBK8mBwm/ds8QINYB57LJniavQsBZXc2Im0Vd/Ql8R3sXXA=")
 			// },2000)
@@ -59,6 +67,7 @@
 		},
 		methods:{
 			make(code) {
+				let self = this
 				 if(code){
 					 uQRCode.make({
 					   canvasId: 'qrcode',
@@ -73,8 +82,12 @@
 					   correctLevel: 0,
 					   success: res => {
 						   try{
-						   	console.log("加载成功")
+							   self.isShow = false
+								   self.url = res
+								   console.log('self.url',self.url)
+						   	console.log("加载成功",res)
 						   }catch(e){
+							   self.failText = "获取二维码失败，点击重新获取"
 						   	//TODO handle the exception
 							console.log("catch--------失败")
 						   }

@@ -136,9 +136,9 @@ export default {
       if (e.type && e.type === 'more') {
         // 点击了更多按钮
         console.log('点击了更多按钮');
-        uni.navigateTo({
-          url: '/pages/public/home/home'
-        });
+        // uni.navigateTo({
+          // url: '/pages/public/home/home'
+        // });
       } else if (e.type && e.type === 'health') {
         uni.navigateTo({
           url: '/pages/specific/symptom/symptom'

@@ -8,6 +8,7 @@
 				:showTextarea="showTextarea"
 				:fieldsModel="fieldModel"
 				:service="service"
+				:detailFiledData="detailFiledData"
 				ref="fitem"
 				@on-form-item="onItemButtons($event)"
 				@on-value-change="onValChange($event)"
@@ -67,6 +68,12 @@ export default {
 			default: true
 		},
 		moreConfig: {
+			type: Object,
+			default() {
+				return {};
+			}
+		},
+		detailFiledData:{
 			type: Object,
 			default() {
 				return {};
@@ -395,7 +402,6 @@ export default {
 			} else {
 				this.fieldModel[e.column] = e.value;
 			}
-			debugger
 			if (e.column === 'fwbm') {
 				if (e.condition && Array.isArray(e.condition) && e.condition.length > 0 && e.condition[0].colName === e.condition[0].value) {
 					e.condition.forEach(col=>{

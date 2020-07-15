@@ -230,6 +230,9 @@ export default {
 		getFieldsV2: async function() {
 			let app = uni.getStorageSync('activeApp');
 			let colVs = await this.getServiceV2(this.serviceName, this.type, this.type, app);
+			uni.setNavigationBarTitle({
+				title:colVs.service_view_name
+			})
 			this.colsV2Data = colVs;
 			switch (this.type) {
 				case 'update':

@@ -137,6 +137,9 @@ export default {
     async getColV2(serviceName, type) {
       let colVs = await this.getServiceV2(serviceName, type, type, 'oa');
       this.colsV2Data = colVs;
+			uni.setNavigationBarTitle({
+				title:colVs.service_view_name
+			})
       // let type = this.type;
       console.log('colsV2Data', colVs);
       let fields = [];

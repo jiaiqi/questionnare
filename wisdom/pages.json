@@ -7,13 +7,20 @@
 				"navigationBarBackgroundColor": "#0bc99d"
 			}
 		},
+		{
+			"path": "pages/public/index/index",
+			"style": {
+				"navigationBarTitleText": "海纳智慧小区导航",
+				"navigationBarBackgroundColor": "#0bc99d"
+			}
+		},
 		// {
-		//     "path": "pages/public/index/index",
-		//     "style": {
-		//       "navigationBarTitleText": "海纳智慧小区导航",
-		//       "navigationBarBackgroundColor": "#0bc99d"
-		//     }
-		//   },
+		// 	"path": "pages/public/sitePage/sitePage",
+		// 	"style": {
+		// 		"navigationBarTitleText": "海纳智慧小区",
+		// 		"navigationBarBackgroundColor": "#0bc99d"
+		// 	}
+		// },
 		{
 			"path": "pages/public/accountExec/accountExec",
 			"style": {
@@ -44,9 +51,7 @@
 			}
 		}, {
 			"path": "pages/public/proc/procDetail/procDetail",
-			"style": {
-				"navigationBarTitleText": "流程详情"
-			}
+			"style": {}
 		}, {
 			"path": "pages/public/proc/apply/apply",
 			"style": {
@@ -64,15 +69,8 @@
 			}
 		}, {
 			"path": "pages/public/proc/procStepDetail/procStepDetail",
-			"style": {
-				"navigationBarTitleText": "流程步骤详情"
-			}
-		}, {
-			"path": "pages/public/proc/recordDetail/recordDetail",
-			"style": {
-				"navigationBarTitleText": "流程记录详情"
-			}
-		}, {
+			"style": {}
+		},  {
 			"path": "pages/specific/plotSos/plotSos",
 			"style": {
 				"navigationBarTitleText": "紧急求助",
@@ -104,9 +102,6 @@
 			"path": "pages/specific/home/home",
 			"style": {}
 		}, {
-			"path": "pages/public/personInfo/houseList/houseList",
-			"style": {}
-		}, {
 			"path": "pages/addInfo/addInfo",
 			"style": {}
 		}, {
@@ -116,78 +111,11 @@
 			"path": "pages/public/webContainer/webContainer",
 			"style": {}
 		}
+		// {
+		// 	"path": "pages/specific/courseGrid/courseGrid",
+		// 	"style": {}
+		// }
 	],
-	"subPackages": [{
-		"root": "orderPackages",
-		"pages": [{
-				"path": "pages/specific/epidemic/search/search",
-				"style": {
-					"navigationBarTitleText": "海纳智慧小区",
-					"navigationBarBackgroundColor": "#0bc99d"
-				}
-			}, {
-				"path": "pages/specific/epidemic/takePhotos/takePhotos",
-				"style": {
-					"navigationBarTitleText": "海纳智慧小区",
-					"navigationBarBackgroundColor": "#0bc99d"
-				}
-			}, {
-				"path": "pages/specific/added/added",
-				"style": {}
-			}, {
-				"path": "pages/specific/viewRecord/viewRecord",
-				"style": {}
-			}, {
-				"path": "pages/specific/assessmentResult/assessmentResult",
-				"style": {
-					"navigationBarTitleText": "评估",
-					"navigationBarBackgroundColor": "#0bc99d"
-				}
-			},
-			{
-				"path": "pages/specific/questionnaire/questionnaire",
-				"style": {
-					"navigationBarTitleText": "问卷",
-					"navigationBarBackgroundColor": "#0055ff"
-				}
-			},
-			{
-				"path": "pages/specific/activityUpdate/activityUpdate",
-				"style": {
-					"navigationBarTitleText": "问卷编辑",
-					"navigationBarBackgroundColor": "#0bc99d"
-				}
-			},
-
-			{
-				"path": "pages/specific/courseGrid/courseGrid",
-				"style": {}
-			}, {
-				"path": "pages/specific/mapMarks/mapMarks",
-				"style": {}
-			}, {
-				"path": "pages/specific/epidemic/added/added"
-			}, {
-				"path": "pages/specific/epidemic/checkInCarInfo/checkInCarInfo",
-				"style": {
-					"navigationBarTitleText": "海纳智慧小区",
-					"navigationBarBackgroundColor": "#0bc99d"
-				}
-			}, {
-				"path": "pages/specific/epidemic/checkInPersonInfo/checkInPersonInfo",
-				"style": {
-					"navigationBarTitleText": "海纳智慧小区",
-					"navigationBarBackgroundColor": "#0bc99d"
-				}
-			}, {
-				"path": "pages/specific/epidemic/home/home",
-				"style": {
-					"navigationBarTitleText": "海纳智慧小区",
-					"navigationBarBackgroundColor": "#0bc99d"
-				}
-			}
-		]
-	}],
 	"globalStyle": {
 		"navigationBarTitleText": "海纳智慧小区",
 		"navigationBarBackgroundColor": "#0bc99d",

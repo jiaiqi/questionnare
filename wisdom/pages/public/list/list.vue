@@ -70,7 +70,8 @@ export default {
 			showSearchBar: false,
 			showFootBtn: true,
 			tempWord: {},
-			queryParams: {}
+			queryParams: {},
+			queryOption: {}
 		};
 	},
 	onReachBottom() {
@@ -103,8 +104,12 @@ export default {
 		} else {
 			query = JSON.parse(decodeURIComponent(option.query));
 		}
+
 		// query = option
 		// #endif
+		if (option.hasOwnProperty('showAdd')) {
+			this.queryOption = option;
+		}
 		if (query.serviceName == 'srvzhxq_clgl_select') {
 			let users = null;
 			this.getUserInfo().then(u => {
@@ -142,7 +147,6 @@ export default {
 			}
 		}
 		if (query.cond) {
-			;
 			try {
 				let cond = JSON.parse(decodeURIComponent(query.cond));
 				if (Array.isArray(cond)) {
@@ -226,7 +230,6 @@ export default {
 			this.noData = true;
 		},
 		clickAddButton() {
-			console.log('你点击了添加按钮:');
 			if (this.pageType === 'proc') {
 				this.publicButton.map(item => {
 					if (item.button_type === 'add' || item.button_type === 'apply') {
@@ -249,7 +252,6 @@ export default {
 						});
 					} else if (item.button_type === 'customize') {
 						if (item.button_name === '住户录入') {
-							;
 							let queryParams = this.queryParams;
 							let condition = this.condition;
 							let user_no = '';
@@ -260,23 +262,23 @@ export default {
 								eventOrigin: item
 							};
 							params.cond = [
-									{
-										colName: 'fwbm',
-										ruleType: 'condition',
-										value: [
-											{
-												colName: 'dybm',
-												ruleType: 'eq',
-												value: 'dybm'
-											},
-											{
-												colName: 'lybm',
-												ruleType: 'eq',
-												value: 'lybm'
-											}
-										]
-									}
-								];
+								{
+									colName: 'fwbm',
+									ruleType: 'condition',
+									value: [
+										{
+											colName: 'dybm',
+											ruleType: 'eq',
+											value: 'dybm'
+										},
+										{
+											colName: 'lybm',
+											ruleType: 'eq',
+											value: 'lybm'
+										}
+									]
+								}
+							];
 							uni.navigateTo({
 								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
 							});
@@ -329,8 +331,6 @@ export default {
 				}
 			} else {
 				this.onButtonToUrl(data).then(res => {
-					console.log('footBTN :', res);
-
 					if (data.button && data.button.button_type === 'delete') {
 						if (res.state === 'SUCCESS') {
 							this.$refs.bxList.onRefresh();
@@ -351,7 +351,6 @@ export default {
 							serviceName: btn.service_name,
 							defaultVal: row
 						};
-						console.log('点击了【有效】的公共编辑按钮', row);
 						uni.navigateTo({
 							url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
 						});
@@ -426,24 +425,21 @@ export default {
 							// 	url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
 							// });
 							if (data.button.button_name === '绑定房屋') {
-								if(data.row.openid){
+								if (data.row.openid) {
 									uni.navigateTo({
 										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&params=${JSON.stringify(
 											params
 										)}&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"openid","ruleType":"like","value":"${data.row.openid}"}]`
 									});
-								}else{
+								} else {
 									uni.showModal({
-										title:"提示",
-										content:"当前数据未绑定微信用户，请先点击邀请绑定按钮进行账号绑定",
-										showCancel:false,
-										confirmText:"知道了~",
-										success(res) {
-											
-										}
-									})
+										title: '提示',
+										content: '当前数据未绑定微信用户，请先点击邀请绑定按钮进行账号绑定',
+										showCancel: false,
+										confirmText: '知道了~',
+										success(res) {}
+									});
 								}
-								
 							} else {
 								uni.navigateTo({
 									url:
@@ -492,6 +488,7 @@ export default {
 		},
 		async getListV2() {
 			let app = uni.getStorageSync('activeApp');
+			let self = this;
 			let colVs = await this.getServiceV2(this.serviceName, 'list', this.pageType === 'proc' ? 'proclist' : 'list', app);
 			colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1);
 			console.log('colVs', colVs);
@@ -499,7 +496,6 @@ export default {
 			if (this.pageType === 'proc') {
 				this.showFootBtn = false;
 			}
-			;
 			this.publicButton = colVs.gridButton.filter(item => {
 				if (item.permission === true) {
 					switch (item.button_type) {
@@ -514,7 +510,11 @@ export default {
 							break;
 						case 'customize':
 							if (item.application === 'zhxq' && item.button_name === '住户录入') {
-								this.showAdd = true;
+								if (self.queryOption && self.queryOption.hasOwnProperty('showAdd')) {
+									self.showAdd = self.queryOption.showAdd === 'false' ? false : self.queryOption.showAdd == 'true' ? true : self.queryOption.showAdd;
+								} else {
+									self.showAdd = true;
+								}
 								return item;
 							}
 					}
@@ -531,7 +531,10 @@ export default {
 			};
 		} else if (
 			res.target.dataset.info.button_type === 'customize' &&
-			(res.target.dataset.info.button_name == '邀请绑定' || res.target.dataset.info.button_name == '重新绑定') &&
+			(res.target.dataset.info.button_name == '邀请绑定' ||
+				res.target.dataset.info.button_name == '重新绑定' ||
+				res.target.dataset.info.button_name == '邀请绑定账号' ||
+				res.target.dataset.info.button_name == '重新绑定账号') &&
 			res.target.dataset.id
 		) {
 			return {
@@ -540,7 +543,7 @@ export default {
 			};
 		} else {
 			return {
-				title: '微信小程序测试分享',
+				title: '分享测试',
 				path: '/pages/public/proc/procDetail/procDetail?proc_instance_no=' + res.target.dataset.procno
 			};
 		}

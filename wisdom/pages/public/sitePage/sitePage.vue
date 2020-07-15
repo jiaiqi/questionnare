@@ -70,9 +70,17 @@ export default {
 										});
 										return;
 									}
+									uni.navigateTo({
+										url: e.dest_page
+									});
+									return;
 									let urlArgumentIndex = e.dest_page.indexOf('?');
 									let urlAllArgument = e.dest_page.split('?');
 									let queryObj = {};
+									uni.navigateTo({
+										url: e.dest_page
+									});
+									return
 									if (urlArgumentIndex >= 0) {
 										/** 确保在登录状态下进行跳转*/
 										if (urlAllArgument[1].indexOf('&') < 0) {
@@ -134,11 +142,10 @@ export default {
 							});
 						}
 					});
-				})
-				
+				});
 			}
 		},
-		async getbasicsInfo(){
+		async getbasicsInfo() {
 			let user_no = uni.getStorageSync('login_user_info').user_no;
 			let urls = this.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
 			let reqs = {
@@ -244,20 +251,64 @@ export default {
 					uni.setStorageSync('infoObj', ress.data.data[0]);
 					uni.setStorageSync('infoObjArr', ress.data.data);
 					return this.isOwner;
-				}else{
+				} else {
 					uni.setStorageSync('is_owner', false);
-					uni.setStorageSync('infoObj', "");
-					uni.setStorageSync('infoObjArr', ress.data.data)
+					uni.setStorageSync('infoObj', '');
+					uni.setStorageSync('infoObjArr', ress.data.data);
+				}
+			}
+		},
+		async getCurrUserType(){
+			let user_no = uni.getStorageSync('basics_info').openid;
+			let urls = this.getServiceUrl('zhxq', 'srvzhxq_member_fuwu_select', 'select');
+			let reqs = {
+				serviceName: 'srvzhxq_member_fuwu_select',
+				colNames: ['*'],
+				condition: [
+					{
+						colName: 'openid',
+						ruleType: 'eq',
+						value: user_no
+					},
+					{
+						colName: 'proc_status',
+						ruleType: 'eq',
+						value: '完成'
+					},
+					{
+						colName:"is_open",
+						ruleType:"eq",
+						value:"是"
+					}
+					// {
+					//  colName:"is_fuzeren",
+					//  ruleType:"eq",
+					//  value:"是"
+					// }
+				]
+			};
+			let ress = await this.$http.post(urls, reqs);
+			if (ress.data.state === 'SUCCESS') {
+				if (ress.data.data.length > 0) {
+					ress.data.data.forEach(item=>{
+						if(item.zhiye == '保安'){
+							uni.setStorageSync('is_baoan',true)
+							return
+						}
+					})
+					
+				}else{
+					uni.setStorageSync('is_baoan',false)
 				}
 			}
 		}
 	},
-	
+
 	onShow() {
-	
 		if (uni.getStorageSync('activeApp') == 'zhxq') {
 			this.getUserInfoLimits();
-			this.getbasicsInfo()
+			this.getbasicsInfo();
+			this.getCurrUserType()
 		}
 	},
 	created() {
@@ -274,13 +325,12 @@ export default {
 		// #endif
 	},
 	onLoad(option) {
-			console.log("-0-0-0-0-0-0-0-0-0-0-0",option)
+		console.log('-0-0-0-0-0-0-0-0-0-0-0', option);
 		this.website_no = option.website_no;
 		uni.setStorageSync('is_owner', false);
 		if (this.website_no == 'WS2020060611100007') {
 			uni.setStorageSync('activeApp', 'zhxq');
 		}
-		
 	},
 	onShareAppMessage(res) {
 		return {

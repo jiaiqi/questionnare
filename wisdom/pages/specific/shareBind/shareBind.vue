@@ -147,6 +147,9 @@ export default {
 										if(wxuserinfo.province){
 											data['province'] = wxuserinfo.province
 										}
+										if(user_no){
+											data['openid'] = user_no
+										}
 										console.log('------基础信息绑定------', data, wxuserinfo);
 									}
 								}
