@@ -173,13 +173,13 @@ export default {
 			let app = uni.getStorageSync('activeApp');
 			let colVs = await this.getServiceV2(this.serviceName, this.type, this.type, app);
 			uni.setNavigationBarTitle({
-				title:colVs.service_view_name
-			})
+				title: colVs.service_view_name
+			});
 			this.colsV2Data = colVs;
 			let self = this;
 			switch (this.type) {
 				case 'update':
-				// 
+				//
 				//       this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, this.params.defaultVal);
 				//       break;
 				case 'add':
@@ -213,19 +213,21 @@ export default {
 										field.column === 'xm' &&
 										self.params.defaultVal['real_name'] &&
 										self.params.eventOrigin &&
-										(self.params.eventOrigin.service === 'srvzhxq_member_front_select'||self.params.eventOrigin.service_name==='srvzhxq_syrk_wuye_add')
+										(self.params.eventOrigin.service === 'srvzhxq_member_front_select' || self.params.eventOrigin.service_name === 'srvzhxq_syrk_wuye_add')
 									) {
 										// 如果是从人员登记列表进入的
 										field.value = self.params.defaultVal['real_name'];
 										field.disabled = true;
 									}
-									if(field.column === 'gmsfhm' &&
-										self.params.defaultVal['picp'] ){
+									if (field.column === 'gmsfhm' && self.params.defaultVal['picp']) {
 										field.value = self.params.defaultVal['picp'];
 										field.disabled = true;
 									}
-									if(field.column === 'openid' &&
-										self.params.defaultVal['openid'] ){
+									if (field.column === 'sex' && self.params.defaultVal['gender']) {
+										field.value = self.params.defaultVal['gender'];
+										// field.disabled = true;
+									}
+									if (field.column === 'openid' && self.params.defaultVal['openid']) {
 										field.value = self.params.defaultVal['openid'];
 										field.disabled = true;
 									}
@@ -233,7 +235,6 @@ export default {
 							});
 						});
 					}
-
 					this.fields = colVs._fieldInfo;
 					break;
 				case 'detail':
@@ -245,8 +246,8 @@ export default {
 		},
 		async onButton(e) {
 			let req = this.$refs.bxForm.getFieldModel();
-			
-			if ((e.service_name == 'srvzhxq_syrk_wuye_add' || e.service_name == 'srvzhxq_syrk_add') && (!req.proc_status || req.proc_status != '完成')&&req) {
+
+			if ((e.service_name == 'srvzhxq_syrk_wuye_add' || e.service_name == 'srvzhxq_syrk_add') && (!req.proc_status || req.proc_status != '完成') && req) {
 				req.proc_status = '完成';
 			}
 			console.log(e, req);
@@ -279,6 +280,7 @@ export default {
 					}
 					break;
 				case 'submit':
+					console.log('addServiceName:', e.service_name);
 					if (req) {
 						req = [{ serviceName: e.service_name, data: [req] }];
 						let app = uni.getStorageSync('activeApp');

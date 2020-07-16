@@ -371,6 +371,7 @@ export default {
 								defaultVal: res.row,
 								eventOrigin: res.button
 							};
+							debugger
 							if ((data.button.main_table = 'bxzhxq_member' && data.button.operate_service === 'srvzhxq_syrk_add')) {
 								params.cond = [
 									{
@@ -401,6 +402,7 @@ export default {
 								defaultVal: res.row,
 								eventOrigin: res.button
 							};
+							// debugger
 							if ((data.button.main_table = 'bxzhxq_member' && data.button.operate_service === 'srvzhxq_syrk_select')) {
 								params.cond = [
 									{

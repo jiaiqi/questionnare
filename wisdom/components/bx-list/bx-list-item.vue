@@ -114,7 +114,7 @@
 					</view>
 					<view class="foot-button">
 						<text
-							v-if="deRowButDisplay(itemData, item) && !detailList"
+							v-if="deRowButDisplay(itemData, item) && !detailList&&item.disp_show !== false"
 							class="cu-btn round sm text-blue line-blue"
 							:class="'cuIcon-' + item.button_type"
 							v-for="item in rowButtons"
@@ -380,6 +380,7 @@ export default {
 					}
 					if (typeof more_config === 'object' && more_config && more_config.formulaShow) {
 						btn['disp_show'] = evaluatorTo(data, more_config.formulaShow);
+						debugger
 					}
 					// }
 				});
