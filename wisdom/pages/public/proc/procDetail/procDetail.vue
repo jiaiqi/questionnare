@@ -52,7 +52,7 @@
 		<view class="bottom-bar">
 			<view class="" style="flex: 1;">
 				<view class="">
-					<text class="text-gray">当前步骤：</text>
+					<text class="text-gray">{{ currentStepInfo.state==='已处理'?"当前状态：" :"当前步骤："}}</text>
 					<text class="value text-blue">{{ currentStepInfo.state==='已处理'?currentStepInfo.state :currentStepInfo.step_name }}</text>
 				</view>
 				<view class="approve">
@@ -77,7 +77,6 @@
 					<!-- 申请 -->
 					{{currentStepInfo.step_name}}
 				</text>
-				<!-- <button class="cu-btn bg-blue margin-right" open-type="share" style="border-radius: 0;">分享</button> -->
 			</view>
 		</view>
 		<uni-popup ref="approvalPopup" type="bottom">
@@ -521,13 +520,7 @@ export default {
 						if (!itemData) {
 							itemData = this.activityData;
 						}
-						debugger
-						// if (!itemData.file_no) {
-						// 	itemData.file_no = '';
-						// }
-						// if (!itemData.remark) {
-						// 	itemData.remark = '';
-						// }
+						
 						let req = [
 							{
 								serviceName: serviceName,

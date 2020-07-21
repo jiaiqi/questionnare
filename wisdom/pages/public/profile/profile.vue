@@ -61,19 +61,6 @@
 						<text class="text-grey">报修记录</text>
 					</view>
 				</view>
-
-				<!-- <view @tap="faceReg" class="cu-item" :class="menuArrow?'arrow':''">
-					<view class="content">
-						<image src="../../../static/face.png" class="png" mode="aspectFit"></image>
-						<text class="text-grey">人脸登记</text>
-					</view>
-				</view> -->
-				<!-- <view class="cu-item" :class="menuArrow?'arrow':''">
-        	<view class="content">
-        		<image src="../../../static/join.png" class="png" mode="aspectFit"></image>
-        		<button open-type="share" class="btn">邀请加入</button>
-        	</view>
-        </view> -->
 				<view @click="toApply" class="cu-item" :class="menuArrow ? 'arrow' : ''">
 					<view class="content">
 						<image src="../../../static/yq.png" class="png" mode="aspectFit"></image>
@@ -166,21 +153,64 @@ export default {
 			uni.navigateTo({
 				// url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=house',
 				url:
-					'/pages/public/list/list?serviceName=srvzhxq_syrk_select&showAdd=false&pageType=list&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"is_fuzeren","ruleType":"like","value":"是"},{"colName":"openid","ruleType":"like","value":"user_no"}]'
+					'/pages/public/list/list?serviceName=srvzhxq_syrk_select&showRowButton=false&showAdd=false&from=house&pageType=list&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"is_fuzeren","ruleType":"like","value":"是"},{"colName":"openid","ruleType":"like","value":"user_no"}]'
 			});
 		},
-		toFamily() {
+		async toFamily() {
 			let params = {
 				defaultVal: {
 					// openid:uni.getStorageSync('login_user_info').user_no
 				}
 			};
-			uni.navigateTo({
-				url:
-					'/pages/public/list/list?serviceName=srvzhxq_member_front_select&params=' +
-					JSON.stringify(params) +
-					'&pageType=list&viewTemp={"title":"real_name","tip":"gender","footer":"tel","img":"head_img"}&cond=[{"colName":"create_user","ruleType":"like","value":"user_no"},{"colName":"openid","ruleType":"ne","value":"user_no"}]'
-			});
+			let fwbms = uni.getStorageSync('infoObjArr');
+			let str = [];
+
+			if (fwbms && Array.isArray(fwbms) && fwbms.length > 0) {
+				fwbms.forEach(item => {
+					str.push(item.fwbm);
+				});
+			}
+			let strs = str.toString();
+			const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
+			let req = {
+				serviceName: 'srvzhxq_syrk_select',
+				colNames: ['*'],
+				condition: [
+					{ colName: 'fwbm', ruleType: 'in', value: strs },
+					{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
+					{ colName: 'status', ruleType: 'eq', value: '有效' }
+					// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
+				]
+			};
+			const res = await this.$http.post(url, req);
+			if (res.data.state === 'SUCCESS') {
+				let fwbms = res.data.data.map(item => {
+					return item.openid;
+				});
+				let relation_condition = {};
+				relation_condition = {
+					relation: 'OR',
+					data: [{ colName: 'create_user', ruleType: 'eq', value: uni.getStorageSync('login_user_info').user_no }]
+				};
+				if (fwbms.length > 0) {
+					relation_condition.data.push({ colName: 'openid', ruleType: 'in', value: fwbms.toString() });
+				}
+				uni.navigateTo({
+					url:
+						'/pages/public/list/list?serviceName=srvzhxq_member_front_select&params=' +
+						JSON.stringify(params) +
+						'&pageType=list&viewTemp={"title":"real_name","tip":"gender","footer":"tel","img":"head_img"}&relation_condition=' +
+						JSON.stringify(relation_condition)
+				});
+				// uni.navigateTo({
+				// 	url:
+				// 		'/pages/public/list/list?serviceName=srvzhxq_member_front_select&params=' +
+				// 		JSON.stringify(params) +
+				// 		'&pageType=list&viewTemp={"title":"real_name","tip":"gender","footer":"tel","img":"head_img"}&relation_cond=[{"colName":"openid","ruleType":"in","value":"' +
+				// 		fwbms.toString() +
+				// 		'"}]'
+				// });
+			}
 		},
 		toRepair() {
 			if (uni.getStorageSync('infoObjArr').length > 0) {
@@ -263,10 +293,10 @@ export default {
 					serviceName: 'srvzhxq_syrk_select',
 					colNames: ['*'],
 					condition: [
-						{ colName: 'create_user', ruleType: 'eq', value: user },
+						{ colName: 'openid', ruleType: 'eq', value: user },
 						{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
-						{ colName: 'status', ruleType: 'eq', value: '有效' },
-						{ colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
+						{ colName: 'status', ruleType: 'eq', value: '有效' }
+						// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
 					]
 				};
 				const res = await this.$http.post(url, req);
@@ -339,7 +369,8 @@ export default {
 				},
 				fail: function() {
 					uni.setStorageSync('isAuth', false);
-					self.checkAuthorization();
+					console.log('checkAuthorization');
+					// self.checkAuthorization();
 				}
 			});
 		},
@@ -366,14 +397,23 @@ export default {
 	},
 
 	onShow() {
-		console.log('onShow');
-		this.getWxUserInfo();
+		console.log('onShow:checkAuthorization');
+		// this.getWxUserInfo();
+		// this.checkAuthorization()
 		this.userInfo = uni.getStorageSync('wxuserinfo');
+		if (!uni.getStorageSync('wxuserinfo')) {
+			console.log('!uni.getStorageSync(wxuserinfo)----onShow');
+			this.checkAuthorization();
+		}
 	},
 	mounted() {
-		this.getWxUserInfo();
+		// this.getWxUserInfo();
 		this.getUserInfo();
 		this.userInfo = uni.getStorageSync('wxuserinfo');
+		if (!uni.getStorageSync('wxuserinfo')) {
+			console.log('!uni.getStorageSync(wxuserinfo)----mounted');
+			this.checkAuthorization();
+		}
 	}
 	// onLoad() {
 	// 	this.getWxUserInfo()

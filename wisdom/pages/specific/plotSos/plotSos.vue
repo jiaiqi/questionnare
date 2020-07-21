@@ -13,14 +13,14 @@
 				紧急电话
 			</view>
 			<view class="cu-list menu">
-				<view class="cu-item">
-					<view class="content content_tt">
-						<text class="text-grey content_t">小区负责人：</text>
-						<text class="text-grey">17721051437</text>
+				<view v-for="(item,index) in listData" :key="index" class="cu-item">
+					<view @tap="callUp(item)" class="content content_tt">
+						<text class="text-grey content_t">{{item.name}}：</text>
+						<text class="text-grey">{{item.phone}}</text>
 						<!-- <text class="text-grey">图标 + 标题</text> -->
 					</view>
 				</view>
-				<view class="cu-item">
+				<!-- <view class="cu-item">
 					<view class="content content_tt">
 						<text class="text-grey content_t">物业：</text>
 						<text class="text-grey">17532140514</text>
@@ -43,13 +43,45 @@
 						<text class="text-grey content_t">急救中心：</text>
 						<text class="text-grey">120</text>
 					</view>
-				</view>
+				</view> -->
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
+	export default {
+		name:'plotSos',
+		data(){
+			return {
+				listData:[
+				{
+					name:"小区负责人",
+					phone:"17721051437"
+				},
+				{
+					name:"物业",
+					phone:"17532140514"
+				},{
+					name:"报警电话",
+					phone:"110"
+				},{
+					name:"火警",
+					phone:"119"
+				},{
+					name:"急救中心",
+					phone:"120"
+				},]
+			}
+		},
+		methods:{
+			callUp(item){
+				uni.makePhoneCall({
+				    phoneNumber: item.phone //仅为示例
+				});
+			}
+		}
+	}
 </script>
 
 <style lang="scss" scoped>

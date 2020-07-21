@@ -40,6 +40,28 @@ function evaluatorTo(rowData, formula) {
 					case 'eq': //等于 === equal
 						if (!formula[operator].val) {
 							result = !rowData[evaluator(formula[operator]['col'], result)]
+						} else if (typeof formula[operator].val !== 'string') {
+							// val为对象
+							let valueObj = formula[operator].val
+							let value = ''
+							if (valueObj.value_key && valueObj.value_type) {
+								switch (valueObj.value_type) {
+									case 'rowData':
+										result = rowData[evaluator(formula[operator]['col'], result)] == rowData[valueObj.value_key]
+										break;
+									case 'login_user_info':
+										let login_user_info = uni.getStorageSync('login_user_info')
+										if(login_user_info&&typeof login_user_info==='object'){
+											result = rowData[evaluator(formula[operator]['col'], result)] == login_user_info[valueObj.value_key]
+										}else{
+											result = false
+										}
+										break;
+									default:
+										result = rowData[evaluator(formula[operator]['col'], result)] == rowData[valueObj.value_key]
+										break;
+								}
+							}
 						} else {
 							result = rowData[evaluator(formula[operator]['col'], result)] == formula[operator].val
 						}
@@ -47,6 +69,29 @@ function evaluatorTo(rowData, formula) {
 					case 'neq': //不等于 !== not equal
 						if (!formula[operator].val) {
 							result = !!rowData[evaluator(formula[operator]['col'], result)]
+						} else if (typeof formula[operator].val !== 'string') {
+							// val为对象
+							let valueObj = formula[operator].val
+							let value = ''
+							if (valueObj.value_key && valueObj.value_type) {
+								switch (valueObj.value_type) {
+									case 'rowData':
+										result = rowData[evaluator(formula[operator]['col'], result)] != rowData[valueObj.value_key]
+										break;
+									case 'login_user_info':
+									case 'top.user':
+										let login_user_info = uni.getStorageSync('login_user_info')
+										if(login_user_info&&typeof login_user_info==='object'){
+											result = rowData[evaluator(formula[operator]['col'], result)] != login_user_info[valueObj.value_key]
+										}else{
+											result = false
+										}
+										break;
+									default:
+										result = rowData[evaluator(formula[operator]['col'], result)] != rowData[valueObj.value_key]
+										break;
+								}
+							}
 						} else {
 							result = rowData[evaluator(formula[operator]['col'], result)] != formula[operator].val
 						}

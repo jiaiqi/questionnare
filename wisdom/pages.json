@@ -76,13 +76,8 @@
 				"navigationBarTitleText": "紧急求助",
 				"navigationBarBackgroundColor": "#0bc99d"
 			}
-		}, {
-			"path": "pages/specific/faceReg/faceReg",
-			"style": {
-				"navigationBarTitleText": "人脸登记",
-				"navigationBarBackgroundColor": "#0bc99d"
-			}
-		}, {
+		}, 
+		{
 			"path": "pages/public/personInfo/personInfo",
 			"style": {
 				"navigationBarTitleText": "个人信息",

@@ -23,7 +23,7 @@
 				:pullUp="loadData"
 				:enablePullDown="enablePullDown"
 				:enablePullUp="enablePullUp"
-				:top="tabsLength > 1 ? 100 : 0"
+				:top="tabsLength > 1 && listType !== 'list' ? 100 : 0"
 				:fixed="fixed"
 				:bottom="bottom"
 				finishText="我是有底线的..."
@@ -39,6 +39,7 @@
 						:tempWord="tempWord"
 						:viewType="viewType"
 						:imageNum="imageNum"
+						:showButton="showButton"
 						:gridRowNum="gridRowNum"
 						:rowButton="rowButton"
 						:srv_cols="srv_cols"
@@ -96,7 +97,7 @@ export default {
 			rowButton: this.rowButtons,
 			searchCol: '',
 			tabList: [],
-			tabsLength:"",
+			tabsLength: '',
 			proc_data_type: 'wait'
 		};
 	},
@@ -113,6 +114,13 @@ export default {
 				}
 			}
 		},
+		relation_condition: {
+			deep: true,
+			immediate: true,
+			handler(newValue) {
+				console.log('relation_condition', newValue);
+			}
+		},
 		listConfig: {
 			deep: true,
 			immediate: true,
@@ -127,12 +135,12 @@ export default {
 								return item;
 							}
 							if (item.more_config) {
-								let more_config = {}
-								try{
-									more_config =JSON.parse(item.more_config);
-									item['moreConfig'] = more_config
-								}catch(e){
-									console.log(e)
+								let more_config = {};
+								try {
+									more_config = JSON.parse(item.more_config);
+									item['moreConfig'] = more_config;
+								} catch (e) {
+									console.log(e);
 									//TODO handle the exception
 								}
 								if (
@@ -140,14 +148,14 @@ export default {
 									// item.button_type === 'delete' ||
 									item.button_type === 'procdetail' ||
 									((item.button_type === 'customize' && more_config && more_config.type === 'share') || more_config.type === 'qrcode') ||
-									more_config.type === 'primary'||
+									more_config.type === 'primary' ||
 									more_config.type === 'shareBind'
 								) {
 									return item;
 								}
 							}
-							if(item.button_name==='住户登记'||item.button_name==='绑定房屋'){
-								return item
+							if (item.button_name === '住户登记' || item.button_name === '绑定房屋') {
+								return item;
 							}
 						});
 						this.rowButton = rowButton;
@@ -186,6 +194,10 @@ export default {
 		heightStyle: {
 			type: String,
 			default: ''
+		},
+		showButton: {
+			type: String,
+			default: 'true'
 		},
 		// class
 		customClass: {
@@ -258,6 +270,10 @@ export default {
 				[];
 			}
 		},
+		relation_condition: {
+			type: Object,
+			default: () => {}
+		},
 		rownumber: {
 			type: Number,
 			default: 10
@@ -304,7 +320,6 @@ export default {
 			// this.tabList[this.TabCur]['page'] = { total: 0, rownumber: 5, pageNo: 1 };
 			this.listData = [];
 			this.onRefresh();
-			
 		},
 		toSearch() {
 			let keywords = this.searchWords;
@@ -340,6 +355,10 @@ export default {
 				page: { rownumber: this.pageInfo.rownumber, pageNo: this.pageInfo.pageNo },
 				order: this.order
 			};
+			if (self.relation_condition && Array.isArray(self.relation_condition.data) && self.relation_condition.data.length > 0) {
+				req.condition = [];
+				req.relation_condition = self.relation_condition;
+			}
 			if (this.listType === 'proc') {
 				if (proc_data_type || this.proc_data_type) {
 					req['proc_data_type'] = proc_data_type || this.proc_data_type;
@@ -365,6 +384,7 @@ export default {
 				self.pageInfo.total = res.data.page.total;
 				self.pageInfo.pageNo = res.data.page.pageNo;
 				self.$emit('list-change', self.listData);
+
 				if (self.listType === 'proc') {
 					for (let i = 0; i < self.tabList.length; i++) {
 						let item = self.tabList[i];
@@ -445,7 +465,10 @@ export default {
 				// }
 			});
 		},
-		getAllData() {
+		getAllData(pageNos) {
+			// if(pageNos){
+			this.pageInfo.pageNo = pageNos ? pageNos : this.pageInfo.pageNo == 0 ? 1 : this.pageInfo.pageNo;
+			// }
 			if (this.serviceName && this.listType === 'list') {
 				this.getListData();
 			} else if (this.serviceName && this.listType === 'proc') {
@@ -475,10 +498,11 @@ export default {
 	},
 	mounted() {
 		console.log('---bxlist-----mounted---', uni.getStorageSync('isWy'));
+		this.pageInfo.pageNo = 0;
 		let serviceName = this.serviceName;
 		let isOwner = uni.getStorageSync('is_owner');
 		let isWy = uni.getStorageSync('isWy');
-		let isBaoAn = uni.getStorageSync('is_baoan')
+		let isBaoAn = uni.getStorageSync('is_baoan');
 		if (isWy == true && (serviceName == 'srvzhxq_member_fuwu_select' || serviceName == 'srvzhxq_clgl_select')) {
 			this.tabList = [
 				{
@@ -526,6 +550,7 @@ export default {
 					}
 				}
 			];
+			this.proc_data_type = 'wait';
 		} else if ((isOwner || isBaoAn) && serviceName == 'srvzhxq_guest_mgmt_select') {
 			this.tabList = [
 				{
@@ -573,7 +598,8 @@ export default {
 					}
 				}
 			];
-		}else if (!isOwner && serviceName == 'srvzhxq_guest_mgmt_select') {
+			this.proc_data_type = 'wait';
+		} else if (!isOwner && serviceName == 'srvzhxq_guest_mgmt_select') {
 			this.tabList = [
 				{
 					label: '我的申请',
@@ -585,10 +611,10 @@ export default {
 						rownumber: 5,
 						pageNo: 1
 					}
-				},
-				
+				}
 			];
-		}  else if (
+			this.proc_data_type = 'mine';
+		} else if (
 			serviceName == 'srvzhxq_repairs_select' ||
 			serviceName == 'srvzhxq_syrk_select' ||
 			serviceName == 'srvzhxq_member_fuwu_select' ||
@@ -608,8 +634,9 @@ export default {
 				}
 			];
 		}
+		this.proc_data_type = 'myall';
 		this.getAllData();
-		this.tabsLength = this.tabList.length
+		this.tabsLength = this.tabList.length;
 	}
 };
 </script>

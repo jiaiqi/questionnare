@@ -202,7 +202,7 @@
 			}
 			&.valid_error{
 				.uni-input-input{
-					border: 1rpx solid #ff0000;
+					border: 1rpx solid #ff0000!important;
 				}
 			}
 			&.date-input{
@@ -224,7 +224,7 @@
 			box-sizing: border-box;
 		}
 		.title.valid_error{
-			color: #ff0000;
+			color: #ff0000!important;
 		}
 		uni-textarea{
 			margin: 0;
@@ -245,7 +245,7 @@
 			}
 			&.valid_error{
 				.uni-textarea-textarea{
-					border: 1rpx solid #ff0000;
+					border: 1rpx solid #ff0000!important;
 				}
 			}
 			.uni-input-input:focus,.uni-textarea-textarea:focus{

@@ -47,7 +47,6 @@ export default {
 			let url = e
 			let appfilters = []
 			let srvfilters = []
-			// console.log("请求地址",e,params,reqUrlParams,filter)
 			if (e !== undefined) {
 				if (reqUrlParams.length > 0 && url.indexOf("select") !== -1) {
 					// 是否存在自定义参数
@@ -55,7 +54,6 @@ export default {
 						if (item.value.indexOf("$") !== -1) {
 							let arr = item.value.split("$")
 							let store = arr[1]
-							// console.log("urlParamsFilter",store,arr)
 							item.value = uni.getStorageSync(store)
 						}
 						return item
@@ -75,7 +73,6 @@ export default {
 							srvfilters.push(filterStr)
 						}
 					}
-					// console.log("过滤",appfilters,srvfilters)
 					if (appfilters.length > 0) {
 						// 有需要过滤的app
 						let arr = []
@@ -173,7 +170,7 @@ export default {
 						if ('rowButton' in response.data.data) {
 							// response.data.data._footerBtns = this.getFooterBtns(response.data.data.rowButton)
 						}
-						
+
 						// 第一次拿到，缓存
 						let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
 						self.$store.commit('setSrvCol', pageconfig)
@@ -181,7 +178,7 @@ export default {
 					}
 				} else {
 					console.log('=====3', nCols)
-					
+
 					return nCols[0]
 				}
 			} else {
@@ -346,11 +343,12 @@ export default {
 						break;
 				}
 				// 处理字段统一属性
-				fieldInfo.disabled = item.updatable === 0 ? true : false;//字段是否冻结
-				if(item.updatable===0&&item.updatable_add===1&&useType==='add'){
+				fieldInfo.disabled = item.updatable === 0 ? true : false; //字段是否冻结
+				if (item.updatable === 0 && item.updatable_add === 1 && useType === 'add') {
 					fieldInfo.disabled = false
 				}
 				fieldInfo._validators = Vue.prototype.getValidators(item.validators, item.validators_message)
+				fieldInfo._validator_obj = Vue.prototype.getValidators(item.validators, item.validators_message)
 				fieldInfo.isRequire = fieldInfo._validators.required
 				fieldInfo.value = null //初始化value
 				fieldInfo._colDatas = item //保存原始data
@@ -455,7 +453,6 @@ export default {
 						if (datas[i][id] === aDatas[j][pd]) {
 							child.push(aDatas[j])
 							aDatas.slice(j, 1)
-							// console.log("slice==="+j,aDatas,aDatas[j],j)
 						}
 					}
 					if (child.length > 0) {
@@ -463,7 +460,6 @@ export default {
 					} else {
 						datas[i]["_childNode"] = child
 					}
-					// console.log("datas[i]._childNode" + i,datas)
 				}
 				return datas
 			}
@@ -582,6 +578,24 @@ export default {
 					return false
 				}
 			}
+		Vue.prototype.isType = function(e) {
+						let reg = new RegExp(getStr(str, 'ngPattern=', ';'))
+						if (reg.test(e)) {
+							let obj = {
+								valid: reg.test(e),
+								msg: "有效"
+							}
+							return obj
+						} else {
+							let msgs = getStr(msg, 'ngPattern=', ';')
+							msgs = msgs === '' ? '信息有误' : msgs
+							let obj = {
+								valid: reg.test(e),
+								msg: msgs
+							}
+							return obj
+						}
+					}
 		Vue.prototype.deepClone = function(obj) {
 			// 深拷贝
 			function isObject(o) {
@@ -1243,12 +1257,12 @@ export default {
 						case "customize":
 							//代码块
 							// if (btn.operate_type === '流程申请') {
-								// uni.navigateTo({
-								// 	url: "/pages/public/proc/apply/apply?serviceName=" + btn.operate_service
-								// })
-								return new Promise((resolve, reject) => {
-									resolve(e)
-								})
+							// uni.navigateTo({
+							// 	url: "/pages/public/proc/apply/apply?serviceName=" + btn.operate_service
+							// })
+							return new Promise((resolve, reject) => {
+								resolve(e)
+							})
 							// }
 							break;
 						case "delete":
@@ -1281,6 +1295,18 @@ export default {
 				timer = setTimeout(function() {
 					fn.apply(that, args)
 				}, delay);
+			}
+		}
+		Vue.prototype.throttle = function(func, wait) {
+			var previous = 0;
+			return function() {
+				let now = Date.now();
+				let context = this;
+				let args = arguments;
+				if (now - previous > wait) {
+					func.apply(context, args);
+					previous = now;
+				}
 			}
 		}
 		Vue.prototype.verifyLogin = function(code) {
@@ -1350,6 +1376,7 @@ export default {
 							uni.getUserInfo({
 								provider: 'weixin',
 								success: function(infoRes) {
+									uni.setStorageSync('isAuth', true);
 									uni.setStorageSync('wxuserinfo', infoRes.userInfo);
 								},
 								fail: errMsg => {
@@ -1363,8 +1390,7 @@ export default {
 							console.log('获取用户信息失败失败', errMsg);
 							uni.setStorageSync('isAuth', false)
 							uni.setStorageSync('isToLogin', false)
-							// Vue.prototype.toLoginPage()
-							Vue.prototype.wxLogin()
+							Vue.prototype.throttle(Vue.prototype.wxLogin(), 3000)
 
 						}
 					});
@@ -1380,6 +1406,7 @@ export default {
 									success(res) {
 										let isAuthUserInfo = res.authSetting['scope.userInfo']
 										let isAuth = uni.getStorageSync('isAuth')
+										let wxuserinfo = uni.getStorageSync('wxuserinfo')
 										if (!isAuthUserInfo && !isAuth) {
 											uni.showModal({
 												title: '提示',
@@ -1398,8 +1425,12 @@ export default {
 															})
 														}
 													} else {
+														uni.setStorageSync('isAuth', false)
 														uni.setStorageSync('isToLogin', false)
 													}
+												},
+												complete() {
+
 												}
 											})
 										}
@@ -1422,13 +1453,15 @@ export default {
 							//session_key 未过期，并且在本生命周期一直有效
 							if (uni.getStorageSync('isLogin') === false) {
 								// 虽然session_key 未过期但是在百想后台的登录状态过期了
-								Vue.prototype.wxLogin(backUrl)
+								Vue.prototype.throttle(Vue.prototype.wxLogin(backUrl), 3000)
+								// Vue.prototype.wxLogin(backUrl)
 							}
 						},
 						fail() {
 							// session_key 已经失效，需要重新执行登录流程
 							//重新登录
-							Vue.prototype.wxLogin(backUrl)
+							Vue.prototype.throttle(Vue.prototype.wxLogin(backUrl), 3000)
+							// Vue.prototype.wxLogin(backUrl)
 						}
 					})
 					// #endif

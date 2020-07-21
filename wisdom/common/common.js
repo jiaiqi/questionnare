@@ -27,7 +27,6 @@ export default {
         a['key'] = item[ke]
         a['value'] = item[val]
         a['name'] = item[name]
-        // console.log('====a:' + a)
         if (item[icon] === null) {
           a['icon'] = '../../assets/img/icons/init/menu-icon.png'
         } else {

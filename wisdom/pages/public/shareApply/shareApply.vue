@@ -47,7 +47,7 @@ export default {
 		  let res = await this.onRequest('select', req.serviceName, req, uni.getStorageSync('activeApp'))
 		  console.log("------------====",res.data.data)
 		  if(res.data.data.length>0){
-			  return res.data.data[0].qr_code
+			  return res.data.data[0]
 		  }
 	  },
     async submitData() {
@@ -112,7 +112,7 @@ export default {
           uni.hideLoading();
           let resData = res.data.response[0].response;
 		  this.getFKcode(resData.ids[0]).then(codes=>{
-			  if(codes){				  
+			  if(codes.qr_code){				  
 			  uni.showModal({
 			    title: '提示',
 			    content: '申请成功',
@@ -132,7 +132,7 @@ export default {
 			          };
 			          if (isOk) {
 			            uni.redirectTo({
-			              url: '/pages/specific/permit/permit?type=share&code=' + codes
+			              url: '/pages/specific/permit/permit?type=share&code=' + codes.qr_code + '&rowData=' + encodeURIComponent(JSON.stringify(codes))
 			            });
 			          } else {
 			            uni.redirectTo({

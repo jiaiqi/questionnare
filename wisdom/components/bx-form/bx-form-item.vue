@@ -32,7 +32,8 @@
 			<view
 				class="form-content"
 				:class="{
-					alo_radio: fieldData.type === 'radio' || fieldData.type === 'radioFk' || fieldData.type === 'checkbox' || fieldData.type === 'checkbox' || fieldData.type === 'images'
+					alo_radio: fieldData.type === 'radio' || fieldData.type === 'radioFk' || fieldData.type === 'checkbox' || fieldData.type === 'checkbox' || fieldData.type === 'images',
+					valid_error:!valid.valid 
 				}"
 				v-if="pageFormType === 'form' || pageFormType === 'add' || pageFormType === 'update'"
 			>
@@ -394,7 +395,7 @@ export default {
 				return {};
 			}
 		},
-		detailFiledData:{
+		detailFiledData: {
 			type: Object,
 			default() {
 				return {};
@@ -459,7 +460,7 @@ export default {
 			header: '',
 			index: -1,
 			picker: ['网络状况较差，请稍后进行选择'],
-			modelData:'',
+			modelData: '',
 			oriPicker: [],
 			treeSelectorShowValue: '' //属性选择器input框中显示的值
 		};
@@ -526,7 +527,7 @@ export default {
 	},
 	updated() {},
 	mounted() {
-		console.log("procDataprocDataprocData",this.procData)
+		console.log('procDataprocDataprocData', this.procData);
 		if (this.fieldData.type === 'poupchange') {
 			this.getpoupInfo(this.fieldData.option_list_v2);
 		}
@@ -537,7 +538,7 @@ export default {
 			this.service &&
 			(this.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
 				this.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
-				
+				this.service == 'srvzhxq_repairs_add' ||
 				this.service == 'srvzhxq_clgl_add' ||
 				(this.service === 'srvzhxq_syrk_add' &&
 					this.field.condition &&
@@ -616,7 +617,7 @@ export default {
 		this.getDefVal();
 		// console.log(this.fieldData.label + this.pageFormType + this.fieldData.value);
 	},
-	
+
 	// onShow() {
 	// 	this.fieldData = this.field;
 	// 	this.getDefVal()
@@ -881,14 +882,13 @@ export default {
 				console.log('updated', this.fieldModelsData);
 				// this.listModel = listItemModel
 				// return this.listModel
-			}else{
-				Object.keys(this.fieldsModel).forEach(key=>{
-					if(this.fieldData.column===key&&!this.fieldData.value&&this.fieldsModel[key]){
-						
-						this.fieldData.value = this.fieldsModel[key]
+			} else {
+				Object.keys(this.fieldsModel).forEach(key => {
+					if (this.fieldData.column === key && !this.fieldData.value && this.fieldsModel[key]) {
+						this.fieldData.value = this.fieldsModel[key];
 					}
-				})
-				}
+				});
+			}
 		},
 		radioChange(e) {
 			if (this.fieldData.type === 'radioFk' || this.fieldData.type === 'checkboxFk') {
@@ -928,7 +928,9 @@ export default {
 		},
 		getValid: function() {
 			if (this.fieldData.isRequire && this.fieldData.value !== '') {
+				
 				if (this.fieldData.hasOwnProperty('_validators') && this.fieldData._validators.hasOwnProperty('isType') && typeof this.fieldData._validators.isType === 'function') {
+					
 					this.fieldData.valid = this.fieldData._validators.isType(this.fieldData.value);
 					this.valid.valid = true;
 				} else {
@@ -971,16 +973,16 @@ export default {
 			this.defaultLineVal = this.fieldData.value;
 			this.$refs.popup.open();
 		},
-		async getUserRoomPerson(info) {
-			const url = this.getServiceUrl('zhxq', info.serviceName, 'select');
+		async getUserRoomPerson(no) {
+			const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
 			let req = {
-				serviceName: info.serviceName,
+				serviceName: 'srvzhxq_syrk_select',
 				colNames: ['*'],
 				condition: [
 					{
 						colName: 'fwbm',
 						ruleType: 'eq',
-						value: this.procData.fwbm
+						value: no
 					},
 					{
 						colName: 'status',
@@ -998,11 +1000,12 @@ export default {
 			if (this.field.disabled === true) {
 				return;
 			}
+
 			if (
 				this.service &&
 				(this.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
 					this.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
-					
+					this.service == 'srvzhxq_repairs_add' ||
 					this.service == 'srvzhxq_clgl_add' ||
 					((this.service === 'srvzhxq_syrk_add' || this.service === 'srvzhxq_syrk_wuye_add') &&
 						this.field.condition &&
@@ -1010,12 +1013,21 @@ export default {
 						this.field.condition.length > 0 &&
 						this.field.condition[0].colName === this.field.condition[0].value))
 			) {
-				this.getShareRoomNum(this.service).then(a => {
+				if ((this.service === 'srvzhxq_repairs_add' || this.service === 'srvzhxq_clgl_add') && (this.field.column === 'xm' || this.field.column === 'glry')) {
+					// let userData = uni.getStorageSync('infoObjArr')
 					this.showTreeSelector = true;
-				});
-			} 
+					self.getUserRoomPerson(self.fieldsModel.fwbm).then(per => {
+						console.log('this.procData.fwbm', per);
+						self.treeSelectorData = per;
+					});
+				} else {
+					this.getShareRoomNum(this.service).then(a => {
+						this.showTreeSelector = true;
+					});
+				}
+			}
 			// else if (this.fieldData.col_type == 'bxzhxq_syrk') {
-			// 	
+			//
 			// 	this.getUserRoomPerson(this.fieldData.option_list_v2).then(person => {
 			// 		this.showTreeSelector = true;
 			// 		this.treeSelectorData = [];
@@ -1024,7 +1036,7 @@ export default {
 			// 		});
 			// 	});
 			// }
-			 else {
+			else {
 				self.getTreeSelectorData().then(_ => {
 					if (self.fieldData.disabled === false) {
 						if (self.treeSelectorData.length > 0) {
@@ -1080,14 +1092,14 @@ export default {
 		async getShareRoomNum(serv) {
 			let user = uni.getStorageSync('basics_info').picp;
 			const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
-			let serviceName = 'srvzhxq_syrk_select'
+			let serviceName = 'srvzhxq_syrk_select';
 			if (serv && serv === 'srvzhxq_syrk_wuye_add') {
-				let condition = []
+				let condition = [];
 				let url = this.getServiceUrl(uni.getStorageSync('activeApp'), 'srvzhxq_syrk_select', 'select');
 				let req = {
 					serviceName: 'srvzhxq_syrk_select',
 					colNames: ['*'],
-					condition: [{ colName: 'is_fuzeren', ruleType: 'in', value: '是' },{ colName: 'openid', ruleType: 'eq', value: uni.getStorageSync('login_user_info').user_no }]
+					condition: [{ colName: 'is_fuzeren', ruleType: 'in', value: '是' }, { colName: 'openid', ruleType: 'eq', value: uni.getStorageSync('login_user_info').user_no }]
 				};
 				let houseList = await this.$http.post(url, req);
 				if (houseList.data.state === 'SUCCESS') {
@@ -1096,65 +1108,67 @@ export default {
 					});
 					if (Array.isArray(houseList) && houseList.length > 0) {
 						condition = [{ colName: 'fwbm', ruleType: 'in', value: houseList.toString() }];
-						serviceName = "srvzhxq_buiding_house_select"
+						serviceName = 'srvzhxq_buiding_house_select';
 						let jig = await this.getTreeSelectorData(condition, serviceName);
-					}else{
+					} else {
 						uni.showToast({
-							title:"暂无数据",
-							icon:'none'
-						})
+							title: '暂无数据',
+							icon: 'none'
+						});
 					}
 				}
-			}else{
+			} else {
 				let req = {
 					serviceName: 'srvzhxq_syrk_select',
 					colNames: ['*'],
 					condition: [
-					{ colName: 'gmsfhm', ruleType: 'eq', value: user },
-					{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
-					{ colName: 'status', ruleType: 'eq', value: '有效' }
-					// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
-				
-				]
+						{ colName: 'gmsfhm', ruleType: 'eq', value: user },
+						{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
+						{ colName: 'status', ruleType: 'eq', value: '有效' }
+						// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
+					]
 				};
-				
+
 				const res = await this.$http.post(url, req);
-				if(res.data.data.length > 0){
-					let arr = []
-					res.data.data.forEach(item=>{
-						arr.push(item.fwbm)
-					})
-					let syr = arr.toString()
-					let cond = [{
-						colName:"fwbm",
-						ruleType:"in",
-						value:syr
-					}]
-					if(serv != 'srvzhxq_clgl_add'){
-						serviceName = 'srvzhxq_buiding_house_select'
-					}else{						
-						serviceName = this.fieldData.option_list_v2.serviceName
-						if(this.fieldData.column == 'glry'){
-							cond = [{
-								colName:"fwbm",
-								ruleType:"eq",
-								value:this.fieldsModel.fwbm
-							}]
+				if (res.data.data.length > 0) {
+					let arr = [];
+					res.data.data.forEach(item => {
+						arr.push(item.fwbm);
+					});
+					let syr = arr.toString();
+					let cond = [
+						{
+							colName: 'fwbm',
+							ruleType: 'in',
+							value: syr
 						}
-						
-						console.log("--============-------",this.fieldsModel)
+					];
+					if (serv != 'srvzhxq_clgl_add' || serv != 'srvzhxq_repairs_add') {
+						serviceName = 'srvzhxq_buiding_house_select';
+					} else {
+						serviceName = this.fieldData.option_list_v2.serviceName;
+						if (this.fieldData.column == 'glry') {
+							cond = [
+								{
+									colName: 'fwbm',
+									ruleType: 'eq',
+									value: this.fieldsModel.fwbm
+								}
+							];
+						}
+
+						console.log('--============-------', this.fieldsModel);
 					}
 					let jig = await this.getTreeSelectorData(cond, serviceName);
-					console.log("jig=====>>>",jig)
+					console.log('jig=====>>>', jig);
 					return jig;
 				}
 			}
-								
 		},
 
 		async getTreeSelectorData(cond, serv) {
-			debugger
-			console.log("detailFiledDatadetailFiledData",this.detailFiledData)
+			;
+			console.log('detailFiledDatadetailFiledData', this.detailFiledData);
 			let self = this;
 			let req = {
 				serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2.serviceName : '',
@@ -1166,14 +1180,14 @@ export default {
 			} else {
 				appName = uni.getStorageSync('activeApp');
 			}
-			console.log('-===-=-==-=-=-=-=-=',self.modelData,this.procData)
-			let fieldModelsData = JSON.parse(JSON.stringify(self.fieldsModel));
-			if(!self.procData.id){
-				fieldModelsData = JSON.parse(JSON.stringify(self.fieldsModel));
-			}else{
-				fieldModelsData = JSON.parse(JSON.stringify(self.procData));
+			console.log('-===-=-==-=-=-=-=-=', self.modelData, this.procData);
+			let fieldModelsData = self.deepClone(self.fieldsModel);
+			if (!self.procData.id) {
+				fieldModelsData = self.deepClone(self.fieldsModel);
+			} else {
+				fieldModelsData = self.deepClone(self.procData);
 			}
-			
+
 			// #ifdef H5
 			top.user = uni.getStorageSync('login_user_info');
 			// #endif
@@ -1185,12 +1199,12 @@ export default {
 				Array.isArray(self.fieldData.option_list_v2.conditions) &&
 				self.fieldData.option_list_v2.conditions.length > 0
 			) {
-				let condition = JSON.parse(JSON.stringify(self.fieldData.option_list_v2.conditions));
+				let condition = self.deepClone(self.fieldData.option_list_v2.conditions);
 				// if (self.fieldData.condition && Array.isArray(self.fieldData.condition)) {
 				// 	;
 				// 	// condition = condition.concat(self.fieldData.condition)
 				// }
-				
+
 				condition = condition.map(item => {
 					if (item.value.indexOf('data.') !== -1) {
 						let colName = item.value.slice(item.value.indexOf('data.') + 5);
@@ -1215,31 +1229,26 @@ export default {
 				appName = 'sso';
 			}
 			let res = await self.onRequest('select', req.serviceName, req, appName);
-			console.log("0000000000000000000",res,this.service)
+			console.log('0000000000000000000', res, this.service);
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 				if (
 					self.service &&
 					(self.service == 'srvzhxq_syrk_add' ||
 						self.service == 'srvzhxq_guest_mgmt_yezhu_add' ||
 						self.service == 'srvzhxq_guest_mgmt_yezhu_update' ||
-						self.service == 'srvzhxq_clgl_add'
-						)
+						self.service == 'srvzhxq_clgl_add' ||
+						self.service == 'srvzhxq_repairs_add')
 				) {
-					
 					self.treeSelectorData = [];
 					res.data.data.forEach(item => {
 						self.treeSelectorData.push(item);
 					});
 					console.log('self.fieldData', self.fieldData);
 					self.treeSelectorData.forEach(item => {
-						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] === self.fieldData.value) {							
-							self.fieldData['colData'] = item;
-							
-						}else if(self.service == 'srvzhxq_repairs_add' && self.fieldData.option_list_v2){
-							self.fieldData.option_list_v2['key_disp_col'] = 'name'
+						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] === self.fieldData.value) {
 							self.fieldData['colData'] = item;
 						} else if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] && !self.fieldData.value) {
-							let colData = JSON.parse(JSON.stringify(item));
+							let colData =self.deepClone(item);
 							let refed_col = self.fieldData.option_list_v2.refed_col;
 							if (
 								colData[refed_col] &&
@@ -1277,7 +1286,6 @@ export default {
 							return a;
 						});
 					} else {
-						
 						self.treeSelectorData = res.data.data;
 					}
 					self.treeSelectorData.forEach(item => {
@@ -1339,32 +1347,6 @@ export default {
 	line-height: 2.4em;
 	min-height: 2.4em;
 }
-/* #ifdef MP-WEIXIN */
-.valid_error {
-	.form-content {
-		border: 1rpx solid #ff0000;
-	}
-}
-.form-content {
-	flex: 1;
-	font-size: 16px;
-	color: #555;
-	box-sizing: border-box;
-	padding: 5px;
-	text-indent: 0;
-	background: transparent;
-	border: 1rpx solid #e6ebe9;
-	resize: none;
-	border-radius: 2px;
-	outline: none;
-	line-height: normal;
-	padding: 10rpx;
-	&.alo_radio {
-		border: none;
-	}
-}
-/* #endif */
-
 .content {
 	text-align: left;
 	// height: 400upx;
@@ -1398,6 +1380,31 @@ export default {
 		width: 100%;
 	}
 }
+
+/* #ifdef MP-WEIXIN */
+.form-content {
+	flex: 1;
+	font-size: 16px;
+	color: #555;
+	box-sizing: border-box;
+	padding: 5px;
+	text-indent: 0;
+	background: transparent;
+	border: 1rpx solid #e6ebe9;
+	resize: none;
+	border-radius: 2px;
+	outline: none;
+	line-height: normal;
+	padding: 10rpx;
+	&.alo_radio {
+		border: none;
+	}
+	&.valid_error{
+		border: 1rpx solid #ff0000;
+	}
+}
+/* #endif */
+
 uni-text.input-icon {
 	position: relative;
 	font-size: 42upx;

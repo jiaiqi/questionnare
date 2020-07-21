@@ -73,7 +73,7 @@ export default {
 				return {};
 			}
 		},
-		detailFiledData:{
+		detailFiledData: {
 			type: Object,
 			default() {
 				return {};
@@ -368,6 +368,10 @@ export default {
 					} else {
 						itemData['showExp'] = itemData['showExp'] || true;
 					}
+					if (itemData.formulaShow) {
+						itemData['showExp'] = evaluatorTo(item, itemData.formulaShow);
+						itemData['display'] = itemData['showExp']
+					}
 					itemData.valid = {
 						column: itemData.column,
 						valid: true,
@@ -381,7 +385,8 @@ export default {
 							special.display ? (itemData['display'] = special.display) : '';
 						}
 					});
-					if (self.service && self.service == 'srvzhxq_clgl_add' && (itemData.column == 'lybm' || itemData.column == 'dybm')) {
+
+					if (self.service && (self.service == 'srvzhxq_clgl_add' || self.service == 'srvzhxq_repairs_add') && (itemData.column == 'lybm' || itemData.column == 'dybm')) {
 						itemData.display = false;
 					}
 					if (self.service && self.service == 'srvzhxq_repairs_add' && itemData.column == 'lxdh') {
@@ -392,6 +397,7 @@ export default {
 					}
 					return itemData;
 				});
+				this.allField.forEach(fileIf => {});
 				console.log('0000000000000000', this.allField);
 			}
 		},
@@ -404,12 +410,12 @@ export default {
 			}
 			if (e.column === 'fwbm') {
 				if (e.condition && Array.isArray(e.condition) && e.condition.length > 0 && e.condition[0].colName === e.condition[0].value) {
-					e.condition.forEach(col=>{
-						this.fieldModel[col.value] = e.colData[col.value]
-					})
+					e.condition.forEach(col => {
+						this.fieldModel[col.value] = e.colData[col.value];
+					});
 				}
 			}
-			if (e.column === 'fwbm' && (this.service == 'srvzhxq_guest_mgmt_yezhu_add' || this.service == 'srvzhxq_clgl_add')) {
+			if (e.column === 'fwbm' && (this.service == 'srvzhxq_guest_mgmt_yezhu_add' || this.service == 'srvzhxq_clgl_add' || this.service == 'srvzhxq_repairs_add')) {
 				this.allField.forEach(fileIf => {
 					if (fileIf.column === 'bfr' || fileIf.column === 'bfrbm' || fileIf.column === 'dybm' || fileIf.column === 'lybm') {
 						let infoArr = uni.getStorageSync('infoObjArr');
@@ -493,8 +499,8 @@ export default {
 				if (e.value === '他人信息') {
 					fields.forEach(item => {
 						if (item.column == 'xm' || item.column == 'lxfs' || item.column == 'gmsfhm') {
-							if(this.service==='srvzhxq_syrk_wuye_add'){
-								return
+							if (this.service === 'srvzhxq_syrk_wuye_add') {
+								return;
 							}
 							item.value = '';
 						}
@@ -542,8 +548,7 @@ export default {
 			return this.fieldModel;
 		},
 		getFieldModel() {
-			
-			console.log(this.fieldModel)
+			console.log(this.fieldModel);
 			let valid = 0;
 			let showsNum = 0;
 			console.log('this.$refs', this.$refs);

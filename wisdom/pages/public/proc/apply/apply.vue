@@ -17,7 +17,7 @@
 			<view class="apply_button_bot">
 				<!-- <button class="bg-green cu-btn lg" @click="submitData">提交</button> -->
 				<button class="bg-green cu-btn lg" @click="submitData" v-if="!showShareButton && hasSubmit === false">提交</button>
-				<button class="bg-green cu-btn lg" @click="showShareButton = true" v-if="showShareButton && hasSubmit">邀请绑定</button>
+				<button class="bg-green cu-btn lg" @click="showShareButton = true" v-if="!showShareButton && hasSubmit">邀请绑定</button>
 				<!-- <button class="bg-green cu-btn lg" open-type="share">邀请</button> -->
 				<!-- <button class="bg-green cu-btn lg" @click="toList">查看记录</button> -->
 				<!-- #ifdef MP-WEIXIN -->
@@ -200,6 +200,7 @@ export default {
 						icon: 'none'
 					});
 					if (itemData.is_benren && itemData.is_benren === '他人信息') {
+						
 						this.showShareButton = true;
 						if (resData.proc_instance_no) {
 							this.proc_instance_no = resData.proc_instance_no;
@@ -313,7 +314,12 @@ export default {
 									colName: 'zjhm',
 									ruleType: 'eq',
 									value: bas.picp
-								}
+								},
+								{
+									colName: 'sex',
+									ruleType: 'eq',
+									value: bas.gender
+								},
 							];
 							console.log('shareConds', shareConds);
 							this.defaultCondition = shareConds;
@@ -416,6 +422,9 @@ export default {
 						}
 						if (item.colName === 'gmsfhm' || item.colName === 'zjhm') {
 							item.value = basicInfo.picp;
+						}
+						if(item.colName == 'sex'){
+							item.value = basicInfo.gender;
 						}
 					}
 				});

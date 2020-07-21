@@ -46,7 +46,7 @@
 				</view>
 				<view class="footer">
 					<view class=""></view>
-					<view class="footer-btn">
+					<view v-if="showButton && showButton == 'true'" class="footer-btn">
 						<view v-for="(item, index) in rowButtons" :key="index">
 							<button
 								class="cu-btn round sm text-blue line-blue"
@@ -112,7 +112,7 @@
 						<text class="leftWord" v-if="tempWord.footer">{{ tempWord.footer }}:</text>
 						{{ goodsData.footer }}
 					</view>
-					<view class="foot-button">
+					<view v-if="showButton && showButton == 'true'" class="foot-button">
 						<text
 							v-if="deRowButDisplay(itemData, item) && !detailList&&item.disp_show !== false"
 							class="cu-btn round sm text-blue line-blue"
@@ -228,6 +228,10 @@ export default {
 		viewType: {
 			type: String,
 			default: 'normal'
+		},
+		showButton:{
+			type: String,
+			default: 'true'
 		},
 		viewTemp: {
 			type: Object,
@@ -380,7 +384,7 @@ export default {
 					}
 					if (typeof more_config === 'object' && more_config && more_config.formulaShow) {
 						btn['disp_show'] = evaluatorTo(data, more_config.formulaShow);
-						debugger
+						
 					}
 					// }
 				});

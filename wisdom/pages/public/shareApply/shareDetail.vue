@@ -172,7 +172,7 @@ export default {
 	  		  let res = await this.onRequest('select', req.serviceName, req, uni.getStorageSync('activeApp'))
 	  		  console.log("------------====",res.data.data)
 	  		  if(res.data.data.length>0){
-	  			  return res.data.data[0].qr_code
+	  			  return res.data.data[0]
 	  		  }
 	  },
 	async submitData(){
@@ -196,19 +196,20 @@ export default {
 				console.log("---------------------",res.data.response[0].response.effect_data[0].id)
 				let resDataId = res.data.response[0].response.effect_data[0].id
 				this.getFKcode(resDataId).then(codes=>{
-				if(!this.detailQuery || !this.detailQuery.type){
+				// if(!this.detailQuery || !this.detailQuery.type){
 					// let resData = res.data.response[0].response;	
-									console.log("codes======",codes)
-						if(codes){
+									console.log("codes======",codes.qr_code)
+						if(codes.qr_code){
 							uni.redirectTo({
-								url:'/pages/specific/permit/permit?code=' + codes
+								url:'/pages/specific/permit/permit?code=' + codes.qr_code + '&rowData=' + encodeURIComponent(JSON.stringify(codes))
 							})
 						}					
-				}else{
-					uni.redirectTo({
-						url:'/pages/specific/permit/permit?type=share&code=' + codes
-					})
-				}
+				// }
+				// else{
+				// 	uni.redirectTo({
+				// 		url:'/pages/specific/permit/permit?type=share&code=' + codes.qr_code
+				// 	})
+				// }
 				})
 				
 			}

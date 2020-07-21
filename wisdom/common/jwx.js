@@ -80,7 +80,6 @@ export default {
 				jweixin.getLocation({
 					type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'  
 					success: function(res) {
-						// console.log(res);  
 						callback(res)
 					},
 					fail: function(res) {
@@ -141,7 +140,6 @@ export default {
 					signType: data.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'  
 					paySign: data.paysign, // 支付签名  
 					success: function(res) {
-						// console.log(res);  
 						callback(res)
 					},
 					fail: function(res) {

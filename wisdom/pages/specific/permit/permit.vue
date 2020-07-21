@@ -1,21 +1,42 @@
 <template>
 	<view class="permit_wrap">
-		<view class="permit_top">
+		<!-- <view class="permit_top">
 			<text>通行码</text>
+		</view> -->
+		<view v-if="rowData" class="permit_top">
+			<view class="permit_top_t">
+				<text>姓名：</text>
+				<text>{{rowData.xm}}</text>
+			</view>
+			<view class="permit_top_t">
+				<text>访问地址：</text>
+				<text>{{rowData._lybm_disp + rowData._dybm_disp + rowData._fwbm_disp}}</text>
+			</view>
+			<view class="permit_top_t">
+				<text>来访时间：</text>
+				<text>{{rowData.fwrq}}</text>
+			</view>
+			<view class="permit_top_t">
+				<text>预计离开时间：</text>
+				<text>{{rowData.lkrq}}</text>
+			</view>
 		</view>
 		<view class="permit_cen">
 			<!-- <view class="permit_cen_t">
 				<image src="../../../static/img/permit.png" mode=""></image>
 			</view> -->
-			<canvas v-show="isShow" canvas-id="qrcode" style="width: 350px;height: 350px;" />
+			<canvas v-show="isShow" canvas-id="qrcode" style="width: 350px;height: 350px;opacity: 0;" />
 			<image v-show="!isShow" style="width: 350px;height: 350px;"  :src="url" mode="">{{failText}}</image>
-			<view class="permit_cen_b">
+			<!-- <view class="permit_cen_b">
 				<text>进入小区时，请主动出示，配合小区检查人员</text>
-			</view>
+			</view> -->
 		</view>
 		<view v-if="type && type == 'share'" class="bots">
 			<button class="bg-green cu-btn lg" open-type="share">分享</button>
 		</view>
+		<!-- <view  class="bots">
+			<button class="bg-green cu-btn lg" open-type="share">分享</button>
+		</view> -->
 	</view>
 </template>
 
@@ -32,7 +53,8 @@
 				code:"",
 				url:"",
 				isShow:true,
-				failText:""
+				failText:"",
+				rowData:""
 				
 			}
 		},
@@ -41,15 +63,21 @@
 			if(option && option.type){
 				this.type = option.type
 			}
+			let rowData = null
+			if(option.rowData){
+				rowData = JSON.parse(decodeURIComponent(option.rowData))
+				this.rowData = rowData
+			}
+			console.log("00000000",rowData)
 			this.$nextTick(()=>{
 				if(option && option.code){
 					this.code = option.code
 					setTimeout(()=>{
-						this.make(option.code)
-					},400)
+						this.make(option.code)						
+					},400)					
 				}
 			})
-			
+			// this.make('VjAwMSu8cWuljgtCcn/ybfRTRBK8mBwm/ds8QINYB57LJniavQsBZXc2Im0Vd/Ql8R3sXXA=')
 			// setTimeout(()=>{
 				// this.make("VjAwMSu8cWuljgtCcn/ybfRTRBK8mBwm/ds8QINYB57LJniavQsBZXc2Im0Vd/Ql8R3sXXA=")
 			// },2000)
@@ -58,7 +86,7 @@
 			console.log("res=====>>>>>",res)
 				return {
 				  title: '邀请来访',
-				  path: '/pages/specific/permit/permit?code=' + this.code,
+				  path: '/pages/specific/permit/permit?code=' + this.code + '&rowData=' + encodeURIComponent(JSON.stringify(this.rowData)),
 				  // path: '/pages/specific/permit/permit',
 				  success: function (res) {
 				          console.log('成功', res)
@@ -69,6 +97,9 @@
 			make(code) {
 				let self = this
 				 if(code){
+					 uni.showLoading({
+					     title: '加载中'
+					 });
 					 uQRCode.make({
 					   canvasId: 'qrcode',
 					   componentInstance: this,
@@ -82,7 +113,7 @@
 					   correctLevel: 0,
 					   success: res => {
 						   try{
-							   self.isShow = false
+							      self.isShow = false
 								   self.url = res
 								   console.log('self.url',self.url)
 						   	console.log("加载成功",res)
@@ -98,9 +129,7 @@
 					   }
 					 })
 				 }else{
-					 uni.showLoading({
-					     title: '加载中'
-					 });
+					 
 				 }			     
 			}
 		}
@@ -111,11 +140,32 @@
 	.permit_wrap{
 		width: 100%;
 		height: 100vh;
-		background:#25b125;
+		// background:lightgreen;
+		padding-top: 20upx;
 		.permit_top{
-			padding: 80upx 40upx;
-			font-size: 18px;
+			padding: 70upx 40upx;
+			font-size: 16px;
 			font-weight: 700;
+			box-shadow:3px 3px 4px rgba(26, 26, 26, 0.2);
+			margin: 0upx 20upx 40upx 20upx;
+			border-radius: 30upx;
+			// background-color: #25b125;
+			// background-image: linear-gradient(45deg, #39b54a, #8dc63f);
+			background-image: linear-gradient(30deg, #56ab2f, #a8e063);
+			.permit_top_t{
+				margin-bottom: 10upx;
+				
+				 text{
+					// width: 300upx;
+					// display: inline-block;
+					&:first-child{
+						width: 260upx;
+						display: inline-block;
+						text-align: right;
+						margin-right: 20upx;
+					}
+				}
+			}
 		}
 		.permit_cen{
 			// width: 680upx;
@@ -138,8 +188,13 @@
 	}
 	.bots{
 		width: 100%;
-		margin-top: 15px;
+		margin-top: 60upx;
 		display: flex;
 		justify-content: center;
+		button{
+			width: 95%;
+			background-color: #39b54a;
+			
+		}
 	}	
 </style>

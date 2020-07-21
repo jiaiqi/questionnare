@@ -16,11 +16,13 @@
 			ref="bxList"
 			:serviceName="serviceName"
 			:condition="condition"
+			:relation_condition="relation_condition"
 			:pageType="pageType"
 			:listType="'list'"
 			:showTab="false"
 			:viewTemp="viewTemp"
 			:listConfig="listConfig"
+			:showButton="showRowButton"
 			:fixed="true"
 			:top="listTop"
 			:searchWords="searchVal"
@@ -49,12 +51,14 @@ export default {
 			listConfig: {},
 			srv_cols: [],
 			condition: [],
+			relation_condition: null,
 			pattern: { color: '#7A7E83', backgroundColor: '#fff', selectedColor: '#007AFF', buttonColor: '#007AFF' },
 			fabContent: [],
 			fabHorizontal: 'left',
 			fabVertical: 'bottom',
 			fabDirection: 'horizontal',
-			listTop: 100,
+			listTop: 0,
+			showRowButton: 'true',
 			viewTemp: {
 				// title: 'name',
 				// tip: 'desc',
@@ -89,6 +93,11 @@ export default {
 	},
 
 	onLoad(option) {
+		// wx.showShareMenu({
+		// 	withShareTicket: true,
+		// 	menus: ['shareAppMessage', 'shareTimeline']
+		// });
+
 		let query = {};
 		// #ifdef H5
 		this.listTop = 0;
@@ -163,9 +172,28 @@ export default {
 			}
 			// this.condition = JSON.parse(this.getDecodeUrl(option.cond));
 		}
+		if (query.relation_condition) {
+			try {
+				let cond = JSON.parse(decodeURIComponent(query.relation_condition));
+				if (Array.isArray(cond.data)) {
+					cond.data.forEach(item => {
+						if ((item.colName === 'create_user' || item.colName === 'openid' || item.colName === 'glry') && item.value === 'user_no') {
+							item.value = uni.getStorageSync('login_user_info').user_no;
+						}
+					});
+					this.relation_condition = cond;
+				}
+			} catch (e) {
+				console.log(e);
+				//TODO handle the exception
+			}
+		}
 
 		if (query.tempWord) {
 			this.tempWord = JSON.parse(query.tempWord);
+		}
+		if (query.showRowButton) {
+			this.showRowButton = query.showRowButton;
 		}
 		if (query.serviceName && query.pageType) {
 			this.serviceName = query.serviceName;
@@ -261,6 +289,7 @@ export default {
 								defaultVal: queryParams.defaultVal,
 								eventOrigin: item
 							};
+
 							params.cond = [
 								{
 									colName: 'fwbm',
@@ -279,6 +308,9 @@ export default {
 									]
 								}
 							];
+							if (this.queryOption && this.queryOption.form === 'house') {
+								params.cond = [];
+							}
 							uni.navigateTo({
 								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
 							});
@@ -371,7 +403,6 @@ export default {
 								defaultVal: res.row,
 								eventOrigin: res.button
 							};
-							debugger
 							if ((data.button.main_table = 'bxzhxq_member' && data.button.operate_service === 'srvzhxq_syrk_add')) {
 								params.cond = [
 									{
@@ -402,7 +433,7 @@ export default {
 								defaultVal: res.row,
 								eventOrigin: res.button
 							};
-							// debugger
+							//
 							if ((data.button.main_table = 'bxzhxq_member' && data.button.operate_service === 'srvzhxq_syrk_select')) {
 								params.cond = [
 									{
@@ -431,7 +462,9 @@ export default {
 									uni.navigateTo({
 										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&params=${JSON.stringify(
 											params
-										)}&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"openid","ruleType":"like","value":"${data.row.openid}"}]`
+										)}&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&showRowButton=false&cond=[{"colName":"openid","ruleType":"like","value":"${
+											data.row.openid
+										}"},{"colName":"proc_status","ruleType":"eq","value":"完成"},{ "colName": "status", "ruleType": "eq", "value": "有效" }]`
 									});
 								} else {
 									uni.showModal({
@@ -525,6 +558,7 @@ export default {
 			return colVs;
 		}
 	},
+
 	onShareAppMessage(res) {
 		if (res.target.dataset.info.button_type === 'applyProc' && res.target.dataset.info.button_name === '邀请' && res.target.dataset.procno) {
 			return {
@@ -549,6 +583,9 @@ export default {
 				path: '/pages/public/proc/procDetail/procDetail?proc_instance_no=' + res.target.dataset.procno
 			};
 		}
+	},
+	onShareTimeline(res) {
+		console.log(res);
 	}
 };
 </script>

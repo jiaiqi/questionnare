@@ -401,7 +401,6 @@ export default {
 											content: '基础信息只能提交一次，本次提交后将不能再更改，是否确定提交?',
 											success(res) {
 												if (res.confirm) {
-													
 													// TODO 根据身份证号和姓名查询基础信息表，如果已存在，提示是否关联用户信息
 													let app = uni.getStorageSync('activeApp');
 													let url = self.getServiceUrl(app, e.service_name, 'add');
@@ -423,6 +422,7 @@ export default {
 																content: hasBasicInfo === false ? '登记成功' : '关联成功',
 																showCancel: false,
 																success(res) {
+																	self.wxLogin()
 																	if (res.confirm) {
 																		// uni.setStorageSync("basics_info",hasBasicInfo)
 																		self.checkHouseInfo(name, id).then(result => {
@@ -435,6 +435,7 @@ export default {
 																					confirmColor: '#0BC99D',
 																					success(res) {
 																						if (res.confirm) {
+																							
 																							self.updateHouseInfo(name, id, openid).then(_ => {});
 																						} else {
 																							uni.navigateBack();
@@ -492,7 +493,7 @@ export default {
 													showCancel: false,
 													success(res) {
 														if (res.confirm) {
-															
+															self.wxLogin()
 															self.checkHouseInfo(name, id).then(result => {
 																if (result) {
 																	uni.showModal({

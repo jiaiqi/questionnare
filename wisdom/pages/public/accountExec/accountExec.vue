@@ -328,6 +328,7 @@ export default {
 						console.log('获取用户信息失败失败', errMsg);
 						uni.setStorageSync('isAuth', false);
 						uni.setStorageSync('isToLogin', false);
+						console.log('toLoginPage')
 						that.toLoginPage();
 					}
 				});

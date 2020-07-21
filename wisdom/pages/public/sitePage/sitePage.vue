@@ -62,14 +62,14 @@ export default {
 						if (uni.getStorageSync('isLogin')) {
 							this.selectInfoFromMember().then(result1 => {
 								if (!!result1) {
-									if (!isOwner && (e.dest_menu_no === '物业报修' || e.dest_menu_no === '车辆登记')) {
-										uni.showToast({
-											title: '暂未入住小区,请进行信息登记',
-											duration: 1000,
-											icon: 'none'
-										});
-										return;
-									}
+									// if (!isOwner && (e.dest_menu_no === '物业报修' || e.dest_menu_no === '车辆登记')) {
+									// 	uni.showToast({
+									// 		title: '暂未入住小区,请进行信息登记',
+									// 		duration: 1000,
+									// 		icon: 'none'
+									// 	});
+									// 	return;
+									// }
 									uni.navigateTo({
 										url: e.dest_page
 									});
@@ -280,11 +280,6 @@ export default {
 						ruleType:"eq",
 						value:"是"
 					}
-					// {
-					//  colName:"is_fuzeren",
-					//  ruleType:"eq",
-					//  value:"是"
-					// }
 				]
 			};
 			let ress = await this.$http.post(urls, reqs);
@@ -296,7 +291,6 @@ export default {
 							return
 						}
 					})
-					
 				}else{
 					uni.setStorageSync('is_baoan',false)
 				}
@@ -324,8 +318,14 @@ export default {
 		this.getWebsiteList();
 		// #endif
 	},
+	onShareTimeline(res) {
+		console.log('onShareTimeline',res)
+	},
 	onLoad(option) {
-		console.log('-0-0-0-0-0-0-0-0-0-0-0', option);
+		wx.showShareMenu({
+			withShareTicket: true,
+			menus: ['shareAppMessage', 'shareTimeline']
+		});
 		this.website_no = option.website_no;
 		uni.setStorageSync('is_owner', false);
 		if (this.website_no == 'WS2020060611100007') {

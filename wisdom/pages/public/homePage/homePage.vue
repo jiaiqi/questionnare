@@ -60,7 +60,7 @@ export default {
 	created() {},
 	mounted() {
 		this.isOwner = uni.getStorageSync('is_owner');
-		this.toLoginPage()
+		this.checkAuthorization()
 		console.log('mounted---------', this.is_owner);
 	},
 	onLoad(option) {

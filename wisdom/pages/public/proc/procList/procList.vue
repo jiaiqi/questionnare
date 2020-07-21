@@ -82,7 +82,7 @@ export default {
 	},
 	onShow() {
 		if (this.$refs.bxList) {
-			this.$refs.bxList.getAllData();
+			this.$refs.bxList.getAllData(1);
 		}
 		// #ifdef H5
 		this.listTop = 0;
@@ -135,7 +135,7 @@ export default {
 					// 	ruleType: 'eq',
 					// 	value: date
 					// },
-					{
+					    {
 							"colName": "fwrq",
 							"ruleType": "eq",
 							"value": "dateTime"
@@ -154,10 +154,15 @@ export default {
 							"colName": "zjhm",
 							"ruleType": "eq",
 							"value": "zjhm"
+						},
+						{
+							"colName":"sex",
+							"ruleType":"eq",
+							"value":"sex"
 						}
 				];
 			} else if (this.listConfig.addService == 'srvzhxq_repairs_add') {
-				debugger
+				
 				if (this.condItem) {
 					cond = [
 						{
@@ -178,7 +183,7 @@ export default {
 						{
 							colName: 'fwbm',
 							ruleType: 'eq',
-							value: this.condItem.fwbm
+							value: 'fwbm'
 						}
 					];
 				}
@@ -276,9 +281,9 @@ export default {
 				console.log('======');
 				this.procNo = e.row.proc_instance_no;
 			} else if (e.button.button_type === 'customize' && JSON.parse(e.button.more_config).type === 'qrcode') {
-				console.log('======');
+				console.log('======',e);
 				uni.navigateTo({
-					url: '/pages/specific/permit/permit?code=' + e.row.qr_code
+					url: '/pages/specific/permit/permit?code=' + e.row.qr_code + '&rowData=' + encodeURIComponent(JSON.stringify(e.row))
 				});
 				// this.procNo = e.row.proc_instance_no
 			} else if (e.button.button_type === 'customize' && JSON.parse(e.button.more_config).type === 'primary') {
@@ -439,14 +444,14 @@ export default {
 	},
 	onShareAppMessage(res) {
 		
-		if (res.target.dataset.info.button_type === 'applyProc' && res.target.dataset.info.button_name === '邀请'&&res.target.dataset.procno) {
+		if (res.target.dataset.info && res.target.dataset.info.button_type === 'applyProc' && res.target.dataset.info.button_name === '邀请'&&res.target.dataset.procno) {
 			return {
 				title: '绑定住户邀请',
 				path: '/pages/specific/shareBind/shareBind?proc_instance_no=' +  res.target.dataset.procno
 			};
 		} else {
 			return {
-				title: '微信小程序测试分享',
+				title: '访客分享审批',
 				path: '/pages/public/proc/procDetail/procDetail?proc_instance_no=' + res.target.dataset.procno
 			};
 		}
