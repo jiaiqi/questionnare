@@ -12,11 +12,11 @@
 			<view class="instancy_bot_t">
 				紧急电话
 			</view>
-			<view class="cu-list menu">
+			<view v-if="listData.length>0" class="cu-list menu">
 				<view v-for="(item,index) in listData" :key="index" class="cu-item">
 					<view @tap="callUp(item)" class="content content_tt">
 						<text class="text-grey content_t">{{item.name}}：</text>
-						<text class="text-grey">{{item.phone}}</text>
+						<text class="text-grey">{{item.value}}</text>
 						<!-- <text class="text-grey">图标 + 标题</text> -->
 					</view>
 				</view>
@@ -77,9 +77,22 @@
 		methods:{
 			callUp(item){
 				uni.makePhoneCall({
-				    phoneNumber: item.phone //仅为示例
+				    phoneNumber: item.value //仅为示例
 				});
+			},
+			getSoSnum(){
+				let urls = this.getServiceUrl('zhxq', 'srvzhxq_sos_select', 'select');
+				let req = {
+					serviceName:"srvzhxq_sos_select",
+					colNames:['*']
+				}
+				this.$http.post(urls,req).then(res=>{
+					this.listData = res.data.data
+				})
 			}
+		},
+		onLoad() {
+			this.getSoSnum()
 		}
 	}
 </script>

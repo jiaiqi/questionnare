@@ -153,7 +153,7 @@ export default {
 			uni.navigateTo({
 				// url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=house',
 				url:
-					'/pages/public/list/list?serviceName=srvzhxq_syrk_select&showRowButton=false&showAdd=false&from=house&pageType=list&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"is_fuzeren","ruleType":"like","value":"是"},{"colName":"openid","ruleType":"like","value":"user_no"}]'
+					'/pages/public/list/list?serviceName=srvzhxq_syrk_select&showRowButton=true&navigationBarTitle=房屋信息&showAdd=false&from=house&pageType=list&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"is_fuzeren","ruleType":"like","value":"是"},{"colName":"openid","ruleType":"like","value":"user_no"}]'
 			});
 		},
 		async toFamily() {
@@ -177,6 +177,7 @@ export default {
 				colNames: ['*'],
 				condition: [
 					{ colName: 'fwbm', ruleType: 'in', value: strs },
+
 					{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
 					{ colName: 'status', ruleType: 'eq', value: '有效' }
 					// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
@@ -184,20 +185,25 @@ export default {
 			};
 			const res = await this.$http.post(url, req);
 			if (res.data.state === 'SUCCESS') {
-				let fwbms = res.data.data.map(item => {
+				let openidList = res.data.data.map(item => {
 					return item.openid;
 				});
+				openidList.filter(item => item && item);
 				let relation_condition = {};
 				relation_condition = {
 					relation: 'OR',
 					data: [{ colName: 'create_user', ruleType: 'eq', value: uni.getStorageSync('login_user_info').user_no }]
 				};
-				if (fwbms.length > 0) {
-					relation_condition.data.push({ colName: 'openid', ruleType: 'in', value: fwbms.toString() });
+
+				if (uni.getStorageSync('infoObj').person_no) {
+					relation_condition.data.push({ colName: 'person_no', ruleType: 'in', value: uni.getStorageSync('infoObj').person_no });
+				}
+				if (openidList.length > 0) {
+					relation_condition.data.push({ colName: 'openid', ruleType: 'in', value: openidList.toString() });
 				}
 				uni.navigateTo({
 					url:
-						'/pages/public/list/list?serviceName=srvzhxq_member_front_select&params=' +
+						'/pages/public/list/list?serviceName=srvzhxq_member_front_select&navigationBarTitle=家庭成员&params=' +
 						JSON.stringify(params) +
 						'&pageType=list&viewTemp={"title":"real_name","tip":"gender","footer":"tel","img":"head_img"}&relation_condition=' +
 						JSON.stringify(relation_condition)
@@ -265,7 +271,7 @@ export default {
 				};
 				uni.navigateTo({
 					url:
-						'/pages/public/list/list?serviceName=srvzhxq_clgl_select&pageType=list&type=skip&viewTemp=' +
+						'/pages/public/list/list?serviceName=srvzhxq_clgl_select&navigationBarTitle=我的车辆&pageType=list&type=skip&viewTemp=' +
 						decodeURIComponent(JSON.stringify(viewTemp)) +
 						'&cond=' +
 						decodeURIComponent(JSON.stringify(cond)) +
@@ -279,11 +285,6 @@ export default {
 					icon: 'none'
 				});
 			}
-		},
-		faceReg() {
-			uni.navigateTo({
-				url: '/pages/specific/faceReg/faceReg'
-			});
 		},
 		async toVisitor() {
 			if (uni.getStorageSync('infoObjArr').length > 0) {
@@ -326,7 +327,7 @@ export default {
 					};
 					uni.navigateTo({
 						url:
-							'/pages/public/list/list?serviceName=srvzhxq_guest_mgmt_select&pageType=list&type=skip&viewTemp=' +
+							'/pages/public/list/list?serviceName=srvzhxq_guest_mgmt_select&navigationBarTitle=访客记录&pageType=list&type=skip&viewTemp=' +
 							decodeURIComponent(JSON.stringify(viewTemp)) +
 							'&cond=' +
 							decodeURIComponent(JSON.stringify(cond)) +

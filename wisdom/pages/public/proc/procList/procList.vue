@@ -390,9 +390,11 @@ export default {
 			let colVs = await self.getServiceV2(self.listConfig.serviceName, 'list', 'proclist', app);
 			colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1);
 			console.log('colVs', colVs);
-			uni.setNavigationBarTitle({
-				title:colVs.service_view_name
-			})
+			if(!this.navigationBarTitle){
+				uni.setNavigationBarTitle({
+					title:colVs.service_view_name
+				})
+			}
 			if (serviceName.indexOf('issue_') !== -1) {
 				colVs.rowButton = [
 					{

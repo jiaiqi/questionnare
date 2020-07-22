@@ -281,9 +281,11 @@ export default {
 			this.colsV2Data = colVs;
 			let type = this.type;
 			console.log('colsV2Data', colVs);
-			uni.setNavigationBarTitle({
-				title:colVs.service_view_name
-			})
+			if(!this.navigationBarTitle){
+				uni.setNavigationBarTitle({
+					title:colVs.service_view_name
+				})
+			}
 			let fields = [];
 			switch (type) {
 				case 'update':

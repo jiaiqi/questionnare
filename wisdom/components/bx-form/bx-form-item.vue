@@ -927,10 +927,9 @@ export default {
 			this.$emit('on-value-blur', this.fieldData);
 		},
 		getValid: function() {
+			console.log("getValid",this.fieldData,this.field)
 			if (this.fieldData.isRequire && this.fieldData.value !== '') {
-				
 				if (this.fieldData.hasOwnProperty('_validators') && this.fieldData._validators.hasOwnProperty('isType') && typeof this.fieldData._validators.isType === 'function') {
-					
 					this.fieldData.valid = this.fieldData._validators.isType(this.fieldData.value);
 					this.valid.valid = true;
 				} else {
@@ -1308,6 +1307,7 @@ export default {
 					// this.getChangePoupInfo(this.fieldData);
 				}
 			},
+			immediate:true,
 			deep: true
 		},
 		fieldData: {

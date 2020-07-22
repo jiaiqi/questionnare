@@ -1,7 +1,7 @@
 <template>
 	<view class="list-item-wrap  bg-white">
 		<view class="list-item flex" v-if="viewType === 'normal'">
-			<image class="main-image" v-if="itemData[viewTemp['img']]" :src="'https://srvms.100xsys.cn/file/download?fileNo=' + itemData[viewTemp['img']]" :imgColName="'img'"></image>
+			<image class="main-image" v-if="itemData[viewTemp['img']]" :src="$api.srvHost+'/file/download?fileNo=' + itemData[viewTemp['img']]" :imgColName="'img'"></image>
 			<view class="content-box flex-twice" v-if="listType === 'proc'">
 				<view class="content-header">
 					<view class="title" @click="listItemClick">{{ itemData[viewTemp.title] }}</view>
@@ -163,10 +163,10 @@ export default {
 	},
 	methods: {
 		listItemClick() {
-			this.$emit('click-list-item', this.itemData);
+			this.$emit('click-list-item', this.deepClone(this.itemData));
 		},
 		footBtnClick(btn) {
-			this.$emit('click-foot-btn', { button: btn, row: this.itemData });
+			this.$emit('click-foot-btn', { button:this.deepClone(btn), row: this.deepClone(this.itemData) });
 		},
 		async getPicture(file_no) {
 			const serviceName = 'srvfile_attachment_select';
@@ -384,7 +384,6 @@ export default {
 					}
 					if (typeof more_config === 'object' && more_config && more_config.formulaShow) {
 						btn['disp_show'] = evaluatorTo(data, more_config.formulaShow);
-						
 					}
 					// }
 				});
@@ -441,6 +440,23 @@ export default {
 						});
 					}
 				});
+				let rowButton = this.deepClone(this.rowButton)
+				rowButton.forEach(btn => {
+					// if (btn.disp_exps) {
+					let data = newValue;
+					let more_config = {};
+					try {
+						more_config = JSON.parse(btn.more_config);
+					} catch (e) {
+						console.log(e);
+						//TODO handle the exception
+					}
+					if (typeof more_config === 'object' && more_config && more_config.formulaShow) {
+						btn['disp_show'] = evaluatorTo(data, more_config.formulaShow);
+					}
+					// }
+				});
+				this.rowButtons = rowButton;
 			}
 		}
 	}

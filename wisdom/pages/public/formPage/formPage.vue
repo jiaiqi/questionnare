@@ -159,6 +159,14 @@ export default {
 		} else if (query.serviceName && query.type) {
 			this.serviceName = query.serviceName;
 			this.type = query.type;
+			if(option.hasOwnProperty('cond')){
+				try{
+					this.condition = JSON.parse(decodeURIComponent(option.cond))
+				}catch(e){
+					//TODO handle the exception
+					console.log(e)
+				}
+			}
 			this.getFieldsV2();
 		} else {
 			uni.showToast({
@@ -172,9 +180,11 @@ export default {
 		getFieldsV2: async function(condition) {
 			let app = uni.getStorageSync('activeApp');
 			let colVs = await this.getServiceV2(this.serviceName, this.type, this.type, app);
-			uni.setNavigationBarTitle({
-				title: colVs.service_view_name
-			});
+			if(!this.navigationBarTitle){
+				uni.setNavigationBarTitle({
+					title:colVs.service_view_name
+				})
+			}
 			this.colsV2Data = colVs;
 			let self = this;
 			switch (this.type) {
@@ -209,6 +219,7 @@ export default {
 									});
 								}
 								if (this.params.defaultVal) {
+									 // 赋默认值
 									if (
 										field.column === 'xm' &&
 										self.params.defaultVal['real_name'] &&
@@ -231,6 +242,18 @@ export default {
 										field.value = self.params.defaultVal['openid'];
 										field.disabled = true;
 									}
+									if (field.column === 'person_no' && self.params.defaultVal['person_no']) {
+										field.value = self.params.defaultVal['person_no'];
+										// field.disabled = true;
+									}
+									if (field.column === 'lxfs' && self.params.defaultVal['tel']) {
+										field.value = self.params.defaultVal['tel'];
+										// field.disabled = true;
+									}
+									if (field.column === 'zp' && self.params.defaultVal['head_img']) {
+										field.value = self.params.defaultVal['head_img'];
+										// field.disabled = true;
+									}
 								}
 							});
 						});
@@ -246,7 +269,7 @@ export default {
 		},
 		async onButton(e) {
 			let req = this.$refs.bxForm.getFieldModel();
-
+				console.log(this.condition)
 			if ((e.service_name == 'srvzhxq_syrk_wuye_add' || e.service_name == 'srvzhxq_syrk_add') && (!req.proc_status || req.proc_status != '完成') && req) {
 				req.proc_status = '完成';
 			}

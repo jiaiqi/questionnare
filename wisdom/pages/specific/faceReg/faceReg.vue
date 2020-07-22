@@ -49,7 +49,7 @@
 		data(){
 			return {
 				tabList:[{
-					label: '上传照片',
+					label: '上传图片',
 				}],
 				isShow:false,
 				index: -1,

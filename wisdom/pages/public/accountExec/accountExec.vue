@@ -16,7 +16,7 @@
 				<view class="input-content" v-if="client_env === 'web' || client_env === 'app' || isShowUserLogin">
 					<view class="input-item">
 						<text class="tit">帐号</text>
-						<input type="text" v-model="user.user_no" placeholder="请输入帐号" maxlength="11" data-key="mobile" @input="inputChange" />
+						<input type="text" v-model="user.user_no" placeholder="请输入帐号" maxlength="999" data-key="mobile" @input="inputChange" />
 					</view>
 					<view class="input-item">
 						<text class="tit">密码</text>

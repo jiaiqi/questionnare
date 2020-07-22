@@ -579,23 +579,23 @@ export default {
 				}
 			}
 		Vue.prototype.isType = function(e) {
-						let reg = new RegExp(getStr(str, 'ngPattern=', ';'))
-						if (reg.test(e)) {
-							let obj = {
-								valid: reg.test(e),
-								msg: "有效"
-							}
-							return obj
-						} else {
-							let msgs = getStr(msg, 'ngPattern=', ';')
-							msgs = msgs === '' ? '信息有误' : msgs
-							let obj = {
-								valid: reg.test(e),
-								msg: msgs
-							}
-							return obj
-						}
-					}
+			let reg = new RegExp(getStr(str, 'ngPattern=', ';'))
+			if (reg.test(e)) {
+				let obj = {
+					valid: reg.test(e),
+					msg: "有效"
+				}
+				return obj
+			} else {
+				let msgs = getStr(msg, 'ngPattern=', ';')
+				msgs = msgs === '' ? '信息有误' : msgs
+				let obj = {
+					valid: reg.test(e),
+					msg: msgs
+				}
+				return obj
+			}
+		}
 		Vue.prototype.deepClone = function(obj) {
 			// 深拷贝
 			function isObject(o) {
@@ -1466,27 +1466,29 @@ export default {
 					})
 					// #endif
 					// #ifdef H5
-					uni.showModal({
-						title: '提示',
-						content: "您还未登录,请先登录在进行相关操作,点击确定按钮跳转到登录页面",
-						success(res) {
-							if (res.confirm) {
-								uni.setStorageSync('isToLogin', true)
-								Vue.prototype.judgeClientEnviroment()
-								if (backUrl) {
-									uni.navigateTo({
-										url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
-									})
+					if (uni.getStorageSync('isLogin') === false) {
+						uni.showModal({
+							title: '提示',
+							content: "您还未登录,请先登录在进行相关操作,点击确定按钮跳转到登录页面",
+							success(res) {
+								if (res.confirm) {
+									uni.setStorageSync('isToLogin', true)
+									Vue.prototype.judgeClientEnviroment()
+									if (backUrl) {
+										uni.navigateTo({
+											url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
+										})
+									} else {
+										uni.navigateTo({
+											url: '/pages/public/accountExec/accountExec'
+										})
+									}
 								} else {
-									uni.navigateTo({
-										url: '/pages/public/accountExec/accountExec'
-									})
+									uni.setStorageSync('isToLogin', false)
 								}
-							} else {
-								uni.setStorageSync('isToLogin', false)
 							}
-						}
-					})
+						})
+					}
 					// #endif
 					// }
 				},

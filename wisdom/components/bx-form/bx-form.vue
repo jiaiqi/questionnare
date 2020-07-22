@@ -412,6 +412,12 @@ export default {
 				if (e.condition && Array.isArray(e.condition) && e.condition.length > 0 && e.condition[0].colName === e.condition[0].value) {
 					e.condition.forEach(col => {
 						this.fieldModel[col.value] = e.colData[col.value];
+						self.allField.forEach((field,index)=>{
+							if(field.column===col.value){
+								field.value = e.colData[col.value]
+								// self.$set(self.allField,index,field)
+							}
+						})
 					});
 				}
 			}
@@ -536,6 +542,7 @@ export default {
 					}
 				});
 			}
+			
 			console.log('valueChange', e, this.fieldModel[e.column], this.fieldModel);
 		},
 		onValBlur(e) {
@@ -548,13 +555,12 @@ export default {
 			return this.fieldModel;
 		},
 		getFieldModel() {
-			console.log(this.fieldModel);
+			console.log(this.fieldModel,'getFieldModel');
 			let valid = 0;
 			let showsNum = 0;
-			console.log('this.$refs', this.$refs);
 			this.allField.map((item, index) => {
 				let valids = this.$refs.fitem[index].getValid();
-				console.log('字段校验', valids);
+				console.log('字段校验', valids,item);
 				if (item.display) {
 					showsNum++;
 					if (valids.valid) {

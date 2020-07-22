@@ -631,9 +631,11 @@ export default {
 			let self = this;
 			let colVs = await this.getServiceV2(serviceName, type, type, this.srvInfo.app ? this.srvInfo.app : 'oa');
 			this.colsV2Data = colVs;
-			uni.setNavigationBarTitle({
-				title:colVs.service_view_name
-			})
+			if(!this.navigationBarTitle){
+				uni.setNavigationBarTitle({
+					title:colVs.service_view_name
+				})
+			}
 			// let type = this.type;
 			console.log('colsV2Data', colVs);
 			let fields = [];

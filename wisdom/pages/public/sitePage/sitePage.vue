@@ -342,4 +342,8 @@ export default {
 };
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+	.text-green{
+		color: #0bc99d;
+	}
+</style>

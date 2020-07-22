@@ -75,7 +75,8 @@ export default {
 			showFootBtn: true,
 			tempWord: {},
 			queryParams: {},
-			queryOption: {}
+			queryOption: {},
+			navigationBarTitle:null,
 		};
 	},
 	onReachBottom() {
@@ -113,7 +114,12 @@ export default {
 		} else {
 			query = JSON.parse(decodeURIComponent(option.query));
 		}
-
+		if(option.navigationBarTitle){
+			this.navigationBarTitle = option.navigationBarTitle
+			uni.setNavigationBarTitle({
+				title:option.navigationBarTitle
+			})
+		}
 		// query = option
 		// #endif
 		if (option.hasOwnProperty('showAdd')) {
@@ -354,7 +360,66 @@ export default {
 			}
 			console.log('click-list-item:', e);
 		},
-		clickFootBtn(data) {
+		async clickFootBtn(data) {
+			let buttonInfo = data.button;
+			let rowData = data.row;
+			if (buttonInfo.operate_params && typeof buttonInfo.operate_params === 'string') {
+				try {
+					buttonInfo.operate_params = JSON.parse(buttonInfo.operate_params);
+					if (Array.isArray(buttonInfo.operate_params.condition) && buttonInfo.operate_params.condition.length > 0) {
+						buttonInfo.operate_params.condition.forEach(cond => {
+							if (typeof cond.value === 'object' && cond.value.value_type === 'rowData') {
+								cond.value = data.row[cond.value.value_key];
+							} else if (typeof cond.value === 'object' && cond.value.value_type === 'constant') {
+								cond.value = cond.value.value;
+							}
+						});
+					}
+					if (Array.isArray(buttonInfo.operate_params.data) && buttonInfo.operate_params.data.length > 0) {
+						buttonInfo.operate_params.data.forEach(data => {
+							if (typeof data === 'object') {
+								Object.keys(data).forEach(item => {
+									if (typeof data[item] === 'object' && data[item].value_type === 'rowData') {
+										data[item] = rowData[data[item].value_key];
+									} else if (typeof data[item] === 'object' && data[item].value_type === 'constant') {
+										data[item] = data[item].value;
+									}
+								});
+							}
+						});
+					}
+					console.log(buttonInfo.operate_params);
+					if (buttonInfo.operate_type === '操作' && buttonInfo.operate_mode === '静默操作') {
+						let req = [{ serviceName: buttonInfo.operate_service, condition: buttonInfo.operate_params.condition, data: buttonInfo.operate_params.data }];
+						let app = uni.getStorageSync('activeApp');
+						let url = this.getServiceUrl(buttonInfo.application ? buttonInfo.application : app, buttonInfo.operate_service, buttonInfo.servcie_type);
+						let res = await this.$http.post(url, req);
+						if (res.data.state === 'SUCCESS') {
+							this.$refs.bxList.onRefresh();
+						}
+					} else if (buttonInfo.operate_type === '更新弹出') {
+						let params = {
+							type: buttonInfo.servcie_type,
+							serviceName: buttonInfo.operate_service,
+							defaultVal: {}
+							// eventOrigin: buttonInfo
+						};
+						uni.navigateTo({
+							url:
+								'/pages/public/formPage/formPage?serviceName=' +
+								buttonInfo.operate_service +
+								'&type=' +
+								buttonInfo.servcie_type +
+								'&cond=' +
+								decodeURIComponent(JSON.stringify(buttonInfo.operate_params.condition))
+						});
+					}
+				} catch (e) {
+					console.error(e);
+					//TODO handle the exception
+				}
+			}
+
 			if (this.pageType === 'proc') {
 				if (data.button && data.button.button_type === 'edit' && data.row.proc_instance_no) {
 					uni.navigateTo({
@@ -467,13 +532,20 @@ export default {
 										}"},{"colName":"proc_status","ruleType":"eq","value":"完成"},{ "colName": "status", "ruleType": "eq", "value": "有效" }]`
 									});
 								} else {
-									uni.showModal({
-										title: '提示',
-										content: '当前数据未绑定微信用户，请先点击邀请绑定按钮进行账号绑定',
-										showCancel: false,
-										confirmText: '知道了~',
-										success(res) {}
+									uni.navigateTo({
+										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&params=${JSON.stringify(
+											params
+										)}&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&showRowButton=false&cond=[{"colName":"person_no","ruleType":"like","value":"${
+											data.row.person_no
+										}"},{"colName":"proc_status","ruleType":"eq","value":"完成"},{ "colName": "status", "ruleType": "eq", "value": "有效" }]`
 									});
+									// uni.showModal({
+									// 	title: '提示',
+									// 	content: '当前数据未绑定微信用户，请先点击邀请绑定按钮进行账号绑定',
+									// 	showCancel: false,
+									// 	confirmText: '知道了~',
+									// 	success(res) {}
+									// });
 								}
 							} else {
 								uni.navigateTo({
@@ -526,6 +598,11 @@ export default {
 			let self = this;
 			let colVs = await this.getServiceV2(this.serviceName, 'list', this.pageType === 'proc' ? 'proclist' : 'list', app);
 			colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1);
+			if(!this.navigationBarTitle){
+				uni.setNavigationBarTitle({
+					title:colVs.service_view_name
+				})
+			}
 			console.log('colVs', colVs);
 			this.listConfig = colVs;
 			if (this.pageType === 'proc') {
