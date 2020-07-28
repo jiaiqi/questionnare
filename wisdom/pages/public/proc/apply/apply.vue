@@ -160,14 +160,14 @@ export default {
 					leftTempWord: leftTempWord
 				};
 			}
-			
+
 			uni.navigateTo({
 				url: '/pages/public/proc/procList/procList?query=' + encodeURIComponent(JSON.stringify(query))
 			});
 		},
 		async submitData() {
 			let serviceName = this.serviceName;
-			console.log("service_name",serviceName)
+			console.log('service_name', serviceName);
 			let itemData = this.$refs.bxForm.getFieldModel();
 			console.log('itemData', itemData);
 			if (!itemData) {
@@ -178,12 +178,15 @@ export default {
 						itemData[item] = uni.getStorageSync('login_user_info').user_no;
 					}
 				});
-				if(serviceName == 'srvzhxq_member_fuwu_add'){
+				if (serviceName == 'srvzhxq_member_fuwu_add') {
 					Object.keys(itemData).forEach(item => {
 						if (item == 'openid') {
 							itemData[item] = uni.getStorageSync('login_user_info').user_no;
 						}
 					});
+				}
+				if (!itemData['child_data_list']) {
+					itemData['child_data_list'] = [];
 				}
 				let req = [
 					{
@@ -200,7 +203,6 @@ export default {
 						icon: 'none'
 					});
 					if (itemData.is_benren && itemData.is_benren === '他人信息') {
-						
 						this.showShareButton = true;
 						if (resData.proc_instance_no) {
 							this.proc_instance_no = resData.proc_instance_no;
@@ -281,10 +283,10 @@ export default {
 			this.colsV2Data = colVs;
 			let type = this.type;
 			console.log('colsV2Data', colVs);
-			if(!this.navigationBarTitle){
+			if (!this.navigationBarTitle) {
 				uni.setNavigationBarTitle({
-					title:colVs.service_view_name
-				})
+					title: colVs.service_view_name
+				});
 			}
 			let fields = [];
 			switch (type) {
@@ -321,7 +323,7 @@ export default {
 									colName: 'sex',
 									ruleType: 'eq',
 									value: bas.gender
-								},
+								}
 							];
 							console.log('shareConds', shareConds);
 							this.defaultCondition = shareConds;
@@ -332,7 +334,7 @@ export default {
 						let row = {};
 						this.defaultCondition.forEach(cond => {
 							colVs._fieldInfo.forEach(field => {
-								if (cond.colName === field.column&&field.bx_col_type!=='fk') {
+								if (cond.colName === field.column && field.bx_col_type !== 'fk') {
 									field['value'] = cond['value'];
 									if (field['value']) {
 										field['disabled'] = false;
@@ -392,8 +394,8 @@ export default {
 		let query = {};
 		if (!option.query) {
 			query = option;
-		}else{
-			query = JSON.parse(decodeURIComponent(option.query))
+		} else {
+			query = JSON.parse(decodeURIComponent(option.query));
 		}
 		if (query) {
 			// query = JSON.parse(decodeURIComponent(option.query));
@@ -425,7 +427,7 @@ export default {
 						if (item.colName === 'gmsfhm' || item.colName === 'zjhm') {
 							item.value = basicInfo.picp;
 						}
-						if(item.colName == 'sex'){
+						if (item.colName == 'sex') {
 							item.value = basicInfo.gender;
 						}
 					}
@@ -433,7 +435,7 @@ export default {
 				this.defaultCondition = conds;
 			}
 		}
-		
+
 		if (query.serviceName) {
 			this.serviceName = query.serviceName;
 		}

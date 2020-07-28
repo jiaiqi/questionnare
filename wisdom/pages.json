@@ -25,7 +25,7 @@
 			"path": "pages/public/accountExec/accountExec",
 			"style": {
 				"navigationBarTitleText": "微信登录",
-				"navigationBarBackgroundColor": "#0055ff"
+				"navigationBarBackgroundColor": "#0bc99d"
 			}
 		}, {
 			"path": "pages/public/list/list",

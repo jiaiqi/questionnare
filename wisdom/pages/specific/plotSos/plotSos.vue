@@ -55,23 +55,7 @@
 		data(){
 			return {
 				listData:[
-				{
-					name:"小区负责人",
-					phone:"17721051437"
-				},
-				{
-					name:"物业",
-					phone:"17532140514"
-				},{
-					name:"报警电话",
-					phone:"110"
-				},{
-					name:"火警",
-					phone:"119"
-				},{
-					name:"急救中心",
-					phone:"120"
-				},]
+				]
 			}
 		},
 		methods:{

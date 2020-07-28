@@ -61,51 +61,11 @@ export default {
 					) {
 						if (uni.getStorageSync('isLogin')) {
 							this.selectInfoFromMember().then(result1 => {
+								console.log("clickButton-查找基本信息:",result)
 								if (!!result1) {
-									// if (!isOwner && (e.dest_menu_no === '物业报修' || e.dest_menu_no === '车辆登记')) {
-									// 	uni.showToast({
-									// 		title: '暂未入住小区,请进行信息登记',
-									// 		duration: 1000,
-									// 		icon: 'none'
-									// 	});
-									// 	return;
-									// }
 									uni.navigateTo({
 										url: e.dest_page
 									});
-									return;
-									let urlArgumentIndex = e.dest_page.indexOf('?');
-									let urlAllArgument = e.dest_page.split('?');
-									let queryObj = {};
-									uni.navigateTo({
-										url: e.dest_page
-									});
-									return
-									if (urlArgumentIndex >= 0) {
-										/** 确保在登录状态下进行跳转*/
-										if (urlAllArgument[1].indexOf('&') < 0) {
-											for (let i = 1; i < urlAllArgument.length; i++) {
-												let urlAloneArgument = urlAllArgument[i].split('=');
-												queryObj[urlAloneArgument[0]] = urlAloneArgument[1];
-											}
-										} else {
-											let urlArg = urlAllArgument[1].split('&');
-											for (let j = 0; j < urlArg.length; j++) {
-												let urlAlo = urlArg[j].split('=');
-												queryObj[urlAlo[0]] = decodeURIComponent(urlAlo[1]);
-											}
-										}
-										if (queryObj.no || queryObj.website_no || queryObj.serviceName) {
-											uni.navigateTo({
-												url: urlAllArgument[0] + '?query=' + encodeURIComponent(JSON.stringify(queryObj))
-											});
-										} else {
-											uni.navigateTo({
-												url: urlAllArgument[0]
-											});
-										}
-									}
-								} else {
 								}
 							});
 						}
@@ -214,6 +174,8 @@ export default {
 			}
 		},
 		async getUserInfoLimits() {
+			let self = this;
+			uni.setStorageSync('is_owner', false);
 			let user_no = uni.getStorageSync('basics_info').picp;
 			let urls = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
 			let reqs = {
@@ -246,11 +208,13 @@ export default {
 			let ress = await this.$http.post(urls, reqs);
 			if (ress.data.state === 'SUCCESS') {
 				if (ress.data.data.length > 0) {
-					this.isOwner = true;
+					self.isOwner = true;
+					console.log('qi请求=====》》', self.isOwner);
 					uni.setStorageSync('is_owner', true);
+					console.log('qi请求成功后=====》》', uni.getStorageSync('is_owner'));
 					uni.setStorageSync('infoObj', ress.data.data[0]);
 					uni.setStorageSync('infoObjArr', ress.data.data);
-					return this.isOwner;
+					return self.isOwner;
 				} else {
 					uni.setStorageSync('is_owner', false);
 					uni.setStorageSync('infoObj', '');
@@ -258,7 +222,7 @@ export default {
 				}
 			}
 		},
-		async getCurrUserType(){
+		async getCurrUserType() {
 			let user_no = uni.getStorageSync('basics_info').openid;
 			let urls = this.getServiceUrl('zhxq', 'srvzhxq_member_fuwu_select', 'select');
 			let reqs = {
@@ -276,33 +240,41 @@ export default {
 						value: '完成'
 					},
 					{
-						colName:"is_open",
-						ruleType:"eq",
-						value:"是"
+						colName: 'is_open',
+						ruleType: 'eq',
+						value: '是'
 					}
 				]
 			};
 			let ress = await this.$http.post(urls, reqs);
 			if (ress.data.state === 'SUCCESS') {
 				if (ress.data.data.length > 0) {
-					ress.data.data.forEach(item=>{
-						if(item.zhiye == '保安'){
-							uni.setStorageSync('is_baoan',true)
-							return
+					ress.data.data.forEach(item => {
+						if (item.zhiye == '保安') {
+							uni.setStorageSync('is_baoan', true);
+							return;
 						}
-					})
-				}else{
-					uni.setStorageSync('is_baoan',false)
+					});
+				} else {
+					uni.setStorageSync('is_baoan', false);
 				}
 			}
 		}
 	},
 
 	onShow() {
-		if (uni.getStorageSync('activeApp') == 'zhxq') {
-			this.getUserInfoLimits();
-			this.getbasicsInfo();
-			this.getCurrUserType()
+		console.log('-----------onSHOW', uni.getStorageSync('activeApp'));
+		if (uni.getStorageSync('isLogin') == true) {
+			// this.selectInfoFromMember().then(result1=>{
+			// 	if(!!result1){
+			this.getUserInfoLimits().then(result => {
+				this.getbasicsInfo().then(r => {
+					this.getCurrUserType();
+				});
+				// 	})
+
+				// }
+			});
 		}
 	},
 	created() {
@@ -319,7 +291,7 @@ export default {
 		// #endif
 	},
 	onShareTimeline(res) {
-		console.log('onShareTimeline',res)
+		console.log('onShareTimeline', res);
 	},
 	onLoad(option) {
 		wx.showShareMenu({
@@ -327,10 +299,10 @@ export default {
 			menus: ['shareAppMessage', 'shareTimeline']
 		});
 		this.website_no = option.website_no;
-		uni.setStorageSync('is_owner', false);
 		if (this.website_no == 'WS2020060611100007') {
 			uni.setStorageSync('activeApp', 'zhxq');
 		}
+		console.log('-----------onLoad');
 	},
 	onShareAppMessage(res) {
 		return {
@@ -343,7 +315,7 @@ export default {
 </script>
 
 <style lang="scss">
-	.text-green{
-		color: #0bc99d;
-	}
+.text-green {
+	color: #0bc99d;
+}
 </style>

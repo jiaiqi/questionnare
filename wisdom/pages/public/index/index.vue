@@ -359,7 +359,7 @@ export default {
 				if (res.data.state === 'SUCCESS') {
 					const data = res.data.data[0];
 					if (data) {
-						const fileurl = this.$api.srvHost + '/file/download?filePath=' + data.fileurl;
+						const fileurl = this.$api.srvHost + '/file/download?filePath=' + data.fileurl+'&bx_auth_ticket='+uni.getStorageSync('bx_auth_ticket');
 						return fileurl;
 					}
 				}

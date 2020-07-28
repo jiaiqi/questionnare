@@ -723,9 +723,9 @@ export default {
     uni.onWindowResize(this.refreshClientHeight);
     this.refreshClientHeight();
 
-    this.$el && this.$el.addEventListener && this.$el.addEventListener('touchmove', e => {
-      this.preventTouchmove && e.preventDefault();
-    });
+    // this.$el && this.$el.addEventListener && this.$el.addEventListener('touchmove', e => {
+    //   this.preventTouchmove && e.preventDefault();
+    // });
   },
   beforeDestroy () {
     uni.offWindowResize(this.refreshClientHeight);

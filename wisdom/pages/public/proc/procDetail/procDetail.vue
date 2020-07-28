@@ -57,7 +57,7 @@
 				</view>
 				<view class="approve">
 					<text class="text-gray">审批人：</text>
-					<text class="approve_name">{{ currentStepInfo._approval_user }}</text>
+					<text class="approve_name">{{ currentStepInfo._approval_user_no }}</text>
 				</view>
 			</view>
 			<view class="" v-if="procBasicConfig.proHanleData && procBasicConfig.proHanleData.authority">
@@ -335,7 +335,7 @@ export default {
 			this.approvalFormCfg[0].options = [];
 
 			let req = { serviceName: 'srvprocess_basic_cfg_select', colNames: ['*'], condition: [{ colName: 'proc_instance_no', ruleType: 'eq', value: proc_instance_no }] };
-			let res = await this.onRequest('select', 'srvprocess_basic_cfg_select', req, this.srvInfo.app ? this.srvInfo.app : 'oa');
+			let res = await this.onRequest('select', 'srvprocess_basic_cfg_select', req, this.srvInfo.app ? this.srvInfo.app : 'zhxq');
 			console.log('进入res===', res);
 			// console.log("流程-----",res)
 			if (res.data.state === 'SUCCESS') {
@@ -416,7 +416,7 @@ export default {
 				condition: [{ colName: 'proc_instance_no', value: this.proc_instance_no, ruleType: 'eq' }],
 				order: [{ colName: 'id', orderType: 'desc' }]
 			};
-			let res = await this.onRequest('select', 'srvprocess_record_select', req, this.srvInfo.app ? this.srvInfo.app : 'oa');
+			let res = await this.onRequest('select', 'srvprocess_record_select', req, this.srvInfo.app ? this.srvInfo.app : 'zhxq');
 			if (res.data.state === 'SUCCESS') {
 				this.procRecord = res.data.data;
 				this.getColV2(req.serviceName, 'detail').then(cols => {
@@ -447,7 +447,7 @@ export default {
 				colNames: col,
 				hisVer: true
 			};
-			let res = await this.onRequest('select', req.serviceName, req, 'oa');
+			let res = await this.onRequest('select', req.serviceName, req, 'zhxq');
 			uni.hideLoading();
 			if (res.data.state === 'SUCCESS') {
 				console.log('getDetail111', res.data.data);
@@ -530,7 +530,7 @@ export default {
 								data: [itemData]
 							}
 						];
-						let res = await this.onRequest('apply', serviceName, req, this.srvInfo.app ? this.srvInfo.app : 'oa');
+						let res = await this.onRequest('apply', serviceName, req, this.srvInfo.app ? this.srvInfo.app : 'zhxq');
 						if (res.data.state === 'SUCCESS') {
 							console.log(res.data, 'res.data');
 							uni.showToast({
@@ -605,8 +605,8 @@ export default {
 						step_no: self.currentStepInfo.step_no
 					}
 				];
-				let url = this.getServiceUrl(this.srvInfo.app ? this.srvInfo.app : 'oa', 'approval', 'process');
-				let res = await self.onRequest('process', 'approval', reqData, this.srvInfo.app ? this.srvInfo.app : 'oa');
+				let url = this.getServiceUrl(this.srvInfo.app ? this.srvInfo.app : 'zhxq', 'approval', 'process');
+				let res = await self.onRequest('process', 'approval', reqData, this.srvInfo.app ? this.srvInfo.app : 'zhxq');
 				// .then(res => {
 				if (res.data.state === 'SUCCESS') {
 					console.log(res.data);
@@ -629,7 +629,7 @@ export default {
 		},
 		async getColV2(serviceName, type) {
 			let self = this;
-			let colVs = await this.getServiceV2(serviceName, type, type, this.srvInfo.app ? this.srvInfo.app : 'oa');
+			let colVs = await this.getServiceV2(serviceName, type, type, this.srvInfo.app ? this.srvInfo.app : 'zhxq');
 			this.colsV2Data = colVs;
 			if(!this.navigationBarTitle){
 				uni.setNavigationBarTitle({
@@ -768,7 +768,7 @@ export default {
 
 <style scoped lang="scss">
 .proc-wrap {
-	padding-bottom: 150upx;
+	// padding-bottom: 150upx;
 	position: relative;
 	.current-tab {
 		color: #0bc99d;
@@ -903,7 +903,7 @@ export default {
 	}
 }
 .content-box {
-	margin-bottom: 100upx;
+	// margin-bottom: 100upx;
 }
 .approvalForm {
 	width: 100%;
@@ -912,7 +912,7 @@ export default {
 .approve {
 	display: flex;
 	.approve_name {
-		height: 20px;
+		height: 17px;
 		display: flex;
 		overflow: hidden;
 		width: 150px;

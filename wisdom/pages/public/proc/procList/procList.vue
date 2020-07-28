@@ -490,22 +490,22 @@ export default {
 		queryViewTemp = queryWx.viewTemp;
 		let isOwner = uni.getStorageSync('is_owner');
 		let leftTempWord = {
-			   title: '身份证号',
+			   title: '访问房屋',
 				tip: '联系电话',
 				footer: '访问时间',
-				title_col: 'zjhm',
+				title_col: '_fwbm_disp',
 				tip_col: 'lxdh',
 				footer_col: 'create_time'}
-		if (queryser.indexOf('zhxq_guest_mgmt') !== -1 && !isOwner) {
-			leftTempWord.title = '访问地址';
-		}
+		// if (queryser.indexOf('zhxq_guest_mgmt') !== -1 && !isOwner) {
+		// 	leftTempWord.title = '访问地址';
+		// }
 		if (queryser.indexOf('zhxq_syrk') !== -1) {
 			leftTempWord = {
-				title: '人员类型',
-				tip: '身份证号',
+				title: '姓名',
+				tip: '人员类型',
 				footer: '联系电话',
-				title_col: 'rylx',
-				tip_col: 'gmsfhm',
+				title_col: 'xm',
+				tip_col: 'rylx',
 				footer_col: 'lxfs'
 			};
 		}

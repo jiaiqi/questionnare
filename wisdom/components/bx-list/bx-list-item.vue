@@ -1,7 +1,7 @@
 <template>
 	<view class="list-item-wrap  bg-white">
 		<view class="list-item flex" v-if="viewType === 'normal'">
-			<image class="main-image" v-if="itemData[viewTemp['img']]" :src="$api.srvHost+'/file/download?fileNo=' + itemData[viewTemp['img']]" :imgColName="'img'"></image>
+			<image class="main-image" v-if="itemData[viewTemp['img']]" :src="picUrl+'/file/download?bx_auth_ticket='+bx_auth_ticket+'&fileNo=' + itemData[viewTemp['img']]" :imgColName="'img'"></image>
 			<view class="content-box flex-twice" v-if="listType === 'proc'">
 				<view class="content-header">
 					<view class="title" @click="listItemClick">{{ itemData[viewTemp.title] }}</view>
@@ -66,7 +66,7 @@
 							>
 								{{ item.button_name }}
 							</button>
-							<button
+							<!-- <button
 								:data-procNo="itemData.proc_instance_no"
 								@click="footBtnClick(item)"
 								open-type="share"
@@ -75,7 +75,7 @@
 								v-if="item.more_config && JSON.parse(item.more_config).type == 'share' && itemData.proc_status != '完成'"
 							>
 								{{ item.button_name }}
-							</button>
+							</button> -->
 							<button
 								:data-procNo="itemData.proc_instance_no"
 								@click="footBtnClick(item)"
@@ -158,7 +158,8 @@ export default {
 				price: '',
 				footer: ''
 			},
-			rowButtons: []
+			rowButtons: [],
+			bx_auth_ticket:uni.getStorageSync('bx_auth_ticket')
 		};
 	},
 	methods: {
@@ -181,7 +182,7 @@ export default {
 				if (res.data.state === 'SUCCESS') {
 					const data = res.data.data[0];
 					if (data) {
-						const fileurl = this.$api.srvHost + '/file/download?filePath=' + data.fileurl + '&thumbnailType=' + this.$api.imgThumbnailType;
+						const fileurl = this.$api.srvHost + '/file/download?filePath=' + data.fileurl + '&bx_auth_ticket='+uni.getStorageSync('bx_auth_ticket')+'&thumbnailType=' + this.$api.imgThumbnailType;
 						return fileurl;
 					}
 				}
@@ -305,7 +306,10 @@ export default {
 		}
 	},
 	mounted() {
-		console.log('--bxListmounted--------', this.rowButton, this.queryLeftWord);
+		this.$nextTick(()=>{
+			console.log('--bxListmounted--------',this.$el);
+		})
+		this.picUrl = this.$api.srvHost
 	},
 	watch: {
 		srv_cols: {
@@ -591,7 +595,7 @@ export default {
 			.footer {
 				display: flex;
 				justify-content: space-between;
-				height: 80upx;
+				min-height: 80upx;
 				width: 100%;
 				align-items: center;
 				// overflow: hidden;

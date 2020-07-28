@@ -33,7 +33,7 @@
 				class="form-content"
 				:class="{
 					alo_radio: fieldData.type === 'radio' || fieldData.type === 'radioFk' || fieldData.type === 'checkbox' || fieldData.type === 'checkbox' || fieldData.type === 'images',
-					valid_error:!valid.valid 
+					valid_error: !valid.valid
 				}"
 				v-if="pageFormType === 'form' || pageFormType === 'add' || pageFormType === 'update'"
 			>
@@ -866,8 +866,7 @@ export default {
 				if (fileDatas) {
 					for (let i = 0; i < fileDatas.length; i++) {
 						console.log('file:2', self.$api.getFilePath + fileDatas[i].fileurl);
-
-						self.imagesUrl.push(self.$api.getFilePath + fileDatas[i].fileurl);
+						self.imagesUrl.push(self.$api.getFilePath + fileDatas[i].fileurl + '&bx_auth_ticket=' + uni.getStorageSync('bx_auth_ticket'));
 					}
 				}
 				console.log('imagesUrl:===>', this.imagesUrl, fileDatas);
@@ -927,7 +926,7 @@ export default {
 			this.$emit('on-value-blur', this.fieldData);
 		},
 		getValid: function() {
-			console.log("getValid",this.fieldData,this.field)
+			console.log('getValid', this.fieldData, this.field);
 			if (this.fieldData.isRequire && this.fieldData.value !== '') {
 				if (this.fieldData.hasOwnProperty('_validators') && this.fieldData._validators.hasOwnProperty('isType') && typeof this.fieldData._validators.isType === 'function') {
 					this.fieldData.valid = this.fieldData._validators.isType(this.fieldData.value);
@@ -1166,7 +1165,6 @@ export default {
 		},
 
 		async getTreeSelectorData(cond, serv) {
-			;
 			console.log('detailFiledDatadetailFiledData', this.detailFiledData);
 			let self = this;
 			let req = {
@@ -1247,7 +1245,7 @@ export default {
 						if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] === self.fieldData.value) {
 							self.fieldData['colData'] = item;
 						} else if (self.fieldData.option_list_v2 && item[self.fieldData.option_list_v2.refed_col] && !self.fieldData.value) {
-							let colData =self.deepClone(item);
+							let colData = self.deepClone(item);
 							let refed_col = self.fieldData.option_list_v2.refed_col;
 							if (
 								colData[refed_col] &&
@@ -1307,7 +1305,7 @@ export default {
 					// this.getChangePoupInfo(this.fieldData);
 				}
 			},
-			immediate:true,
+			immediate: true,
 			deep: true
 		},
 		fieldData: {
@@ -1399,7 +1397,7 @@ export default {
 	&.alo_radio {
 		border: none;
 	}
-	&.valid_error{
+	&.valid_error {
 		border: 1rpx solid #ff0000;
 	}
 }

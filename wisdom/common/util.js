@@ -287,7 +287,8 @@ export default {
 					fieldInfo.type = "radioFk"
 					fieldInfo.options = item.option_list_v2
 				} else if (item.col_type === "MultilineText") {
-					fieldInfo.type = "textarea"
+					// fieldInfo.type = "textarea"
+					fieldInfo.type = "input"
 				} else if (item.col_type === "Money" || item.col_type === "Float") {
 					fieldInfo.type = "digit"
 				} else if (item.col_type === "Integer" || item.col_type === "int") {
@@ -602,7 +603,8 @@ export default {
 				return (typeof o === 'object' || typeof o === 'function') && o !== null
 			}
 			if (!isObject(obj)) {
-				throw new Error('非对象')
+				console.log('非对象', obj)
+				throw new Error('非对象', obj)
 			}
 			let isArray = Array.isArray(obj)
 			let newObj = isArray ? [...obj] : { ...obj
@@ -1401,6 +1403,7 @@ export default {
 						success(res) {
 							if (res.code) {
 								//发起网络请求
+								debugger
 								Vue.prototype.verifyLogin(res.code)
 								wx.getSetting({
 									success(res) {
@@ -1493,12 +1496,13 @@ export default {
 					// }
 				},
 				Vue.prototype.selectInfoFromMember = async function() {
+						console.log('selectInfoFromMember')
 						let userInfo = uni.getStorageSync('login_user_info');
 						let wxUserInfo = uni.getStorageSync('wxuserinfo');
 						if (userInfo.openid) {
-							let url = Vue.prototype.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
+							let url = Vue.prototype.getServiceUrl('zhxq', 'srvzhxq_member_front_select', 'select');
 							let req = {
-								serviceName: 'srvzhxq_member_select',
+								serviceName: 'srvzhxq_member_front_select',
 								colNames: ['*'],
 								condition: [{
 									colName: 'openid',
@@ -1553,9 +1557,22 @@ export default {
 									}
 								});
 								return false
+							} else if (res.data.state === 'SUCCESS' && res.data.data.length > 0 && res.data.data[0].islock === '是') {
+								uni.showModal({
+									title: "提示",
+									content: "当前帐号无权限访问",
+									showCancel: false,
+									confirmText: "知道了",
+									success(res) {
+										if (res.confirm) {
+
+										}
+									}
+								})
+								return false
 							} else return true
 
-						} else return true
+						} else return false
 					},
 					Vue.prototype.strReplace = function(str, before, after) {
 						console.log(str, before, after)

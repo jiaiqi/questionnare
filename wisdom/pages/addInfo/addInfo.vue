@@ -107,7 +107,7 @@ export default {
 			}
 			if (typeof query.condition === 'object') {
 				cond = query.condition;
-			}			
+			}
 		}
 		if (option.hasOwnProperty('loadedType')) {
 			this.loadedType = option.loadedType;
@@ -231,8 +231,8 @@ export default {
 			let app = uni.getStorageSync('activeApp');
 			let colVs = await this.getServiceV2(this.serviceName, this.type, this.type, app);
 			uni.setNavigationBarTitle({
-				title:colVs.service_view_name
-			})
+				title: colVs.service_view_name
+			});
 			this.colsV2Data = colVs;
 			switch (this.type) {
 				case 'update':
@@ -282,13 +282,14 @@ export default {
 		},
 		async checkBasicInfo(name, id) {
 			// 以姓名和身份证号检测当前登录用户是否已经登记过居住信息
-			let url = this.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
+			let url = this.getServiceUrl('zhxq', 'srvzhxq_member_front_select', 'select');
 			let req = {
-				serviceName: 'srvzhxq_member_select',
+				serviceName: 'srvzhxq_member_front_select',
 				colNames: ['*'],
 				condition: [{ colName: 'real_name', ruleType: 'like', value: name }, { colName: 'picp', ruleType: 'like', value: id }]
 			};
 			let res = await this.$http.post(url, req);
+			console.log('checkBasicInfo', res);
 			if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 				return res.data.data[0];
 			} else {
@@ -409,20 +410,19 @@ export default {
 														url = self.getServiceUrl(app, e.service_name.replace('_add', '_update'), 'operate');
 														req = [{ serviceName: e.service_name.replace('_add', '_update'), condition: [{ colName: 'id', ruleType: 'eq', value: hasBasicInfo.id }], data: [req] }];
 													} else {
-														// add
 														req = [{ serviceName: e.service_name, data: [req] }];
 													}
-													console.log(url, e,req);
+													console.log(url, e, req);
 													self.$http.post(url, req).then(res => {
 														// console.log("==============>>>>>>",url, res.data);
-														uni.setStorageSync("basics_info",res.data?.response[0]?.response?.effect_data[0])
+														uni.setStorageSync('basics_info', res.data?.response[0]?.response?.effect_data[0]);
 														if (res.data.state === 'SUCCESS') {
 															uni.showModal({
 																title: '提示',
 																content: hasBasicInfo === false ? '登记成功' : '关联成功',
 																showCancel: false,
 																success(res) {
-																	self.wxLogin()
+																	self.wxLogin();
 																	if (res.confirm) {
 																		// uni.setStorageSync("basics_info",hasBasicInfo)
 																		self.checkHouseInfo(name, id).then(result => {
@@ -435,7 +435,6 @@ export default {
 																					confirmColor: '#0BC99D',
 																					success(res) {
 																						if (res.confirm) {
-																							
 																							self.updateHouseInfo(name, id, openid).then(_ => {});
 																						} else {
 																							uni.navigateBack();
@@ -485,15 +484,15 @@ export default {
 										self.$http.post(url, req).then(res => {
 											console.log(url, res.data);
 											if (res.data.state === 'SUCCESS') {
-												console.log("res.data",res.data.response[0].response.effect_data[0])
-												uni.setStorageSync("basics_info",res.data?.response[0]?.response?.effect_data[0])
+												console.log('res.data', res.data.response[0].response.effect_data[0]);
+												uni.setStorageSync('basics_info', res.data?.response[0]?.response?.effect_data[0]);
 												uni.showModal({
 													title: '提示',
 													content: '登记成功',
 													showCancel: false,
 													success(res) {
 														if (res.confirm) {
-															self.wxLogin()
+															self.wxLogin();
 															self.checkHouseInfo(name, id).then(result => {
 																if (result) {
 																	uni.showModal({
@@ -589,7 +588,7 @@ export default {
 					});
 					break;
 			}
-		}		
+		}
 	}
 };
 </script>

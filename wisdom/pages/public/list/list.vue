@@ -76,7 +76,7 @@ export default {
 			tempWord: {},
 			queryParams: {},
 			queryOption: {},
-			navigationBarTitle:null,
+			navigationBarTitle: null
 		};
 	},
 	onReachBottom() {
@@ -114,11 +114,11 @@ export default {
 		} else {
 			query = JSON.parse(decodeURIComponent(option.query));
 		}
-		if(option.navigationBarTitle){
-			this.navigationBarTitle = option.navigationBarTitle
+		if (option.navigationBarTitle) {
+			this.navigationBarTitle = option.navigationBarTitle;
 			uni.setNavigationBarTitle({
-				title:option.navigationBarTitle
-			})
+				title: option.navigationBarTitle
+			});
 		}
 		// query = option
 		// #endif
@@ -523,20 +523,20 @@ export default {
 							// 	url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
 							// });
 							if (data.button.button_name === '绑定房屋') {
-								if (data.row.openid) {
+								if (data.row.person_no) {
 									uni.navigateTo({
 										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&params=${JSON.stringify(
 											params
-										)}&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&showRowButton=false&cond=[{"colName":"openid","ruleType":"like","value":"${
-											data.row.openid
+										)}&viewTemp={"title":"_fwbm_disp","img":"zp","tip":"xm","footer":"gmsfhm"}&navigationBarTitle=房屋信息&showRowButton=true&cond=[{"colName":"person_no","ruleType":"like","value":"${
+											data.row.person_no
 										}"},{"colName":"proc_status","ruleType":"eq","value":"完成"},{ "colName": "status", "ruleType": "eq", "value": "有效" }]`
 									});
 								} else {
 									uni.navigateTo({
-										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&params=${JSON.stringify(
+										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&navigationBarTitle=房屋信息&params=${JSON.stringify(
 											params
-										)}&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&showRowButton=false&cond=[{"colName":"person_no","ruleType":"like","value":"${
-											data.row.person_no
+										)}&viewTemp={"title":"_fwbm_disp","img":"zp","tip":"xm","footer":"gmsfhm"}&showRowButton=true&cond=[{"colName":"openid","ruleType":"like","value":"${
+											data.row.openid
 										}"},{"colName":"proc_status","ruleType":"eq","value":"完成"},{ "colName": "status", "ruleType": "eq", "value": "有效" }]`
 									});
 									// uni.showModal({
@@ -597,11 +597,11 @@ export default {
 			let app = uni.getStorageSync('activeApp');
 			let self = this;
 			let colVs = await this.getServiceV2(this.serviceName, 'list', this.pageType === 'proc' ? 'proclist' : 'list', app);
-			colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1);
-			if(!this.navigationBarTitle){
+			colVs.srv_cols = colVs.srv_cols.filter(item => item.in_list === 1 || item.in_list === 2);
+			if (!this.navigationBarTitle) {
 				uni.setNavigationBarTitle({
-					title:colVs.service_view_name
-				})
+					title: colVs.service_view_name
+				});
 			}
 			console.log('colVs', colVs);
 			this.listConfig = colVs;

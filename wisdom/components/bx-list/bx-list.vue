@@ -341,6 +341,7 @@ export default {
 			this.$emit('clickFootBtn', data);
 		},
 		async getListData(cond, proc_data_type, i) {
+			
 			uni.showLoading({
 				mask: true
 			});
@@ -442,6 +443,7 @@ export default {
 			}, 200);
 		},
 		loadData(pullScroll) {
+			console.log("上拉加载")
 			let page = this.pageInfo;
 			this.pageInfo.pageNo = pullScroll.page;
 			if (this.listType === 'proc') {
@@ -633,8 +635,9 @@ export default {
 					}
 				}
 			];
+			this.proc_data_type = 'myall';
 		}
-		this.proc_data_type = 'myall';
+		
 		this.getAllData();
 		this.tabsLength = this.tabList.length;
 	}

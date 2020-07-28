@@ -5,7 +5,7 @@
 		</view> -->
 		<view v-if="rowData" class="permit_top">
 			<view class="permit_top_t">
-				<text>姓名：</text>
+				<text>访客姓名：</text>
 				<text>{{rowData.xm}}</text>
 			</view>
 			<view class="permit_top_t">
@@ -17,7 +17,7 @@
 				<text>{{rowData.fwrq}}</text>
 			</view>
 			<view class="permit_top_t">
-				<text>预计离开时间：</text>
+				<text>离开时间：</text>
 				<text>{{rowData.lkrq}}</text>
 			</view>
 		</view>
@@ -68,12 +68,12 @@
 				rowData = JSON.parse(decodeURIComponent(option.rowData))
 				this.rowData = rowData
 			}
-			console.log("00000000",rowData)
+			console.log("00000000",this.rowData)
 			this.$nextTick(()=>{
 				if(option && option.code){
 					this.code = option.code
 					setTimeout(()=>{
-						this.make(option.code)						
+						this.make(this.rowData.qr_code?this.rowData.qr_code:option.code)						
 					},400)					
 				}
 			})
@@ -95,6 +95,7 @@
 		},
 		methods:{
 			make(code) {
+				console.log("code===",code)
 				let self = this
 				 if(code){
 					 uni.showLoading({

@@ -153,7 +153,7 @@ export default {
 			uni.navigateTo({
 				// url: '/pages/public/personInfo/personInfo?serviceName=srvzhxq_guest_mgmt_yezhu_add&type=house',
 				url:
-					'/pages/public/list/list?serviceName=srvzhxq_syrk_select&showRowButton=true&navigationBarTitle=房屋信息&showAdd=false&from=house&pageType=list&viewTemp={"title":"_fwbm_disp","tip":"fwyt","footer":"rylx"}&cond=[{"colName":"is_fuzeren","ruleType":"like","value":"是"},{"colName":"openid","ruleType":"like","value":"user_no"}]'
+					'/pages/public/list/list?serviceName=srvzhxq_syrk_select&showRowButton=true&navigationBarTitle=房屋信息&showAdd=false&from=house&pageType=list&viewTemp={"title":"_fwbm_disp","img":"zp","tip":"xm","gmsfzh":"rylx"}&cond=[{"colName":"is_fuzeren","ruleType":"like","value":"是"},{"colName":"openid","ruleType":"like","value":"user_no"}]'
 			});
 		},
 		async toFamily() {
@@ -188,7 +188,8 @@ export default {
 				let openidList = res.data.data.map(item => {
 					return item.openid;
 				});
-				openidList.filter(item => item && item);
+				openidList = openidList.filter(item => item && item);
+				
 				let relation_condition = {};
 				relation_condition = {
 					relation: 'OR',
@@ -222,7 +223,7 @@ export default {
 			if (uni.getStorageSync('infoObjArr').length > 0) {
 				let user = uni.getStorageSync('login_user_info').user_no;
 				let viewTemp = {
-					title: 'fwbm',
+					title: '_fwbm_disp',
 					tip: 'type',
 					img: 'pic',
 					footer: 'remark'
@@ -288,53 +289,82 @@ export default {
 		},
 		async toVisitor() {
 			if (uni.getStorageSync('infoObjArr').length > 0) {
-				const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
-				let user = uni.getStorageSync('login_user_info').user_no;
-				let req = {
-					serviceName: 'srvzhxq_syrk_select',
-					colNames: ['*'],
-					condition: [
-						{ colName: 'openid', ruleType: 'eq', value: user },
-						{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
-						{ colName: 'status', ruleType: 'eq', value: '有效' }
-						// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
-					]
+				let userArr = uni.getStorageSync('infoObjArr')
+				let strArr = userArr.map(item=>{
+					return item.fwbm
+				})
+				let cond = [
+					{
+						colName: 'fwbm',
+						ruleType: 'in',
+						value: strArr.toString()
+					},
+					{
+						colName:"bfr",
+						ruleType:"eq",
+						value:userArr[0].xm
+					},
+					{
+						colName: 'proc_status',
+						ruleType: 'eq',
+						value: '完成'
+					}
+				];
+				let viewTemp = {
+					title: 'xm',
+					tip: 'fwrq',
+					img: null,
+					footer: 'remark'
 				};
-				const res = await this.$http.post(url, req);
-				console.log('访客-----', res.data.data);
-				if (res.data.data.length > 0) {
-					let viewTemp = {
-						title: 'xm',
-						tip: 'fwrq',
-						img: null,
-						footer: 'remark'
-					};
-					let cond = [
-						{
-							colName: 'fwbm',
-							ruleType: 'eq',
-							value: res.data.data[0].fwbm
-						},
-						{
-							colName: 'proc_status',
-							ruleType: 'eq',
-							value: '完成'
-						}
-					];
-					let viewLeftTemp = {
-						tip: '访问日期',
-						footer: '访问事由'
-					};
-					uni.navigateTo({
-						url:
-							'/pages/public/list/list?serviceName=srvzhxq_guest_mgmt_select&navigationBarTitle=访客记录&pageType=list&type=skip&viewTemp=' +
-							decodeURIComponent(JSON.stringify(viewTemp)) +
-							'&cond=' +
-							decodeURIComponent(JSON.stringify(cond)) +
-							'&tempWord=' +
-							decodeURIComponent(JSON.stringify(viewLeftTemp))
-					});
-				}
+				let viewLeftTemp = {
+					tip: '访问日期',
+					footer: '访问事由'
+				};
+				uni.navigateTo({
+					url:
+						'/pages/public/list/list?serviceName=srvzhxq_guest_mgmt_select&navigationBarTitle=访客记录&pageType=list&type=skip&viewTemp=' +
+						decodeURIComponent(JSON.stringify(viewTemp)) +
+						'&cond=' +
+						decodeURIComponent(JSON.stringify(cond)) +
+						'&tempWord=' +
+						decodeURIComponent(JSON.stringify(viewLeftTemp))
+				});
+				
+				// const url = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
+				// let user = uni.getStorageSync('login_user_info').user_no;
+				// let req = {
+				// 	serviceName: 'srvzhxq_syrk_select',
+				// 	colNames: ['*'],
+				// 	condition: [
+				// 		{ colName: 'openid', ruleType: 'eq', value: user },
+				// 		{ colName: 'proc_status', ruleType: 'eq', value: '完成' },
+				// 		{ colName: 'status', ruleType: 'eq', value: '有效' }
+				// 		// { colName: 'is_fuzeren', ruleType: 'eq', value: '是' }
+				// 	]
+				// };
+				// const res = await this.$http.post(url, req);
+				// console.log('访客-----', res.data.data);
+				// if (res.data.data.length > 0) {
+				// 	let viewTemp = {
+				// 		title: 'xm',
+				// 		tip: 'fwrq',
+				// 		img: null,
+				// 		footer: 'remark'
+				// 	};
+				// 	let cond = [
+				// 		{
+				// 			colName: 'fwbm',
+				// 			ruleType: 'in',
+				// 			value: strArr.
+				// 		},
+				// 		{
+				// 			colName: 'proc_status',
+				// 			ruleType: 'eq',
+				// 			value: '完成'
+				// 		}
+				// 	];
+					
+				// }
 			} else {
 				uni.showToast({
 					title: '未进行住户登记',

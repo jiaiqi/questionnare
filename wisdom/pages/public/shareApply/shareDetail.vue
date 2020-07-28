@@ -798,7 +798,7 @@ export default {
 
 <style scoped lang="scss">
 .proc-wrap {
-  padding-bottom: 150upx;
+  padding-bottom: 100upx;
   position: relative;
   .current-tab {
     color: #0bc99d;
@@ -883,8 +883,8 @@ export default {
 }
 .detail-view {
   margin-top: 10upx;
-  padding-bottom: 150upx;
-  min-height: 100vh;
+  // padding-bottom: 150upx;
+  // min-height: 100vh;
   background-color: #fff;
   display: flex;
   flex-direction: column;
@@ -939,6 +939,7 @@ export default {
 	width: 100%;
 }
 .share_det_bot{
+	
 	width: 100%;
 	display: flex;
 	justify-content: center;
