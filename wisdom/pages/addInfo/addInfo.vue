@@ -190,6 +190,7 @@ export default {
 										];
 										self.defaultCondition = resData;
 										uni.setStorageSync('wxuserinfo', infoRes.userInfo);
+										self.getWxUserInfo(infoRes.userInfo);
 									}
 								});
 							}

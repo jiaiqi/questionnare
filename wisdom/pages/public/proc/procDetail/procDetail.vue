@@ -275,15 +275,19 @@ export default {
 						this.approvalFormCfg.forEach(item => {
 							item.value = '';
 						});
-						if (e.length > 0 && e[0].fields) {
-							e.forEach(item => {
-								item.fields.forEach(item2 => {
-									item2.value = '';
-								});
-							});
-						}
+						// if (e.length > 0 && e[0].fields) {
+						// 	e.forEach(item => {
+						// 		item.fields.forEach(item2 => {
+						// 			item2.value = '';
+						// 			if(this.activityData[item2.column]){
+						// 				item2.value =this.activityData[item2.column];
+						// 			}
+						// 		});
+						// 	});
+						// }
 					}
 					this.stepsCfgData = e;
+					debugger
 					this.$refs.approvalPopup.open();
 				}
 			});
@@ -515,12 +519,10 @@ export default {
 					let item = this.stepsCfgData[i];
 					if (item.formType) {
 						let serviceName = item[`${item.formType}_service`];
-
 						let itemData = self.$refs[ref][0].getFieldModel();
 						if (!itemData) {
 							itemData = this.activityData;
 						}
-						
 						let req = [
 							{
 								serviceName: serviceName,

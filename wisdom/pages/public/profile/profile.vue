@@ -188,7 +188,7 @@ export default {
 				let openidList = res.data.data.map(item => {
 					return item.openid;
 				});
-				openidList = openidList.filter(item => item && item);
+				openidList = openidList.filter(item => item&&item!=='a' && item);
 				
 				let relation_condition = {};
 				relation_condition = {
@@ -196,8 +196,8 @@ export default {
 					data: [{ colName: 'create_user', ruleType: 'eq', value: uni.getStorageSync('login_user_info').user_no }]
 				};
 
-				if (uni.getStorageSync('infoObj').person_no) {
-					relation_condition.data.push({ colName: 'person_no', ruleType: 'in', value: uni.getStorageSync('infoObj').person_no });
+				if (uni.getStorageSync('basics_info').person_no) {
+					relation_condition.data.push({ colName: 'person_no', ruleType: 'in', value: uni.getStorageSync('basics_info').person_no });
 				}
 				if (openidList.length > 0) {
 					relation_condition.data.push({ colName: 'openid', ruleType: 'in', value: openidList.toString() });
@@ -397,6 +397,7 @@ export default {
 					self.userInfo = res.userInfo;
 					uni.setStorageSync('wxuserinfo', res.userInfo);
 					uni.setStorageSync('isAuth', true);
+					self.getWxUserInfo(res.userInfo);
 				},
 				fail: function() {
 					uni.setStorageSync('isAuth', false);

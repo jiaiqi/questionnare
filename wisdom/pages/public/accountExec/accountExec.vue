@@ -254,19 +254,20 @@ export default {
 			let res = await this.onRequest(optionType, srv, req, app);
 			if (res.data.state === 'SUCCESS') {
 				let wxUser = res.data.data[0];
-				uni.setStorageSync('wxUserInfo', wxUser);
+				uni.setStorageSync('backWxUserInfo', wxUser);
+				uni.setStorageSync('wxuserinfo', wxUser);
 			}
 		},
 		saveWxUser() {
 			// 静默登录(验证登录)
 			let that = this;
 			// #ifdef MP-WEIXIN
- 			wx.getUserInfo({
+			wx.getUserInfo({
 				success: function(res) {
 					uni.setStorageSync('wxuserinfo', res.userInfo);
+					that.getWxUserInfo(res.userInfo);
 					uni.setStorageSync('isAuth', true);
 					if (uni.getStorageSync('isAuth') === true) {
-						uni.setStorageSync('wxuserinfo', res.userInfo);
 						uni.showModal({
 							title: '提示',
 							content: '授权成功，即将返回上一页面',
@@ -306,6 +307,7 @@ export default {
 							provider: 'weixin',
 							success: function(infoRes) {
 								uni.setStorageSync('wxuserinfo', infoRes.userInfo);
+								that.getWxUserInfo(infoRes.userInfo);
 								uni.showModal({
 									title: '提示',
 									content: '授权成功，即将返回上一页面',
@@ -328,7 +330,7 @@ export default {
 						console.log('获取用户信息失败失败', errMsg);
 						uni.setStorageSync('isAuth', false);
 						uni.setStorageSync('isToLogin', false);
-						console.log('toLoginPage')
+						console.log('toLoginPage');
 						that.toLoginPage();
 					}
 				});
@@ -404,7 +406,6 @@ export default {
 						if (resData.login_user_info && resData.login_user_info.data) {
 							uni.setStorageSync('visiter_user_info', resData.login_user_info.data[0]);
 							that.$store.commit('setVisitorInfo', resData.login_user_info.data[0]);
-							
 						}
 						uni.navigateBack({
 							delta: 1
@@ -426,6 +427,8 @@ export default {
 			wx.getUserInfo({
 				success: function(res) {
 					uni.setStorageSync('wxuserinfo', res.userInfo);
+					self.getWxUserInfo();
+					// self.setWxUserInfo(res.userInfo);
 					uni.setStorageSync('isAuth', true);
 					if (uni.getStorageSync('isAuth') === true) {
 						self.loginNavUrl(); // 登录成功回调
@@ -441,50 +444,8 @@ export default {
 						title: '请点击授权按钮进行授权',
 						icon: 'none'
 					});
-					//3.授权友好提示
-					// wx.showModal({
-					//   title: '提示',
-					//   content: '您还未授权登录,部分功能将不能使用,是否重新授权?',
-					//   showCancel: true,
-					//   cancelText: '不用了',
-					//   confirmText: '是',
-					//   success: function(res) {
-					//     //4.确认授权调用wx.openSetting
-					//     if (res.confirm) {
-					//       if (wx.openSetting) {
-					//         //当前微信的版本 ,是否支持openSetting
-					//         wx.openSetting({
-					//           success: res => {
-					//             if (res.authSetting['scope.userInfo']) {
-					//               //如果用户重新同意了授权登录
-					//               wx.getUserInfo({
-					//                 success: function(res) {
-					//                   uni.setStorageSync('wxuserinfo', res.userInfo);
-					//                   console.log(res);
-					//                   self.setWxUserInfo(res.userInfo);
-					//                 }
-					//               });
-					//             } else {
-					//               //用户还是拒绝
-					//               console.log(res);
-					//             }
-					//           },
-					//           fail: function() {
-					//             //调用失败，授权登录不成功
-					//           }
-					//         });
-					//       } else {
-					//         console.log(res);
-					//       }
-					//     } else {
-					//       console.log(res);
-					//     }
-					//   }
-					// });
 				}
 			});
-			// }
-			// });
 		},
 		async userLogined(e) {
 			console.log('srvuser_login', e);

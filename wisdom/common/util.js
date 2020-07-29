@@ -941,39 +941,69 @@ export default {
 				return e[0].response.effect_data[0]
 			}
 		}
-		Vue.prototype.setWxUserInfo = async function(e) {
-			let userInfo = null
-			// #ifdef H5
-			userInfo = JSON.parse(e)
-			// #endif
-
-			// #ifdef MP-WEIXIN
-			userInfo = e
-			// #endif
-			console.log("setWxUserInfo", userInfo)
-			let url = Vue.prototype.getServiceUrl('wx', 'srvwx_basic_user_info_save', 'operate')
-			let req = [{
-				"serviceName": "srvwx_basic_user_info_save",
-				"data": [{
-						"app_no": "APPNO20200107181133",
-						"nickname": userInfo.nickname,
-						"sex": userInfo.sex,
+		Vue.prototype.getWxUserInfo = async function(userInfo) {
+				//查找微信用户头像昵称
+				let optionType = 'select';
+				let srv = 'srvwx_basic_user_info_select';
+				let app = 'wx';
+				let req = {
+					serviceName: 'srvwx_basic_user_info_select',
+					colNames: ['*'],
+					condition: [{
+						colName: 'app_no',
+						ruleType: 'eq',
+						value: uni.getStorageSync('_appNo') ? uni.getStorageSync('_appNo') : Vue.prototype.$api.appNo.wxmp
+					}]
+				};
+				let res = await Vue.prototype.onRequest(optionType, srv, req, app);
+				debugger
+				if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
+					let wxUser = res.data.data[0];
+					uni.setStorageSync('backWxUserInfo', wxUser);
+					if (!wxUser.nickname) {
+						debugger
+						if (userInfo) {
+							Vue.prototype.setWxUserInfo(userInfo)
+						}
+					}
+				} else if (userInfo) {
+					Vue.prototype.setWxUserInfo(userInfo)
+				}
+			},
+			Vue.prototype.setWxUserInfo = async function(e) {
+				let userInfo = null
+				// #ifdef H5
+				userInfo = JSON.parse(e)
+				// #endif
+				// #ifdef MP-WEIXIN
+				userInfo = e
+				// #endif
+				console.log("setWxUserInfo", userInfo)
+				uni.setStorageSync('backWxUserInfo', userInfo);
+				let url = Vue.prototype.getServiceUrl('wx', 'srvwx_basic_user_info_save', 'operate')
+				let req = [{
+					"serviceName": "srvwx_basic_user_info_save",
+					"data": [{
+						"app_no": uni.getStorageSync('_appNo') ? uni.getStorageSync('_appNo') : Vue.prototype.$api.appNo.wxmp,
+						// "app_no": uni.getStorageSync('_appNo'),
+						"nickname": userInfo.nickName,
+						"sex": userInfo.gender,
 						"country": userInfo.country,
 						"province": userInfo.province,
 						"city": userInfo.city,
-						"headimgurl": userInfo.headimgurl
+						"headimgurl": userInfo.avatarUrl
+					}],
+				}]
+				if (e) {
+					debugger
+					let response = await this.$http.post(url, req);
+					debugger
+					console.log('setWxUserInfo', response);
+					if (response.data.state === 'SUCCESS' && response.data.data && response.data.data.length > 0) {
+						return response.data.data
 					}
-
-				],
-			}]
-			if (e) {
-				let response = await this.$http.post(url, req);
-				console.log('setWxUserInfo', response);
-				if (response.data.state === 'SUCCESS' && response.data.data && response.data.data.length > 0) {
-					return response.data.data
 				}
 			}
-		}
 		Vue.prototype.isInvalid = function(e) {
 			if (e === '' || e === null || e === undefined) {
 				return false
@@ -1380,6 +1410,7 @@ export default {
 								success: function(infoRes) {
 									uni.setStorageSync('isAuth', true);
 									uni.setStorageSync('wxuserinfo', infoRes.userInfo);
+									Vue.prototype.getWxUserInfo(infoRes.userInfo);
 								},
 								fail: errMsg => {
 									uni.setStorageSync('isAuth', false)
@@ -1407,6 +1438,7 @@ export default {
 								Vue.prototype.verifyLogin(res.code)
 								wx.getSetting({
 									success(res) {
+										// checkAuthorization
 										let isAuthUserInfo = res.authSetting['scope.userInfo']
 										let isAuth = uni.getStorageSync('isAuth')
 										let wxuserinfo = uni.getStorageSync('wxuserinfo')
@@ -1436,6 +1468,22 @@ export default {
 
 												}
 											})
+										} else if (isAuthUserInfo) {
+											wx.getUserInfo({
+												success: function(res) {
+													uni.setStorageSync('wxuserinfo', res.userInfo);
+													Vue.prototype.getWxUserInfo(res.userInfo);
+													// self.setWxUserInfo(res.userInfo);
+													uni.setStorageSync('isAuth', true);
+												},
+												fail: function() {
+													uni.setStorageSync('isAuth', false);
+													uni.showToast({
+														title: '未授权获取用户信息',
+														icon: 'none'
+													});
+												}
+											});
 										}
 									}
 								})
@@ -1515,6 +1563,7 @@ export default {
 								}
 							};
 							let res = await Vue.prototype.$http.post(url, req)
+							debugger
 							if (res.data.state === 'SUCCESS' && res.data.data.length === 0) {
 								// 基础信息表中不存在当前登录用户信息，跳转到填写基础信息表单
 								uni.showModal({

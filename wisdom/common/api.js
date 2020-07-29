@@ -3,9 +3,9 @@
 let remoteAddress = {
 	// ssourl: 'http://www.100xsys.cn', // 微信登陆sso 端口
 	// ssoAddress: 'http://sso.100xsys.cn',
-	serviceAddress: 'https://zhxq.100xsys.cn', // http://login.100xsys.cn 接口地址srvms.100xsys.cn
+	// serviceAddress: 'https://zhxq.100xsys.cn', // http://login.100xsys.cn 接口地址srvms.100xsys.cn
 	// serviceAddress: 'https://srvms.100xsys.cn', // http://login.100xsys.cn 接口地址srvms.100xsys.cn
-	// serviceAddress: 'https://qq.prochanges.cn:11443', // http://login.100xsys.cn 接口地址srvms.100xsys.cn
+	serviceAddress: 'https://qq.prochanges.cn:11443', // http://login.100xsys.cn 接口地址srvms.100xsys.cn
 	// frontEndAddress: 'https://wx2.100xsys.cn',
 	singleApp:true, // 是否单应用， true 时 所有请求均使用 appName 配置
 	appName:"zhxq", //singleApp 为 true 时 必须配置
@@ -24,17 +24,17 @@ let ENV = {
 	frontEndAddress: remoteAddress.frontEndAddress, //前端线上地址
 	appNo: {
 		// wxmp: 'APPNO20200706143751', //海纳小区小程序
-		// wxmp:'APPNO20200728153113', //海纳小程序外网
+		wxmp:'APPNO20200728153113', //海纳小程序外网
 		// wxmp: 'APPNO20200214122021', //百想助理小程序
-		wxmp:"APPNO20200727212730",// 百想智慧小区
+		// wxmp:"APPNO20200727212730",// 百想智慧小区
 		wxh5: 'APPNO20200107181133', //百想助理公众号
 	},
 	appID: {
-		// wxmp: 'wxce3602949765245f', //海纳小区小程序AppID
+		wxmp: 'wxce3602949765245f', //海纳小区小程序AppID
 		// wxmp: 'wx8e6f993081f6e979', //百想助理小程序
-		wxmp: 'wx93d6f482fb65baed', //百想智慧小区小程序
-		// secret:'f8576848439ead39690542a8fb0d6f7d',//派诚小程序的AppSecret
-		secret:'a916037e0c6b887dabcb43212646001e',//百想智慧小区小程序的AppSecret
+		// wxmp: 'wx93d6f482fb65baed', //百想智慧小区小程序
+		secret:'f8576848439ead39690542a8fb0d6f7d',//派诚小程序的AppSecret
+		// secret:'a916037e0c6b887dabcb43212646001e',//百想智慧小区小程序的AppSecret
 		wxh5: ''
 	},
 	isThirdParty:remoteAddress.isThirdParty,
